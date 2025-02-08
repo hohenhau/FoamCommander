@@ -49,16 +49,12 @@ addLayersControls
 
     layers
     {
-
-        vanesA {nSurfaceLayers 4;}
-        //"(vanesA|vanesB)" {nSurfaceLayers 1;}
-
-        walls 
+        walls
         {
                 nSurfaceLayers 1;
-                //Local parameters 
-                //expansionRatio 
-                //finalLayerThickness 0.3; 
+                //Local parameters
+                //expansionRatio
+                //finalLayerThickness 0.3;
                 //minThickness 0.1;
         }
     }
@@ -66,7 +62,7 @@ addLayersControls
     expansionRatio 1.20;        // Was 1.2   | Rate at which cell layers grow
     finalLayerThickness 0.75;   // Was 1     | Thickness of layer in relation to neighbour cell
     minThickness 1e-30;         // Was 0.001 | Minimum thickness of layer
-    nGrow 0;                    // Was 0     | Forces cells to grow away from the surface 
+    nGrow 0;                    // Was 0     | Forces cells to grow away from the surface
 
 
     // Advanced layer settings
