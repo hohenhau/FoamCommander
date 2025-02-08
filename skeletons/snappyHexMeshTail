@@ -1,22 +1,5 @@
-// Settings for the snapping.
-snapControls
-{
-    nSmoothPatch 3;
-    tolerance 4.0;
-    nSolveIter 30;
-    nRelaxIter 5;
-    nFeatureSnapIter 15; // default is 10
-    
-// New settings from openfoam 2.2 onwards for SHMesh
 
-implicitFeatureSnap false; // default is false - detects without doing surfaceFeatureExtract
-explicitFeatureSnap true; // default is true
-multiRegionFeatureSnap false; // deafault is false - detects features between multiple surfaces
-
-}
-
-
-    refinementRegions           // OPTIONAL: Specify additional regions to be refined
+    refinementRegions  // OPTIONAL: Specify additional regions to be refined
     {
         //exampleVolume {mode inside; levels ((1.0 2));}
         //exampleSurface {mode distance; levels ((0.2 2) (0.3 1));} //vane leading edge
