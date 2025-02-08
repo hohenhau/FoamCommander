@@ -11,10 +11,8 @@ FoamFile
     format      ascii;
     class       volScalarField;
     location    "0";
-    object      nut;
+    object      nut; // turbulent kinematic viscosity (k-ε, k-ω, LES, & Spalart-Allmaras)
 }
-
-// nu_t = turbulent kinematic viscosity (used in k-ε, k-ω, Spalart-Allmaras, and LES models)
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
