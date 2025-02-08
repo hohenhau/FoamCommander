@@ -3,6 +3,7 @@
 import os
 import re
 
+
 def detect_digit_counts(directory):
     """Detects the max number of leading and trailing digits in folder names."""
     number_pattern = re.compile(r'^\d+(\.\d+)?$')
@@ -21,6 +22,7 @@ def detect_digit_counts(directory):
 
     return leading_digits, trailing_digits
 
+
 def format_number(name, leading_digits, trailing_digits):
     """Formats a numeric folder name to have uniform leading/trailing digits."""
     if name == "0":
@@ -30,6 +32,7 @@ def format_number(name, leading_digits, trailing_digits):
     formatted_name = f"{num:0{leading_digits}.{trailing_digits}f}"
 
     return formatted_name
+
 
 def rename_numeric_folders(directory):
     """Renames numeric folders to a uniform format based on detected digit counts."""
@@ -52,7 +55,7 @@ def rename_numeric_folders(directory):
                 except Exception as e:
                     print(f"Error renaming {item}: {e}")
 
+
 if __name__ == "__main__":
     target_directory = os.getcwd()  # Use the directory where the script is run
     rename_numeric_folders(target_directory)
-
