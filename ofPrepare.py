@@ -30,6 +30,7 @@ def get_patch_type(input_name: str):
         'slip': 'slip',
         'atmosphere': 'inletOutlet',
         'cyclicAMI': 'cyclicAMI',
+        'CyclicAMI': 'cyclicAMI',
         'cyclic': 'cyclic'}
     for patch_name, patch_type in patch_mappings.items():
         if patch_name in input_name:
@@ -58,13 +59,15 @@ def build_zero_file(base_name: str, types: dict, values: dict):
     with open(output_path, 'w') as outfile, open(skeleton_head_path) as f:
         outfile.write(f.read())
 
-        # Write grouped patches.Note: "\u007b" and "\u007d" write curly brackets
+        # Write grouped patches using pipe separator
         for patch_type, patches in patch_groups.items():
-            patch_regex = f'("\u007b' | '.join(patches)\u007d")'  # Regex grouping in OpenFOAM format
-            outfile.write(f'    {patch_regex}\n    {{\n')
-            outfile.write(f'        type    {types.get(patch_type, "wall")};\n')
+            # Join patches with '|' and wrap in parentheses
+            patch_group = f'"{patches[0]}"' if len(patches) == 1 else f'"({"|".join(patches)})"'
+
+            outfile.write(f'    {patch_group}\n    {{\n')
+            outfile.write(f'        type            {types.get(patch_type, "wall")};\n')
             if patch_type in values:
-                outfile.write(f'        value   {values[patch_type]};\n')
+                outfile.write(f'        value           {values[patch_type]};\n')
             outfile.write('    }\n')
 
         outfile.write('}\n')
@@ -84,6 +87,8 @@ def process_stl_files():
     patches = list()
     for filename in stl_files:
         filepath = os.path.join(TRI_SURFACE_DIR, filename)
+        new_file_name = f'{filename.split(".")[0]}.{filename.split(".")[1].lower()}'
+        new_filepath = os.path.join(TRI_SURFACE_DIR, new_file_name)
         patch_name = re.split(r"\.", filename)[0]
         if get_patch_type(patch_name) != "screen" and patch_name not in patches:
             print(f"Match: {patch_name}")
@@ -94,13 +99,12 @@ def process_stl_files():
         # Process content
         content = re.sub(r'^solid.*$', f'solid {patch_name}', content, flags=re.MULTILINE)
         content = re.sub(r'^endsolid.*$', f'endsolid {patch_name}', content, flags=re.MULTILINE)
-        # Write back to file
-        with open(filepath.lower(), 'w') as file:
+        # Write back to file with lowercase name
+        with open(new_filepath, 'w') as file:
             file.write(content)
         # If the original file had a different case, remove it
-        if filepath != filepath.lower():
+        if filepath != new_filepath:
             os.remove(filepath)
-
     return patches
 
 
@@ -109,13 +113,16 @@ def create_surface_feature_extract_dict():
     output_path = os.path.join(SYSTEM_DIR, "surfaceFeatureExtractDict.x")
     skeleton_head_path = os.path.join(SKELETON_DIR, "surfaceFeatureExtractHead")
     skeleton_part_path = os.path.join(SKELETON_DIR, "surfaceFeatureExtractPart")
-    with open(output_path, 'w') as sfefile, open(skeleton_head_path) as f:
-        sfefile.write(f.read())
-    for patch in patch_names:
-        print(f"{patch}.stl")
-        sfefile.write(f"{patch}.stl\n")
-        with open(skeleton_part_path) as f:
+    with open(output_path, 'w') as sfefile:
+        # Write the header
+        with open(skeleton_head_path) as f:
             sfefile.write(f.read())
+        # Write each patch section
+        for patch in patch_names:
+            print(f"{patch}.stl")
+            sfefile.write(f"{patch}.stl\n")
+            with open(skeleton_part_path) as f:
+                sfefile.write(f.read())
 
 
 def create_snappy_hex_mesh_dict():
@@ -125,44 +132,43 @@ def create_snappy_hex_mesh_dict():
     skeleton_tail_path = os.path.join(SKELETON_DIR, "snappyHexMeshTail")
 
     # Write contents of skeleton header
-    with open(output_path, 'w') as shm_file, open(skeleton_head_path) as skeleton_head:
-        shm_file.write(skeleton_head.read())
+    with open(output_path, 'w') as shm_file, open(skeleton_head_path) as head, open(skeleton_tail_path) as tail:
+        shm_file.write(head.read())
 
-    # Write geometry list consisting of .stl files
-    for patch in patch_names:
-        shm_file.write(f'        {patch}.stl {{type triSurfaceMesh; name {patch};}}\n')
-    shm_file.write('        // refinementBox {type searchableBox; min (0.0 0.0 0.0); max (1.0 1.0 1.0);}\n')
-    shm_file.write('};\n\n')
-
-    # Write blocks for castellated mesh generation
-    shm_file.write('// Settings for castellatedMesh generation\n')
-    shm_file.write('// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n')
-    shm_file.write('castellatedMeshControls\n{\n')
-
-    # Write block for features
-    shm_file.write('        features  // OPTIONAL: Refinement of edges (default = {file "name.eMesh"; level 0;}\n')
-    shm_file.write('        (\n')
-    for patch in patch_names:
-        shm_file.write(f'            {{file "{patch}.eMesh"; level 3;}}\n')
-    shm_file.write('        );\n\n')
-
-    # Write block for refinement surfaces
-    shm_file.write('        refinementSurfaces  // MANDATORY: Definition and refinement of surfaces\n        {\n')
-    for patch in patch_names:
-        patch_type = get_patch_type(patch)
-        patch_type = 'patch' if patch_type in {'inlet', 'outlet', 'slip', 'cyclic'} else patch_type
-        shm_file.write(f'            {patch} {{level (0 0); patchInfo {{type {patch_type};}} }}\n')
-    # Write example layout of honeycomb
-    shm_file.write('            // honeycombA\n')
-    shm_file.write('            //    {level (4 4);\n')
-    shm_file.write('            //    faceZone honeycombFacesA;\n')
-    shm_file.write('            //    cellZone honeycombCellsA;\n')
-    shm_file.write('            //    cellZoneInside inside;}\n')
-    shm_file.write('        }\n\n')
-
-    # Write contents of skeleton tail
-    with open(skeleton_tail_path) as skeleton_tail:
-        shm_file.write(skeleton_tail.read())
+        # Write geometry list consisting of .stl files
+        for patch in patch_names:
+            shm_file.write(f'        {patch}.stl {{type triSurfaceMesh; name {patch};}}\n')
+        shm_file.write('        // refinementBox {type searchableBox; min (0.0 0.0 0.0); max (1.0 1.0 1.0);}\n')
+        shm_file.write('};\n\n')
+    
+        # Write blocks for castellated mesh generation
+        shm_file.write('// Settings for castellatedMesh generation\n')
+        shm_file.write('// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n')
+        shm_file.write('castellatedMeshControls\n{\n')
+    
+        # Write block for features
+        shm_file.write('        features  // OPTIONAL: Refinement of edges (default = {file "name.eMesh"; level 0;}\n')
+        shm_file.write('        (\n')
+        for patch in patch_names:
+            shm_file.write(f'            {{file "{patch}.eMesh"; level 3;}}\n')
+        shm_file.write('        );\n\n')
+    
+        # Write block for refinement surfaces
+        shm_file.write('        refinementSurfaces  // MANDATORY: Definition and refinement of surfaces\n        {\n')
+        for patch in patch_names:
+            patch_type = get_patch_type(patch)
+            patch_type = 'patch' if patch_type in {'inlet', 'outlet', 'slip', 'cyclic'} else patch_type
+            shm_file.write(f'            {patch} {{level (0 0); patchInfo {{type {patch_type};}} }}\n')
+        # Write example layout of honeycomb
+        shm_file.write('            // honeycombA\n')
+        shm_file.write('            //    {level (4 4);\n')
+        shm_file.write('            //    faceZone honeycombFacesA;\n')
+        shm_file.write('            //    cellZone honeycombCellsA;\n')
+        shm_file.write('            //    cellZoneInside inside;}\n')
+        shm_file.write('        }\n\n')
+    
+        # Write contents of skeleton tail
+        shm_file.write(tail.read())
 
 
 if __name__ == "__main__":
@@ -244,14 +250,14 @@ if __name__ == "__main__":
                      "wall": "fixedFluxPressure",
                      "inletOutlet": "totalPressure"}
     p_rghValueDict = {"inlet": "uniform 0", "outlet": "uniform 0", "wall": "uniform 0", "inletOutlet": "uniform 0"}
-    buildZeroFile("p_rgh", p_rghTypeDict, p_rghValueDict)
+    build_zero_file("p_rgh", p_rghTypeDict, p_rghValueDict)
 
     # Initial conditions for alpha.water (volumetric fraction of water) used in multiphase simulations
     # The new 0 file is in alpha.water.orig - when using in simulation make sure to copy over to new file "alpha.water"
-    # The "alpha.water" file is changed during simulations so the "alpha.water.orig" file is retained to run future sims.
+    # The "alpha.water" file is changed during simulations so the "alpha.water.orig" file is retained to run future sims
     alphawaterorigTypeDict = {"inlet": "fixedValue",
                               "outlet": "zeroGradient",
                               "wall": "zeroGradient",
                               "inletOutlet": "inletOutlet"}
     alphawaterorigValueDict = {"inlet": "uniform 1", "outlet": "uniform 0", "inletOutlet": "uniform 0"}
-    buildZeroFile("alphawaterorig", alphawaterorigTypeDict, alphawaterorigValueDict)
+    build_zero_file("alphawaterorig", alphawaterorigTypeDict, alphawaterorigValueDict)
