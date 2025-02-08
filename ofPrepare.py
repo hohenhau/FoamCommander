@@ -44,8 +44,11 @@ def build_zero_file(base_name: str, types: dict, values: dict):
     skeleton_head_path = os.path.join(SKELETON_DIR, f"{base_name}Head")
 
     # Ensure common patch types exist
-    types['symmetry'] = 'symmetry'
+    types['cyclic'] = 'cyclic'
+    types['cyclicAMI'] = 'cyclicAMI'
+    types['empty'] = 'empty'
     types['slip'] = 'slip'
+    types['symmetry'] = 'symmetry'
 
     # Group patches by type
     patch_groups = {}
@@ -255,9 +258,9 @@ if __name__ == "__main__":
     # Initial conditions for alpha.water (volumetric fraction of water) used in multiphase simulations
     # The new 0 file is in alpha.water.orig - when using in simulation make sure to copy over to new file "alpha.water"
     # The "alpha.water" file is changed during simulations so the "alpha.water.orig" file is retained to run future sims
-    alphawaterorigTypeDict = {"inlet": "fixedValue",
-                              "outlet": "zeroGradient",
-                              "wall": "zeroGradient",
-                              "inletOutlet": "inletOutlet"}
-    alphawaterorigValueDict = {"inlet": "uniform 1", "outlet": "uniform 0", "inletOutlet": "uniform 0"}
+    alpha_water_type_dict = {"inlet": "fixedValue",
+                             "outlet": "zeroGradient",
+                             "wall": "zeroGradient",
+                             "inletOutlet": "inletOutlet"}
+    alpha_water_value_dict = {"inlet": "uniform 1", "outlet": "uniform 0", "inletOutlet": "uniform 0"}
     build_zero_file("alphawaterorig", alphawaterorigTypeDict, alphawaterorigValueDict)
