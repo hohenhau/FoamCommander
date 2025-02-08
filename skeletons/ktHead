@@ -1,8 +1,8 @@
- /*--------------------------------*- C++ -*----------------------------------*\
+/*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:                                        |
-|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|  \\    /   O peration     | Version:  Generated with helper tools           |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 
@@ -13,10 +13,8 @@ FoamFile
     class       volScalarField;
     arch        "LSB;label=32;scalar=64";
     location    "0";
-    object      kt;
+    object      kt; // Turbulent Thermal Energy (for heat transfer modeling)
 }
-
-// kt = Turbulent Thermal Energy (used in Turbulent heat transfer modeling (HVAC, combustion))
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
