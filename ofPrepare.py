@@ -160,7 +160,7 @@ def create_snappy_hex_mesh_dict():
             patch_type = 'patch' if patch_type in {'inlet', 'outlet', 'slip', 'cyclic'} else patch_type
             shm_file.write(f'            {patch} {{level (0 0); patchInfo {{type {patch_type};}} }}\n')
         # Write example layout of honeycomb
-        shm_file.write('            // honeycombA\n')
+        shm_file.write('            // honeycombExample\n')
         shm_file.write('            //    {level (4 4);\n')
         shm_file.write('            //    faceZone honeycombFacesA;\n')
         shm_file.write('            //    cellZone honeycombCellsA;\n')
