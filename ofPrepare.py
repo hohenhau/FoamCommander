@@ -263,4 +263,4 @@ if __name__ == "__main__":
                              "wall": "zeroGradient",
                              "inletOutlet": "inletOutlet"}
     alpha_water_value_dict = {"inlet": "uniform 1", "outlet": "uniform 0", "inletOutlet": "uniform 0"}
-    build_zero_file("alphawaterorig", alphawaterorigTypeDict, alphawaterorigValueDict)
+    build_zero_file("alphawaterorig", alpha_water_type_dict, alpha_water_value_dict)
