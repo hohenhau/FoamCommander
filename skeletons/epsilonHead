@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:                                        |
+|  \\    /   O peration     | Version:  Generated with helper tools           |
 |   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -12,23 +12,22 @@ FoamFile
     format      ascii;
     class       volScalarField;
     location    "0";
-    object      epsilon;
+    object      epsilon; // rate of turbulent kinetic energy (for k-ε models)
 }
 
-/*
-EPSILON = Rate of dissipation of turbulent kinetic energy (used in k-ε models)
+/* How to estimate epsilon (ε)
 recalculate for each new case using:  e = Cu * ((k^(3/2)) / l)
 Cu = Turbulent Constant = 0.09
-k = Turbulent Kinetic Energ
+k = Turbulent Kinetic Energy
 l = Turbulent Length Scale and can be estimated using:  l = 0.038 * dh
-dh = pipe diameter
+dh = hydraulic pipe diameter
 */
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 dimensions      [0 2 -3 0 0 0 0];
 
-internalField   uniform 2.67;           // was 0.000765
+internalField   uniform 2.67;
 
 boundaryField
 {
