@@ -224,23 +224,20 @@ if __name__ == "__main__":
     ktValueDict = {"inlet": "uniform 0", "wall": "uniform 0"}
     build_zero_file("kt", ktTypeDict, ktValueDict)
 
-
-# Additional files required for multiphase simulations
-
-# Initial conditions for p_rgh (pressure considering gravity and buoyancy) used in multiphase simulations
-p_rghTypeDict = {"inlet": "fixedFluxPressure",
-                 "outlet": "fixedFluxPressure",
-                 "wall": "fixedFluxPressure",
-                 "inletOutlet": "totalPressure"}
-p_rghValueDict = {"inlet": "uniform 0", "outlet": "uniform 0", "wall": "uniform 0", "inletOutlet": "uniform 0"}
-buildZeroFile("p_rgh", p_rghTypeDict, p_rghValueDict)
-
-# Initial conditions for alpha.water (volumetric fraction of water) used in multiphase simulations
-# new 0 file is in alpha.water.orig - when using in simulation make sure to copy over to new file "alpha.water" 
-# alpha.water is changed during simulation and so the .orig file is retained to run future sims.
-alphawaterorigTypeDict = {"inlet": "fixedValue",
-                          "outlet": "zeroGradient",
-                          "wall": "zeroGradient",
-                          "inletOutlet": "inletOutlet"}
-alphawaterorigValueDict = {"inlet": "uniform 1", "outlet": "uniform 0", "inletOutlet": "uniform 0"}
-buildZeroFile("alphawaterorig", alphawaterorigTypeDict, alphawaterorigValueDict)
+    # Initial conditions for p_rgh (pressure considering gravity and buoyancy) used in multiphase simulations
+    p_rghTypeDict = {"inlet": "fixedFluxPressure",
+                     "outlet": "fixedFluxPressure",
+                     "wall": "fixedFluxPressure",
+                     "inletOutlet": "totalPressure"}
+    p_rghValueDict = {"inlet": "uniform 0", "outlet": "uniform 0", "wall": "uniform 0", "inletOutlet": "uniform 0"}
+    buildZeroFile("p_rgh", p_rghTypeDict, p_rghValueDict)
+    
+    # Initial conditions for alpha.water (volumetric fraction of water) used in multiphase simulations
+    # The new 0 file is in alpha.water.orig - when using in simulation make sure to copy over to new file "alpha.water" 
+    # The "alpha.water" file is changed during simulations so the "alpha.water.orig" file is retained to run future sims.
+    alphawaterorigTypeDict = {"inlet": "fixedValue",
+                              "outlet": "zeroGradient",
+                              "wall": "zeroGradient",
+                              "inletOutlet": "inletOutlet"}
+    alphawaterorigValueDict = {"inlet": "uniform 1", "outlet": "uniform 0", "inletOutlet": "uniform 0"}
+    buildZeroFile("alphawaterorig", alphawaterorigTypeDict, alphawaterorigValueDict)
