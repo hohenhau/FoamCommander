@@ -3,50 +3,58 @@ import re
 import os
 import sys
 
-min_x = float('+inf')
-min_y = float('+inf')
-min_z = float('+inf')
-max_x = float('-inf')
-max_y = float('-inf')
-max_z = float('-inf')
-file_count = 0
-vertex_count = 0
-py_file_path = os.path.dirname(os.path.realpath(__file__))
-args_len = len(sys.argv)
-file_names = []
-for i in range(1, args_len):
-	file_names.append(sys.argv[i])
+# Global variables to track min/max coordinates and vertex count
+MIN_X = float('+inf')
+MIN_Y = float('+inf')
+MIN_Z = float('+inf')
+MAX_X = float('-inf')
+MAX_Y = float('-inf')
+MAX_Z = float('-inf')
+VERTEX_COUNT = 0
 
 
-def set_coord(x, y, z):
-	global min_x, min_y, min_z, max_x, max_y, max_z
-	if x > max_x:
-		max_x = x
-	if x < min_x:
-		min_x = x
-	if y > max_y:
-		max_y = y
-	if y < min_y:
-		min_y = y
-	if z > max_z:
-		max_z = z
-	if z < min_z:
-		min_z = z
+def update_max_and_min(x: float, y: float, z: float):
+    """
+    Updates global min/max coordinates based on the given x, y, z values.
+    """
+    global MIN_X, MIN_Y, MIN_Z, MAX_X, MAX_Y, MAX_Z
+    MAX_X = max(x, MAX_X)
+    MAX_Y = max(y, MAX_Y)
+    MAX_Z = max(z, MAX_Z)
+    MIN_X = min(x, MIN_X)
+    MIN_Y = min(y, MIN_Y)
+    MIN_Z = min(z, MIN_Z)
 
 
-for filename in file_names:
-	with open(filename) as file:
-		file_count = file_count + 1
-		for line in file:
-			match = re.search(r"vertex ([0-9.e\-+]+) ([0-9.e\-+]+) ([0-9.e\-+]+)", line)
-			if match:
-				x_coord = float(match.group(1))
-				y_coord = float(match.group(2))
-				z_coord = float(match.group(3))
-				vertex_count = vertex_count + 1
-				#print "Vertex " + str(x_coord) + " " + str(y_coord) + " " + str(z_coord)
-				set_coord(x_coord, y_coord, z_coord)
-print(str(file_count) + " files with " + str(vertex_count) + " verticies")
-print("X: " + str(min_x) + " - " + str(max_x))
-print("Y: " + str(min_y) + " - " + str(max_y))
-print("Z: " + str(min_z) + " - " + str(max_z))
+def search_for_coordinates(text: str):
+    """
+    Searches for vertex coordinates in a of text and updates the min/max coordinate values
+    """
+    global VERTEX_COUNT
+    match = re.search(r'vertex ([0-9.e\-+]+) ([0-9.e\-+]+) ([0-9.e\-+]+)', text)
+    if match:
+        x_coord = float(match.group(1))
+        y_coord = float(match.group(2))
+        z_coord = float(match.group(3))
+        VERTEX_COUNT += 1
+        update_max_and_min(x_coord, y_coord, z_coord)
+
+
+if __name__ == "__main__":
+    py_file_path = os.path.dirname(os.path.realpath(__file__))
+    args_len = len(sys.argv)
+    file_names = [sys.argv[i] for i in range(1, args_len)]
+    file_count = 0
+
+    # Process each file provided as an argument
+    for filename in file_names:
+        with open(filename) as file:
+            file_count += 1
+            for line in file:
+                search_for_coordinates(line)
+
+    # Output results
+    print(f'{file_count} files with {VERTEX_COUNT} vertices')
+    print(f'X: {MIN_X} - {MAX_X}')
+    print(f'Y: {MIN_Y} - {MAX_Y}')
+    print(f'Z: {MIN_Z} - {MAX_Z}')
