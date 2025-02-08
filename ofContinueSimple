@@ -1,0 +1,4 @@
+#/bin/bash
+#pyFoamPlotRunner.py
+foamJob -append -parallel -screen simpleFoam
+

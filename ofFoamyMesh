@@ -1,0 +1,4 @@
+!#/bin/bash
+decomposePar
+foamJob -parallel -screen foamyHexMesh
+reconstructParMesh -constant > /dev/null

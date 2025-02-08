@@ -1,0 +1,6 @@
+!#/bin/bash
+rm -r processor* ??? ?0
+surfaceFeatureExtract
+decomposePar
+foamJob -parallel -screen snappyHexMesh -overwrite
+reconstructParMesh -constant > /dev/null

@@ -1,0 +1,6 @@
+#/bin/bash
+rm -r processor* ??? 
+decomposePar
+renumberMesh -overwrite -constant
+#pyFoamPlotRunner.py 
+foamJob -parallel -screen pimpleFoam

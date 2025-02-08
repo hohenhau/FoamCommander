@@ -1,0 +1,3 @@
+#/bin/bash
+#pyFoamPlotRunner.py 
+foamJob -parallel -screen interFoam

@@ -1,0 +1,7 @@
+{
+    extractionMethod extractFromSurface;  // Choose 'extractFromFile' or 'extractFromSurface'
+    extractFromSurfaceCoeffs
+    {includedAngle 150;}
+    writeObj yes;  // Write options
+}
+

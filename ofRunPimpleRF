@@ -1,0 +1,5 @@
+#/bin/bash
+rm -r processor* ??? ?0
+decomposePar
+#pyFoamPlotRunner.py 
+foamJob -parallel -rf rankfile -screen pimpleFoam

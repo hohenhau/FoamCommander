@@ -1,0 +1,7 @@
+#/bin/bash
+rm -r processor* ??? ?0
+#source /home/ian/OpenFOAM/OpenFOAM-v1712/etc/bashrc
+#decomposePar
+#pyFoamPlotRunner.py 
+source /home/ian/OpenFOAM/RapidCFD-dev/etc/bashrc
+foamJob -screen pimpleFoam
