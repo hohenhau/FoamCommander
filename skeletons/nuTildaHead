@@ -11,10 +11,8 @@ FoamFile
     version     2.0;
     format      ascii;
     class       volScalarField;
-    object      nuTilda;
+    object      nuTilda; // Turbulent kinematic viscosity (k-ω & Spalart-Allmaras)
 }
-
-// nu_tilda = Turbulent kinematic viscosity (used in k-ω and Spalart-Allmaras models)
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
