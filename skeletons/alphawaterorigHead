@@ -11,7 +11,7 @@ FoamFile
     version     2.0;
     format      ascii;
     class       volScalarField;
-    object      alpha.water;
+    object      alpha.water; // volume fraction of water in multiphase simulations
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
