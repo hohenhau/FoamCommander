@@ -11,10 +11,8 @@ FoamFile
     format      ascii;
     class       volScalarField;
     location    "0";
-    object      omega;
+    object      omega; // Specific turbulence dissipation rate (for k-ω models)
 }
-
-// ω = Specific turbulence dissipation rate (used in k-ω turbulence models)
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
