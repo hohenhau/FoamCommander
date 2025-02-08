@@ -16,7 +16,7 @@ SYSTEM_DIR = os.path.join(CURRENT_DIR, "system")
 os.makedirs(ZERO_DIR, exist_ok=True)
 
 
-def get_patch_type(input_name: str):
+def get_patch_type_for_meshing(input_name: str):
     """Determine the patch type based on keywords in the name."""
     patch_mappings = {
         'symmetry': 'symmetry',
@@ -30,10 +30,10 @@ def get_patch_type(input_name: str):
         'slip': 'slip',
         'atmosphere': 'inletOutlet',
         'cyclicAMI': 'cyclicAMI',
-        'CyclicAMI': 'cyclicAMI',
+        'porous': 'cyclic',
         'cyclic': 'cyclic'}
     for patch_name, patch_type in patch_mappings.items():
-        if patch_name in input_name:
+        if patch_name.lower() in input_name.lower():
             return patch_type
     return 'wall'
 
@@ -50,7 +50,7 @@ def build_zero_file(base_name: str, types: dict, values: dict):
     # Group patches by type
     patch_groups = {}
     for patch in patch_names:
-        patch_type = get_patch_type(patch)
+        patch_type = get_patch_type_for_meshing(patch)
         if patch_type not in patch_groups:
             patch_groups[patch_type] = []
         patch_groups[patch_type].append(patch)
@@ -90,7 +90,7 @@ def process_stl_files():
         new_file_name = f'{filename.split(".")[0]}.{filename.split(".")[1].lower()}'
         new_filepath = os.path.join(TRI_SURFACE_DIR, new_file_name)
         patch_name = re.split(r"\.", filename)[0]
-        if get_patch_type(patch_name) != "screen" and patch_name not in patches:
+        if get_patch_type_for_meshing(patch_name) != "screen" and patch_name not in patches:
             print(f"Match: {patch_name}")
             patches.append(patch_name)
         # Read entire file content
@@ -140,23 +140,23 @@ def create_snappy_hex_mesh_dict():
             shm_file.write(f'        {patch}.stl {{type triSurfaceMesh; name {patch};}}\n')
         shm_file.write('        // refinementBox {type searchableBox; min (0.0 0.0 0.0); max (1.0 1.0 1.0);}\n')
         shm_file.write('};\n\n')
-    
+
         # Write blocks for castellated mesh generation
         shm_file.write('// Settings for castellatedMesh generation\n')
         shm_file.write('// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n')
         shm_file.write('castellatedMeshControls\n{\n')
-    
+
         # Write block for features
         shm_file.write('        features  // OPTIONAL: Refinement of edges (default = {file "name.eMesh"; level 0;}\n')
         shm_file.write('        (\n')
         for patch in patch_names:
             shm_file.write(f'            {{file "{patch}.eMesh"; level 3;}}\n')
         shm_file.write('        );\n\n')
-    
+
         # Write block for refinement surfaces
         shm_file.write('        refinementSurfaces  // MANDATORY: Definition and refinement of surfaces\n        {\n')
         for patch in patch_names:
-            patch_type = get_patch_type(patch)
+            patch_type = get_patch_type_for_meshing(patch)
             patch_type = 'patch' if patch_type in {'inlet', 'outlet', 'slip', 'cyclic'} else patch_type
             shm_file.write(f'            {patch} {{level (0 0); patchInfo {{type {patch_type};}} }}\n')
         # Write example layout of honeycomb
@@ -166,7 +166,7 @@ def create_snappy_hex_mesh_dict():
         shm_file.write('            //    cellZone honeycombCellsA;\n')
         shm_file.write('            //    cellZoneInside inside;}\n')
         shm_file.write('        }\n\n')
-    
+
         # Write contents of skeleton tail
         shm_file.write(tail.read())
 
