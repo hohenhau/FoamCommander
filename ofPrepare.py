@@ -36,25 +36,36 @@ def get_patch_type(input_name: str):
 
 
 def build_zero_file(base_name: str, types: dict, values: dict):
-    """Creates a file in the zero directory with patch settings."""
+    """Creates a file in the zero directory with grouped patch settings."""
     output_path = os.path.join(ZERO_DIR, base_name)
     skeleton_head_path = os.path.join(SKELETON_DIR, f"{base_name}Head")
-
-    # Add slip and symmetry entries to type dictionary
+    
+    # Ensure common patch types exist
     types['symmetry'] = 'symmetry'
     types['slip'] = 'slip'
-
-    with open(output_path, 'w') as outfile, open(skeleton_head_path) as f:
-        outfile.write(f.read())
+    
+    # Group patches by type
+    patch_groups = {}
     for patch in patch_names:
         patch_type = get_patch_type(patch)
-        print(f"{patch}, {patch_type}")
-        outfile.write(f"    {patch}\n    {{\n")
-        outfile.write(f"        type    {types[patch_type]};\n")
-        if patch_type in values:
-            outfile.write(f"        value   {values[patch_type]};\n")
-        outfile.write("    }\n")
-    outfile.write("}\n")
+        if patch_type not in patch_groups:
+            patch_groups[patch_type] = []
+        patch_groups[patch_type].append(patch)
+    
+    # Write the header
+    with open(output_path, 'w') as outfile, open(skeleton_head_path) as f:
+        outfile.write(f.read())
+    
+        # Write grouped patches
+        for patch_type, patches in patch_groups.items():
+            patch_regex = f'("{'|'.join(patches)}")'  # Regex grouping in OpenFOAM format
+            outfile.write(f'    {patch_regex}\n    {{\n')
+            outfile.write(f'        type    {types.get(patch_type, "wall")};\n')
+            if patch_type in values:
+                outfile.write(f'        value   {values[patch_type]};\n')
+            outfile.write('    }\n')
+    
+        outfile.write('}\n')
 
 
 def process_stl_files():
