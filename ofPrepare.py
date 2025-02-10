@@ -112,7 +112,7 @@ def process_stl_files():
 
 
 def create_surface_features_extract_dict():
-    """Creates the surfaceFeatureExtractDict.gen file."""
+    """Creates the surfaceFeaturesDict.gen file."""
     output_path = os.path.join(SYSTEM_DIR, "surfaceFeatureExtractDict.gen")
     skeleton_head_path = os.path.join(SKELETON_DIR, "surfaceFeaturesHead")
     skeleton_tail_path = os.path.join(SKELETON_DIR, "surfaceFeaturesTail")
