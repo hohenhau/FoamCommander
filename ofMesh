@@ -31,5 +31,8 @@ renumberMesh -overwrite
 # Output is redirected to /dev/null to suppress terminal output
 reconstructParMesh -constant > /dev/null
 
+# Remove meshing directories
+rm -r processor*
+
 # Renumber the mesh to make it easier to handle in post-processing
 renumberMesh -overwrite
