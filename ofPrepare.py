@@ -181,7 +181,7 @@ if __name__ == "__main__":
     patch_names = process_stl_files()
 
     print("Creating surfaceFeatureExtractDict...")
-    create_surface_features_extract_dict()
+    create_surface_features_dict()
 
     print("Creating snappyHexMeshDict...")
     create_snappy_hex_mesh_dict()
