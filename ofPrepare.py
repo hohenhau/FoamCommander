@@ -114,18 +114,20 @@ def process_stl_files():
 def create_surface_feature_extract_dict():
     """Creates the surfaceFeatureExtractDict.gen file."""
     output_path = os.path.join(SYSTEM_DIR, "surfaceFeatureExtractDict.gen")
-    skeleton_head_path = os.path.join(SKELETON_DIR, "surfaceFeatureExtractHead")
-    skeleton_part_path = os.path.join(SKELETON_DIR, "surfaceFeatureExtractPart")
+    skeleton_head_path = os.path.join(SKELETON_DIR, "surfaceFeatureHead")
+    skeleton_tail_path = os.path.join(SKELETON_DIR, "surfaceFeatureTail")
     with open(output_path, 'w') as sfefile:
         # Write the header
-        with open(skeleton_head_path) as f:
-            sfefile.write(f.read())
-        # Write each patch section
+        with open(skeleton_head_path) as head:
+            sfefile.write(head.read())
+        # Write each patch
+        print('Detecting the surfaces and features of the following:')
         for patch in patch_names:
             print(f"{patch}.stl")
-            sfefile.write(f"{patch}.stl\n")
-            with open(skeleton_part_path) as f:
-                sfefile.write(f.read())
+            sfefile.write(f"    {patch}.obj\n")
+        # Write the tail
+        with open(skeleton_tail_path) as tail:
+            sfefile.write(tail.read())
 
 
 def create_snappy_hex_mesh_dict():
