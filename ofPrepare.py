@@ -124,7 +124,7 @@ def create_surface_features_dict():
         print('Detecting the surfaces and features of the following:')
         for patch in patch_names:
             print(f"{patch}.stl")
-            sfefile.write(f'    "{patch}.obj"\n')
+            sfefile.write(f'    "{patch}.stl"\n')
         # Write the tail
         with open(skeleton_tail_path) as tail:
             sfefile.write(tail.read())
