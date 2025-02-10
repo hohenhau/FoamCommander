@@ -7,7 +7,7 @@ rm -r processor* ???
 decomposePar
 
 # Renumber the mesh for better convergence (not usable with cyclics!)
-renumberMesh -overwrite -constant
+# renumberMesh -overwrite -constant
 
 # Monitor the run using pyFoam
 # pyFoamPlotRunner.py 
