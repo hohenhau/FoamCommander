@@ -31,8 +31,8 @@ snapControls
     nSmoothPatch 3;             // Was  3 | Patch smoothing iterations to find correspondence to surface
     tolerance 0.7;              // Was  2 | Relative distance for points to be attracted by surface feature
     nSolveIter 60;              // Was 30 | Number of mesh displacement relaxation iterations
-    nRelaxIter 30;              // Was  5 | Maximum number of snapping relaxation iterations
-    nFeatureSnapIter 20;        // Was 10 | Moprh iterations within main snapping to avoid sharp edges    // WARNING: too many nFeatureSnapIter can collapse boundary layers on patc>
+    nRelaxIter  5;              // Was  5 | Maximum number of snapping relaxation iterations
+    nFeatureSnapIter 10;        // Was 10 | Moprh iterations within main snapping to avoid sharp edges    // WARNING: too many nFeatureSnapIter can collapse boundary layers
 
     implicitFeatureSnap false;    // was false | detect features by sampling surface
     explicitFeatureSnap true;     // was true  | detect featured using castellatedMeshControls
@@ -65,26 +65,32 @@ addLayersControls
     nGrow 0;                    // Was 0     | Forces cells to grow away from the surface
 
 
-    // Advanced layer settings
-    // ~~~~~~~~~~~~~~~~~~~~~~~
+// Advanced layer settings
+// ~~~~~~~~~~~~~~~~~~~~~~~
 
-    featureAngle 170;           // was 60 | when not to extrude surface (0 = flat 90 = perpendicular faces
-    slipFeatureAngle 30;        // was 30 | Angle above which mesh is allowed to slip at non-patch sides
-    nRelaxIter 50;              // was  5 | Max. snapping relaxation iterations (good mesh shouldnt reach this)
-    nSmoothSurfaceNormals 2;    // was  1 | Smoothing iterations of surface normals
-    nSmoothNormals 8;           // was  3 | Smoothing iterations of interior mesh movement direction
-    nSmoothThickness 20;        // Was 10 | Smooth layer thickness over surface patches
+    // Static analysis of starting mesh
+    featureAngle 170;           // was 130 | when not to extrude surface (0 = flat 90 = perpendicular faces
+    maxFaceThicknessRatio 0.5;  // Was 0.5 | Stop layer growth on highly warped cells
 
-    maxFaceThicknessRatio 0.5;     // Was 0.5 | Stop layer growth on highly warped cells
-    maxThicknessToMedialRatio 0.3; // Was 0.3 | Reduce layer growth if ratio thickness to medial distance is large
+    // Patch displacement
+    nSmoothSurfaceNormals 2;    // was  1  | Smoothing iterations of surface normals
+    nSmoothThickness 20;        // Was 10  | Smooth layer thickness over surface patches
+
+    // Medial axis analysis
     minMedialAxisAngle 90;         // was  90 | Angle used to pick up medial axis points
-    nBufferCellsNoExtrude 0;       // Was   0 | Create buffer region for new layer terminations
-    layerTerminationAngle -180;    // When to attempt extruding at sharp edges (-180 = always)
+    maxThicknessToMedialRatio 0.3; // Was 0.3 | Reduce layer growth if ratio thickness to medial distance is large
+    nSmoothNormals 8;              // was  3  | Smoothing iterations of interior mesh movement direction
 
-    nBufferCellsNoExtrude 0;    // Create buffer region for new layer terminations
-    nLayerIter 60;              // Overall max number of layer addition iterations
+    // Mesh shrinking
+    slipFeatureAngle 30;        // was 30 | Angle above which mesh is allowed to slip at non-patch sides
+    nRelaxIter 10;              // was  5 | Max. snapping relaxation iterations (good mesh shouldnt reach this)
+    nBufferCellsNoExtrude 0;    // Was  0 | Create buffer region for new layer terminations
+    nLayerIter 60;              // was 50 | Overall max number of layer addition iterations
+    nRelaxedIter 30;            // was 20 | number of iterations before relaxed settings are used
+    nSmoothThickness 20;        // Was 10 | Smooth layer thickness over surface patches
+    layerTerminationAngle -180; // When to attempt extruding at sharp edges (-180 = always)
+    nBufferCellsNoExtrude 0;    // Create buffer region for new layer terminations (below 0 = terminate layer in one go)
 
-    nRelaxedIter 30;            // number of iterations before relaxed settings are used
 }
 
 
@@ -93,13 +99,13 @@ addLayersControls
 
 meshQualityControls
 {
-    maxNonOrtho 65;             // was 65
+    maxNonOrtho 75;             // was 75 | Maximum non-orthogonality allowed. Set to 180 to disable.
     maxBoundarySkewness 20;     // was 20
     maxInternalSkewness 4;      // was 4
     maxConcave 80;              // was 80
     minVol 1e-15;               // was 1e-13
     minTetQuality 1e-15;        // was 1e-15 | (large negative for best layer insertion)
-    //minVolCollapseRatio   0.5;  // was 0.5 | if <0: delete always, else keep cells with higher ratio
+      minVolCollapseRatio   0.5;  // was 0.5 | if <0: delete always, else keep cells with higher ratio
     minArea 1e-11;               // was 2e-8 | Minimum face area. <0 disables ASTAR = -1
     minTwist 0.05;              // minimum face twist. <-1 disables
     minDeterminant 0.001;       // was 0.001 | Minimum normalised cell determinant. 1 = hex, <= 0 is illegal cell
@@ -125,10 +131,8 @@ meshQualityControls
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 debug 0;
-
-// Merge tolerance. Is fraction of overall bounding box of initial mesh.
 // Note: the write tolerance needs to be higher than this.
-mergeTolerance 1E-6;
+mergeTolerance 1E-6; // Merge tolerance as a fraction of overall bounding box of initial mesh
 
 
 // ************************************************************************* //
