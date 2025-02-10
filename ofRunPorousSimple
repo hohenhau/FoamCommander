@@ -1,4 +1,13 @@
-#/bin/bash
-rm -r processor* ??? ?0
+#!/bin/bash
+
+# Remove all processor directories (from a previous parallel run)
+rm -r processor* ???
+
+# Decompose the domain for parallel computing
 decomposePar
-pyFoamPlotRunner.py foamJob -parallel -screen porousSimpleFoam
+
+# Monitor the run using pyFoam
+# pyFoamPlotRunner.py 
+
+# Run the simulation in parallel and display output on the screen
+foamJob -parallel -screen porousSimpleFoam
