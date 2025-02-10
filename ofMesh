@@ -1,9 +1,26 @@
-!#/bin/bash
-rm -r processor* ??? ?0
-blockMesh
-surfaceFeatureExtract
-decomposePar
-renumberMesh -overwrite
-foamJob -log=log_mesh -parallel -screen snappyHexMesh -overwrite
-reconstructParMesh -constant > /dev/null
+#!/bin/bash  # Shebang specifiying the script should run in Bash
 
+# Remove previous processor directories (from parallel runs)
+rm -r processor* ??? ?0  
+
+# Generate the background computational mesh from blockMeshDict
+blockMesh  
+
+# Extract feature edges from the surface geometry for better meshing
+surfaceFeatureExtract  
+
+# Decompose the domain for parallel execution based on decomposeParDict
+decomposePar  
+
+# Renumber the mesh to help with the load balancing of the meshing
+renumberMesh -overwrite  
+
+# Run snappyHexMesh in parallel, logging the output to 'log_mesh'
+foamJob -log=log_mesh -parallel -screen snappyHexMesh -overwrite  
+
+# Renumber the mesh to improve the performance after refinement
+renumberMesh -overwrite 
+
+# Reconstruct the decomposed mesh back into a single mesh (useful for post-processing)
+# Output is redirected to /dev/null to suppress terminal output
+reconstructParMesh -constant > /dev/null  
