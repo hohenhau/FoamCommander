@@ -19,7 +19,7 @@ decomposePar
 renumberMesh -overwrite
 
 # Run snappyHexMesh in parallel, logging the output to 'log_mesh'
-foamJob -log=log_mesh -parallel -screen snappyHexMesh -overwrite
+runParallel snappyHexMesh -parallel | tee log_mesh
 
 # Renumber the mesh to improve the performance after refinement
 renumberMesh -overwrite
