@@ -59,20 +59,18 @@ def build_zero_file(base_name: str, types: dict, values: dict):
         patch_groups[patch_type].append(patch)
 
     # Write the header
-    with open(output_path, 'w') as outfile, open(skeleton_head_path) as f:
-        outfile.write(f.read())
-
+    with open(output_path, 'w') as outfile, open(skeleton_head_path) as head:
+        outfile.write(head.read())
         # Write grouped patches using pipe separator
         for patch_type, patches in patch_groups.items():
             # Join patches with '|' and wrap in parentheses
             patch_group = f'"{patches[0]}"' if len(patches) == 1 else f'"({"|".join(patches)})"'
-
             outfile.write(f'    {patch_group}\n    {{\n')
             outfile.write(f'        type            {types.get(patch_type, "wall")};\n')
             if patch_type in values:
                 outfile.write(f'        value           {values[patch_type]};\n')
-            outfile.write('    }\n')
-
+        outfile.write('    "(minX|maxX|minY|maxY|minZ|maxZ|)"\n')
+        outfile.write('    {\n        type            empty;\n    }')
         outfile.write('}\n')
 
 
