@@ -71,7 +71,7 @@ def build_zero_file(base_name: str, types: dict, values: dict):
                 outfile.write(f'        value           {values[patch_type]};\n')
             outfile.write('    }\n')
         outfile.write('    "(minX|maxX|minY|maxY|minZ|maxZ)"\n')
-        outfile.write('    {\n        type            empty;\n    }\n')
+        outfile.write('    {\n        type            zeroGradient;\n    }\n')
         outfile.write('}\n')
 
 
