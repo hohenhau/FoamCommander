@@ -1,4 +1,7 @@
 #/bin/bash
-# pyFoamPlotRunner.py 
-foamJob -append -parallel -screen porousSimpleFoam
 
+# Monitor the run using pyFoam
+# pyFoamPlotRunner.py 
+
+# Continue the simulation in parallel & display output on the screen
+foamJob -append -parallel -screen porousSimpleFoam
