@@ -70,7 +70,7 @@ def build_zero_file(base_name: str, types: dict, values: dict):
             if patch_type in values:
                 outfile.write(f'        value           {values[patch_type]};\n')
             outfile.write('    }\n')
-        outfile.write('    "(minX|maxX|minY|maxY|minZ|maxZ|)"\n')
+        outfile.write('    "(minX|maxX|minY|maxY|minZ|maxZ)"\n')
         outfile.write('    {\n        type            empty;\n    }\n')
         outfile.write('}\n')
 
