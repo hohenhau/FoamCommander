@@ -1,4 +1,4 @@
-#!/bin/bash  # Shebang specifiying the script should run in Bash
+#!/bin/bash
 
 # Remove previous processor directories (from parallel runs)
 rm -r processor* ??? ?0  
