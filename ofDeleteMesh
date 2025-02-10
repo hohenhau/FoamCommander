@@ -1,0 +1,6 @@
+#/bin/bash
+
+# Delete mesh related files
+rm -r constant/extendedFeatureEdgeMesh
+rm -r constant/polyMesh
+rm constant/triSurface/*.eMesh
