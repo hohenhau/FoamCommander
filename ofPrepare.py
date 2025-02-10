@@ -111,7 +111,7 @@ def process_stl_files():
     return patches
 
 
-def create_surface_features_extract_dict():
+def create_surface_features_dict():
     """Creates the surfaceFeaturesDict.gen file."""
     output_path = os.path.join(SYSTEM_DIR, "surfaceFeaturesDict.gen")
     skeleton_head_path = os.path.join(SKELETON_DIR, "surfaceFeaturesHead")
@@ -124,7 +124,7 @@ def create_surface_features_extract_dict():
         print('Detecting the surfaces and features of the following:')
         for patch in patch_names:
             print(f"{patch}.stl")
-            sfefile.write(f"    {patch}.obj\n")
+            sfefile.write(f'"    {patch}.obj"\n')
         # Write the tail
         with open(skeleton_tail_path) as tail:
             sfefile.write(tail.read())
