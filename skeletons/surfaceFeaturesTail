@@ -1,0 +1,12 @@
+);
+
+// Identify a feature when angle between faces < includedAngle
+includedAngle 150;
+
+trimFeatures
+{
+    // Remove features with fewer than the specified number of edges
+    minElem 0;
+}
+
+// ************************************************************************* //
