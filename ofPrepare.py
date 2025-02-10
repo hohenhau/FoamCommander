@@ -65,12 +65,13 @@ def build_zero_file(base_name: str, types: dict, values: dict):
         for patch_type, patches in patch_groups.items():
             # Join patches with '|' and wrap in parentheses
             patch_group = f'"{patches[0]}"' if len(patches) == 1 else f'"({"|".join(patches)})"'
-            outfile.write(f'    {patch_group}\n    {{\n')
+            outfile.write(f'    {patch_group}\n    {\n')
             outfile.write(f'        type            {types.get(patch_type, "wall")};\n')
             if patch_type in values:
                 outfile.write(f'        value           {values[patch_type]};\n')
+            outfile.write('    }\n')
         outfile.write('    "(minX|maxX|minY|maxY|minZ|maxZ|)"\n')
-        outfile.write('    {\n        type            empty;\n    }')
+        outfile.write('    {\n        type            empty;\n    }\n')
         outfile.write('}\n')
 
 
