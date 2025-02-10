@@ -22,7 +22,7 @@ renumberMesh -overwrite
 NPROCS=$(foamDictionary -entry numberOfSubdomains -value system/decomposeParDict)
 
 # Run snappyHexMesh in parallel, logging the output to 'log_mesh'
-mpirun -np $NPROCS snappyHexMesh -parallel | tee log_mesh
+mpirun -np $NPROCS snappyHexMesh -parallel 2>&1 | tee log_mesh
 
 # Renumber the mesh to improve the performance after refinement
 renumberMesh -overwrite
