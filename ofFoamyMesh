@@ -1,4 +1,23 @@
-!#/bin/bash
+#!/bin/bash
+
+# Remove previous processor directories (from parallel runs)
+rm -r processor* ??? ?0  
+
+# Extract feature edges from the surface geometry for better meshing
+surfaceFeatureExtract  
+
+# Decompose the domain for parallel execution based on decomposeParDict
 decomposePar
-foamJob -parallel -screen foamyHexMesh
-reconstructParMesh -constant > /dev/null
+
+# Renumber the mesh to help with the load balancing of the meshing
+renumberMesh -overwrite
+
+# Run snappyHexMesh parallely on multiple machines
+foamJob -log=log_mesh -parallel -screen foamyHexMesh -overwrite
+
+# Renumber the mesh to improve the performance after refinement
+renumberMesh -overwrite 
+
+# Reconstruct the decomposed mesh back into a single mesh (useful for post-processing)
+# Output is redirected to /dev/null to suppress terminal output
+reconstructParMesh -constant > /dev/null 
