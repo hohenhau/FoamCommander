@@ -10,7 +10,7 @@ blockMesh
 rm -r dynamicCode
 
 # Extract feature edges from the surface geometry for better meshing
-surfaceFeatureExtract  
+surfaceFeatures  
 
 # Decompose the domain for parallel execution based on decomposeParDict
 decomposePar  
