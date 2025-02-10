@@ -112,8 +112,8 @@ def process_stl_files():
 
 
 def create_surface_feature_extract_dict():
-    """Creates the surfaceFeatureExtractDict file."""
-    output_path = os.path.join(SYSTEM_DIR, "surfaceFeatureExtractDict.x")
+    """Creates the surfaceFeatureExtractDict.gen file."""
+    output_path = os.path.join(SYSTEM_DIR, "surfaceFeatureExtractDict.gen")
     skeleton_head_path = os.path.join(SKELETON_DIR, "surfaceFeatureExtractHead")
     skeleton_part_path = os.path.join(SKELETON_DIR, "surfaceFeatureExtractPart")
     with open(output_path, 'w') as sfefile:
@@ -129,8 +129,8 @@ def create_surface_feature_extract_dict():
 
 
 def create_snappy_hex_mesh_dict():
-    """Creates the snappyHexMeshDict.x file."""
-    output_path = os.path.join(SYSTEM_DIR, "snappyHexMeshDict.x")
+    """Creates the snappyHexMeshDict.gen file."""
+    output_path = os.path.join(SYSTEM_DIR, "snappyHexMeshDict.gen")
     skeleton_head_path = os.path.join(SKELETON_DIR, "snappyHexMeshHead")
     skeleton_tail_path = os.path.join(SKELETON_DIR, "snappyHexMeshTail")
 
