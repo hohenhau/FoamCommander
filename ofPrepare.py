@@ -142,7 +142,7 @@ def create_snappy_hex_mesh_dict():
 
         # Write geometry list consisting of .stl files
         for patch in patch_names:
-            shm_file.write(f'        {patch}.stl {{type triSurfaceMesh; name {patch};}}\n')
+            shm_file.write(f'        {patch}.stl {{type triSurfaceMesh; name {patch}; file "{patch}.stl"}}\n')
         shm_file.write('        // refinementBox {type searchableBox; min (0.0 0.0 0.0); max (1.0 1.0 1.0);}\n')
         shm_file.write('};\n\n')
 
