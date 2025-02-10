@@ -1,6 +1,17 @@
-#/bin/bash
-rm -r processor* ??? 
+#!/bin/bash
+
+# Remove all processor directories (from a previous parallel run)
+rm -r processor* ???
+
+# Decompose the domain for parallel computing
 decomposePar
+
+# Renumber the mesh for better convergence
 renumberMesh -overwrite -constant
-#pyFoamPlotRunner.py 
+
+# Monitor the run using pyFoam
+# pyFoamPlotRunner.py 
+
+# Run the simulation in parallel and display output on the screen
 foamJob -parallel -screen pimpleFoam
+
