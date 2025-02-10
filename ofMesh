@@ -16,7 +16,7 @@ surfaceFeatures
 decomposePar
 
 # Renumber the mesh to help with the load balancing of the meshing
-renumberMesh -overwrite
+renumberMesh -noZero -overwrite
 
 # Grab the number of processors from the "decomposeParDict" file
 NPROCS=$(foamDictionary -entry numberOfSubdomains -value system/decomposeParDict)
@@ -25,7 +25,7 @@ NPROCS=$(foamDictionary -entry numberOfSubdomains -value system/decomposeParDict
 mpirun -np $NPROCS snappyHexMesh -parallel -overwrite 2>&1 | tee log_mesh
 
 # Renumber the mesh to improve the performance after refinement
-renumberMesh -overwrite
+renumberMesh -noZero -overwrite
 
 # Reconstruct the decomposed mesh back into a single mesh (useful for post-processing)
 # Output is redirected to /dev/null to suppress terminal output
@@ -35,4 +35,4 @@ reconstructParMesh -constant > /dev/null
 rm -r processor*
 
 # Renumber the mesh to make it easier to handle in post-processing
-renumberMesh -overwrite
+renumberMesh -noZero -overwrite
