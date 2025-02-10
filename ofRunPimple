@@ -6,7 +6,7 @@ rm -r processor* ???
 # Decompose the domain for parallel computing
 decomposePar
 
-# Renumber the mesh for better convergence
+# Renumber the mesh for better convergence (not usable with cyclics!)
 renumberMesh -overwrite -constant
 
 # Monitor the run using pyFoam
