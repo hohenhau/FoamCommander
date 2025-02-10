@@ -23,4 +23,7 @@ renumberMesh -overwrite
 
 # Reconstruct the decomposed mesh back into a single mesh (useful for post-processing)
 # Output is redirected to /dev/null to suppress terminal output
-reconstructParMesh -constant > /dev/null  
+reconstructParMesh -constant > /dev/null
+
+# Renumber the mesh to make it easier to handle in post-processing
+renumberMesh -overwrite
