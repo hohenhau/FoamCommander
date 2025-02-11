@@ -15,21 +15,18 @@ def is_numeric(string):
         return False
 
 def update_dimensions(file_path):
-    # Read the file and find the line to replace
-    with open(file_path, 'r', encoding='utf-8') as file:
+    # Read the file and handle encoding errors
+    with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
         lines = file.readlines()
 
     # Find the line containing "dimensions"
     for i, line in enumerate(lines):
-        try:
-            if 'dimensions' in line:
-                lines[i] = 'dimensions      [0 0 0 0 0 0 0];\n'
-                break
-        except UnicodeDecodeError:
-            continue  # Skip lines that can't be decoded
+        if 'dimensions' in line:
+            lines[i] = 'dimensions      [0 0 0 0 0 0 0];\n'
+            break
 
     # Write the modified content back to the file
-    with open(file_path, 'w', encoding='utf-8') as file:
+    with open(file_path, 'w', encoding='utf-8', errors='ignore') as file:
         file.writelines(lines)
 
 
