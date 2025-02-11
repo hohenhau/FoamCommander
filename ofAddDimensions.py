@@ -35,16 +35,14 @@ def main():
     base_dir = os.getcwd()
     time_steps = [i for i in os.listdir(base_dir) if is_numeric(i)]
     print("Time steps found:", time_steps)
-
+    relevant_files = list()
     for time_step in time_steps:
-        target_directory = os.path.join(base_dir, time_step)
-        if not os.path.isdir(target_directory):  # Ensure it's a directory
-            continue
-
+        time_dir = os.path.join(base_dir, time_step)
         for field in fields:
-            target_files = [i for i in os.listdir(target_directory)
-                            if os.path.isfile(os.path.join(target_directory, i)) and field in i]
-            print(f"Files found in {target_directory} for field '{field}': {target_files}")
+            time_files = [i for i in os.listdir(time_dir)]
+            relevant_files += [i for i in time_files if os.path.isfile(i) and field in i]
+    for files in relevant_files:
+        print(files)
         
         # item_path = os.path.join(current_dir, item)
         # if os.path.isdir(item_path) and is_numeric(item):
