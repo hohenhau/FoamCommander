@@ -12,7 +12,7 @@ TRI_SURFACE_DIR = os.path.join(CURRENT_DIR, "constant", "triSurface")
 
 
 def generate_system_dicts():
-    dict_names = ['blockMeshDict', 'controlDict']
+    dict_names = ['blockMeshDict', 'controlDict', 'decomposeParDict']
 
     for dict_name in dict_names:
         skeleton_path = os.path.join(SKELETON_SYSTEM_DIR, dict_name)
