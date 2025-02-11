@@ -1,5 +1,7 @@
 #!/usr/bin/python
+
 """Updates the 'dimensions' field from [] to [0 0 0 0 0 0 0] for ParaView compatibility"""
+
 import os
 import struct
 import numpy as np
