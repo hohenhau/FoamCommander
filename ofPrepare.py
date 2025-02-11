@@ -245,8 +245,8 @@ if __name__ == "__main__":
     build_zero_file("p_rgh", p_rgh_boundary_types, p_rgh_boundary_values)
 
     # Initial conditions for alpha.water (volumetric fraction of water) used in multiphase simulations
-    # The new 0 file is in alpha.water.gen - when using in simulation make sure to copy over to new file "alpha.water"
-    # The "alpha.water" file is changed during simulations so the "alpha.water.gen" file is retained to run future sims
+    # The new 0 file is in alpha.watergen - when using in simulation make sure to copy over to new file "alpha.water"
+    # The "alpha.water" file is changed during simulations so the "alpha.watergen" file is retained to run future sims
     alpha_water_type_dict = {"inletOutlet": "inletOutlet"}
     alpha_water_value_dict = {"inlet": "uniform 1", "outlet": "uniform 0", "inletOutlet": "uniform 0"}
     build_zero_file("alphawatergen", alpha_water_type_dict, alpha_water_value_dict)
