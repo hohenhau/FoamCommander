@@ -16,7 +16,8 @@ def is_numeric(string):
 
 def update_dimensions(file_path):
     with open(file_path, 'rb') as file:
-        print(file)
+        for line in file:
+            print(file)
     # try:
     #     with open(file_path, 'rb') as file:
     #         lines = []
