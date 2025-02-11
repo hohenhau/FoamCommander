@@ -48,7 +48,7 @@ def obtain_paths_of_relevant_files(desired_fields: set):
         print(f'Processing directory {time_dir}')
         fields = set([i for i in os.listdir(time_dir)])
         for desired_field in desired_fields:
-            if desired_field.lower() == fields.lower():
+            if desired_field in fields:
                 relevant_paths.append(str(os.path.join(time_dir, desired_field)))
     return relevant_paths
 
