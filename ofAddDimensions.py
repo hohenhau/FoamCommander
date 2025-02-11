@@ -31,17 +31,19 @@ def update_dimensions(file_path):
         print(f"An error occurred while processing {file_path}: {e}")
 
 def main():
-    target_files = {'yPlus', 'Co'}
-    current_dir = '.'
-
-    for item in os.listdir(current_dir):
-        item_path = os.path.join(current_dir, item)
-        if os.path.isdir(item_path) and is_numeric(item):
-            for root, _, files in os.walk(item_path):
-                for file_name in files:
-                    if file_name in target_files:
-                        file_path = os.path.join(root, file_name)
-                        update_dimensions(file_path)
+    fields = {'yPlus', 'Co'}
+    current_dir = os.getcwd()
+    directories = [i for i in os.listdir(current_dir) if is_numeric(i)]
+    for directory in directories:
+        target_files = [i for i in os.listdir(directory) if os.path.isfile(i)]
+        print(target_files)
+        # item_path = os.path.join(current_dir, item)
+        # if os.path.isdir(item_path) and is_numeric(item):
+        #     for root, _, files in os.walk(item_path):
+        #         for file_name in files:
+        #             if file_name in fields:
+        #                 file_path = os.path.join(root, file_name)
+        #                 update_dimensions(file_path)
 
 if __name__ == '__main__':
     main()
