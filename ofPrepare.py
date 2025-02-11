@@ -116,7 +116,7 @@ def process_stl_files():
 
 def create_surface_features_dict():
     """Creates the surfaceFeaturesDict.gen file."""
-    print("Creating surfaceFeatureExtractDict.gen...")
+    print("Creating surfaceFeaturesDict.gen...")
     output_path = os.path.join(SYSTEM_DIR, "surfaceFeaturesDict.gen")
     skeleton_head_path = os.path.join(SKELETON_SYSTEM_DIR, "surfaceFeaturesHead")
     skeleton_tail_path = os.path.join(SKELETON_SYSTEM_DIR, "surfaceFeaturesTail")
