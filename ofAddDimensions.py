@@ -41,7 +41,7 @@ def update_dimensions(file_path: str):
 def obtain_paths_of_relevant_files(desired_fields: set):
     """Obtains the paths of files that contain one of the specified desired fields"""
     base_dir = os.getcwd()
-    time_steps = [i for i in os.listdir(base_dir) if is_numeric(i)]
+    time_steps = [i for i in os.listdir(base_dir) if is_numeric(i) or 'processor' in i]
     relevant_paths = list()
     for time_step in time_steps:
         time_dir = os.path.join(base_dir, time_step)
