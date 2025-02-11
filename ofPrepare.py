@@ -19,8 +19,9 @@ os.makedirs(ZERO_DIR, exist_ok=True)
 
 def get_patch_type_from_patch_name(input_name: str):
     """Determine the patch type based on keywords in the name."""
-    common_types = ['symmetry', 'screen', 'inlet', 'outlet', 'slip', 'cyclicAMI', 'cyclic']
+    common_types = ['inlet', 'outlet', 'empty', 'symmetry', 'slip', 'cyclicAMI', 'cyclic']
     additional_types = [('mirror', 'symmetry'),
+                        ('screen', 'screen'),
                         ('baffle', 'screen'),
                         ('min', 'empty'),
                         ('max', 'empty'),
@@ -35,7 +36,7 @@ def get_patch_type_from_patch_name(input_name: str):
 
 def get_boundary_type_from_patch_type(input_type: str):
     """Determine the boundary type based the patch type"""
-    common_boundary_types = ['inlet', 'outlet', 'empty', 'symmetry', 'slip', 'cyclicAMI', 'cyclic']
+    common_boundary_types = ['empty', 'symmetry', 'slip', 'cyclicAMI', 'cyclic']
     additional_boundary_types = [('inlet', 'fixedValue'),
                                  ('outlet', 'zeroGradient'),
                                  ('wall', 'zeroGradient')]
@@ -246,7 +247,6 @@ if __name__ == "__main__":
     # Initial conditions for alpha.water (volumetric fraction of water) used in multiphase simulations
     # The new 0 file is in alpha.water.gen - when using in simulation make sure to copy over to new file "alpha.water"
     # The "alpha.water" file is changed during simulations so the "alpha.water.gen" file is retained to run future sims
-    alpha_water_type_dict = {"wall": "zeroGradient",
-                             "inletOutlet": "inletOutlet"}
+    alpha_water_type_dict = {"inletOutlet": "inletOutlet"}
     alpha_water_value_dict = {"inlet": "uniform 1", "outlet": "uniform 0", "inletOutlet": "uniform 0"}
     build_zero_file("alphawater.gen", alpha_water_type_dict, alpha_water_value_dict)
