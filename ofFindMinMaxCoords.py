@@ -52,7 +52,7 @@ def search_for_stl_files_in_directory(dir_path):
     if not stl_files:
         print(f"No '.stl' files found in the directory '{dir_path}'.")
         sys.exit(1)
-    print(f"Found the following '.stl' files in '{dir_path}':")
+    print(f"Found the following '.stl' files in '{dir_path}': {stl_files}")
     return stl_files
 
 
