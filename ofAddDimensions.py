@@ -28,7 +28,7 @@ def update_dimensions(file_path):
 
 
 def main():
-    target_files = {'yPlus', 'zPlus', 'CourantNumber'}
+    target_files = {'yPlus', 'Co'}
     current_dir = '.'
 
     for item in os.listdir(current_dir):
