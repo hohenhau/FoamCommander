@@ -13,10 +13,10 @@ rm -r dynamicCode
 surfaceFeatures
 
 # Decompose the domain for parallel execution based on decomposeParDict
-decomposePar
+decomposePar -copyZero
 
 # Renumber the mesh to help with the load balancing of the meshing
-renumberMesh -noZero -overwrite
+renumberMesh -constant -noZero -overwrite
 
 # Grab the number of processors from the "decomposeParDict" file
 NPROCS=$(foamDictionary -entry numberOfSubdomains -value system/decomposeParDict)
@@ -25,14 +25,17 @@ NPROCS=$(foamDictionary -entry numberOfSubdomains -value system/decomposeParDict
 mpirun -np $NPROCS snappyHexMesh -parallel -overwrite 2>&1 | tee log_mesh
 
 # Renumber the mesh to improve the performance after refinement
-renumberMesh -noZero -overwrite
+renumberMesh -constant -noZero -overwrite
 
 # Reconstruct the decomposed mesh back into a single mesh (useful for post-processing)
 # Output is redirected to /dev/null to suppress terminal output
-reconstructParMesh -constant > /dev/null
+reconstructPar -constant -withZero
 
 # Remove meshing directories
 rm -r processor*
 
 # Renumber the mesh to make it easier to handle in post-processing
-renumberMesh -noZero -overwrite
+renumberMesh -constant -noZero -overwrite
+
+# Run checkMesh and save the results to a new log
+checkMesh 2>&1 | tee log_checkMesh
