@@ -15,32 +15,22 @@ def is_numeric(string):
         return False
 
 def update_dimensions(file_path):
-    with open(file_path, 'rb') as file:
-        relevant_line = None
-        for line_number, line in enumerate(file):
-            if <line can be encoded as utf-8> and 'dimensions' in line:
-                relevant_line_number
-                break
-    with open(file_path, 'w', encoding='utf-8'):
-        file[line_number] = 'dimensions      [0 0 0 0 0 0 0];\n'
+    # Read the file and find the line to replace
+    with open(file_path, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
 
-    # try:
-    #     with open(file_path, 'rb') as file:
-    #         lines = []
-    #         for line in file:
-    #             try:
-    #                 decoded_line = line.decode('utf-8')
-    #                 lines.append(decoded_line)
-    #                 if 'dimensions' in decoded_line:
-    #                     lines[-1] = 'dimensions      [0 0 0 0 0 0 0];\n'
-    #             except UnicodeDecodeError:
-    #                 print(f"Binary data encountered in {file_path}. Stopping processing.")
-    #                 return
-    #     with open(file_path, 'w', encoding='utf-8') as file:
-    #         file.writelines(lines)
-    #     print(f'Processed file: {file_path}')
-    # except Exception as e:
-    #     print(f"An error occurred while processing {file_path}: {e}")
+    # Find the line containing "dimensions"
+    for i, line in enumerate(lines):
+        try:
+            if 'dimensions' in line:
+                lines[i] = 'dimensions      [0 0 0 0 0 0 0];\n'
+                break
+        except UnicodeDecodeError:
+            continue  # Skip lines that can't be decoded
+
+    # Write the modified content back to the file
+    with open(file_path, 'w', encoding='utf-8') as file:
+        file.writelines(lines)
 
 
 def obtain_paths_of_relevant_files(desired_fields):
