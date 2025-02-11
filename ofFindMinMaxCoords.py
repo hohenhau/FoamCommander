@@ -40,10 +40,31 @@ def search_for_coordinates(text: str):
         update_max_and_min(x_coord, y_coord, z_coord)
 
 
+def search_for_stl_files_in_directory(dir_path):
+    """
+    Function to collect a list of stl files from a directory
+    """
+    # Check if the directory exists
+    if not os.path.isdir(dir_path):
+        print(f"The directory '{dir_path}' does not exist.")
+        sys.exit(1)
+    stl_files = [stl_file for stl_file in os.listdir(dir_path) if stl_file.endswith('.stl')]
+    if not stl_files:
+        print(f"No '.stl' files found in the directory '{dir_path}'.")
+        sys.exit(1)
+    print(f"Found the following '.stl' files in '{dir_path}':")
+    return stl_files
+
+
 if __name__ == "__main__":
-    py_file_path = os.path.dirname(os.path.realpath(__file__))
+
     args_len = len(sys.argv)
-    file_names = [sys.argv[i] for i in range(1, args_len)]
+    if args_len <= 1:
+        print('No files specified, checking for files in constant/triSurface directory')
+        file_names = search_for_stl_files_in_directory('constant/triSurface')
+    else:
+        file_names = [sys.argv[i] for i in range(1, args_len)]
+    py_file_path = os.path.dirname(os.path.realpath(__file__))
     file_count = 0
 
     # Process each file provided as an argument
@@ -60,10 +81,10 @@ if __name__ == "__main__":
     print(f'Z: {MIN_Z} - {MAX_Z}')
 
     boundary_extension = 0.000001
-    print('Coordinates for the blockMeshDict:')
+    print('\nCoordinates for the blockMeshDict:')
     print(f'Xmin {MIN_X - boundary_extension};  // minimum x')
     print(f'Xmax {MAX_X + boundary_extension};  // maximum x')
     print(f'Ymin {MIN_Y - boundary_extension};  // minimum y')
     print(f'Ymax {MAX_Y + boundary_extension};  // maximum y')
     print(f'Zmin {MIN_Z - boundary_extension};  // minimum z')
-    print(f'Zmax {MAX_Z + boundary_extension};  // maximum z')
+    print(f'Zmax {MAX_Z + boundary_extension};  // maximum z\n')
