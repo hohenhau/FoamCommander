@@ -31,7 +31,7 @@ def update_dimensions(file_path):
         print(f"An error occurred while processing {file_path}: {e}")
 
 def main():
-    target_files = {'yPlus', 'zPlus', 'CourantNumber'}
+    target_files = {'yPlus', 'Co'}
     current_dir = '.'
 
     for item in os.listdir(current_dir):
