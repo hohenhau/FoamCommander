@@ -16,7 +16,7 @@
     nCellsBetweenLevels 3;              // Was 3 | Number of buffer layers between different levels
 
 
-    locationInMesh (0 0 1);    // Set (X, Y, Z) coordinates to decide which side of mesh to keep
+    locationInMesh (0 0 0);    // Set (X, Y, Z) coordinates to decide which side of mesh to keep
 
 
     resolveFeatureAngle 30;             // When to use maximum refinement specified in surfaces
