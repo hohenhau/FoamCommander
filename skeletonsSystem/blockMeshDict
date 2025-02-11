@@ -21,12 +21,12 @@ scale 1;
 
 
 // -------------- Define block mesh coordinates -------------- //
-Xmin -0.500001;  // minimum x
-Xmax  0.500001;  // maximum x
-Ymin -0.500001;  // minimum y
-Ymax  0.500001;  // maximum y
-Zmin -2.000001;  // minimum z
-Zmax -0.249999;  // maximum z
+Xmin -1.500000;  // minimum x
+Xmax  1.500000;  // maximum x
+Ymin -1.500000;  // minimum y
+Ymax  1.500000;  // maximum y
+Zmin -1.000000;  // minimum z
+Zmax -1.000000;  // maximum z
 
 // ------------- Define cell sizes in each block ------------- //
 deltaX 0.05;  // Cell size in x-direction
