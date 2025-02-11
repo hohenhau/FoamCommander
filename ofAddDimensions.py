@@ -34,6 +34,7 @@ def main():
     fields = {'yPlus', 'Co'}
     base_dir = os.getcwd()
     time_steps = [i for i in os.listdir(base_dir) if is_numeric(i)]
+    print[time_steps]
     for time_step in time_steps:
         target_directory = os.path.join(base_dir, time_step)
         print(target_directory)
