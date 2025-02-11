@@ -1,0 +1,13 @@
+#/bin/bash
+
+# Monitor the run using pyFoam
+# pyFoamPlotRunner.py 
+
+# Grab the number of processors from decomposeParDict
+NPROCS=$(foamDictionary -entry numberOfSubdomains -value system/decomposeParDict)
+
+# Grab the solver from controlDict
+SOLVER=$(foamDictionary -entry application -value system/controlDict)
+
+# Continue the simulation in parallel & display output on the screen
+mpirun -np $NPROCS $SOLVER -parallel 2>&1 | tee -a log

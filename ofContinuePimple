@@ -1,7 +1,0 @@
-#/bin/bash
-
-# Monitor the run using pyFoam
-# pyFoamPlotRunner.py 
-
-# Continue the simulation in parallel & display output on the screen
-foamJob -append -parallel -screen pimpleFoam
