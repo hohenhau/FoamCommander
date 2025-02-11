@@ -1,20 +1,22 @@
 #!/usr/bin/python
 
-"""Changes the dimensions of files from [] to [0 0 0 0 0 0] for ParaView Compatibility"""
+"""Changes the dimensions of files from [] to [0 0 0 0 0 0 0] for ParaView Compatibility"""
 
 import os
 
 def update_dimensions(file_path):
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+    except UnicodeDecodeError:
+        print(f"Warning: Skipping binary file {file_path} due to decoding error.")
+        return
 
-    with open(file_path, 'w') as file:
+    with open(file_path, 'w', encoding='utf-8') as file:
         for line in lines:
             if 'dimensions' in line:
                 line = 'dimensions      [0 0 0 0 0 0 0];\n'
             file.write(line)
-            break
-
 
 def main():
     target_files = {'yPlus', 'zPlus', 'CourantNumber'}
@@ -23,7 +25,7 @@ def main():
             if file_name in target_files:
                 file_path = os.path.join(root, file_name)
                 update_dimensions(file_path)
-                print(f'Updated dimensions in {file_path}')
+                print(f'Processed file: {file_path}')
 
 if __name__ == '__main__':
     main()
