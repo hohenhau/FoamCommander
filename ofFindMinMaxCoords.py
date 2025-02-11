@@ -48,7 +48,7 @@ def search_for_stl_files_in_directory(dir_path):
     if not os.path.isdir(dir_path):
         print(f"The directory '{dir_path}' does not exist.")
         sys.exit(1)
-    stl_files = [stl_file for stl_file in os.listdir(dir_path) if stl_file.endswith('.stl')]
+    stl_files = [os.path.join(dir_path, i) for i in os.listdir(dir_path) if i.endswith('.stl')]
     if not stl_files:
         print(f"No '.stl' files found in the directory '{dir_path}'.")
         sys.exit(1)
