@@ -11,24 +11,27 @@ def is_numeric(string):
     except ValueError:
         return False
 
-
 def update_dimensions(file_path):
     try:
-        with open(file_path, 'r', encoding='utf-8') as file:
-            lines = file.readlines()
-    except UnicodeDecodeError:
-        print(f"Warning: Skipping binary file {file_path} due to decoding error.")
-        return
-
-    with open(file_path, 'w', encoding='utf-8') as file:
-        for line in lines:
-            if 'dimensions' in line:
-                line = 'dimensions      [0 0 0 0 0 0 0];\n'
-            file.write(line)
-
+        with open(file_path, 'rb') as file:
+            lines = []
+            for line in file:
+                try:
+                    decoded_line = line.decode('utf-8')
+                    lines.append(decoded_line)
+                    if 'dimensions' in decoded_line:
+                        lines[-1] = 'dimensions      [0 0 0 0 0 0 0];\n'
+                except UnicodeDecodeError:
+                    print(f"Binary data encountered in {file_path}. Stopping processing.")
+                    return
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.writelines(lines)
+        print(f'Processed file: {file_path}')
+    except Exception as e:
+        print(f"An error occurred while processing {file_path}: {e}")
 
 def main():
-    target_files = {'yPlus', 'Co'}
+    target_files = {'yPlus', 'zPlus', 'CourantNumber'}
     current_dir = '.'
 
     for item in os.listdir(current_dir):
@@ -39,8 +42,6 @@ def main():
                     if file_name in target_files:
                         file_path = os.path.join(root, file_name)
                         update_dimensions(file_path)
-                        print(f'Processed file: {file_path}')
-
 
 if __name__ == '__main__':
     main()
