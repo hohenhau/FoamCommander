@@ -41,6 +41,7 @@ def main():
         for field in fields:
             # Collect all files from the directory
             time_files = [i for i in os.listdir(time_dir)]
+            print(time_files)
             # Filter out the relevant files using the fields
             time_files = [i for i in time_files if os.path.isfile(i) and field in i]
             print(time_files)
