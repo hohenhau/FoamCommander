@@ -32,11 +32,11 @@ def update_dimensions(file_path):
 
 def main():
     fields = {'yPlus', 'Co'}
-    current_dir = os.getcwd()
-    directories = [os.path.join(current_dir, i) for i in os.listdir(current_dir) if is_numeric(i)]
-    print(directories)
-    for directory in directories:
-        target_files = [i for i in os.listdir(directory) if os.path.isfile(i)]
+    base_dir = os.getcwd()
+    time_steps = [i for i in os.listdir(base_dir) if is_numeric(i)]
+    for time_step in time_steps:
+        target_directory = os.path.join(base_dir, time_step)
+        target_files = [i for i in os.listdir(target_directory) if os.path.isfile(i)]
         print(target_files)
         # item_path = os.path.join(current_dir, item)
         # if os.path.isdir(item_path) and is_numeric(item):
