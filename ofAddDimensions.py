@@ -36,7 +36,7 @@ def update_dimensions(file_path: str):
         file.writelines(lines)
 
 
-def obtain_paths_of_relevant_files(desired_fields: cunt):
+def obtain_paths_of_relevant_files(desired_fields: set):
     """
     Obtains the paths of files that contain one of the specified desired fields.
     """
@@ -64,4 +64,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
