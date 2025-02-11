@@ -6,7 +6,8 @@ import sys
 
 # Global Variables
 PY_FILE_PATH = os.path.dirname(os.path.realpath(__file__))
-SKELETON_DIR = os.path.join(PY_FILE_PATH, "skeletons")
+SKELETON_BOUNDARY_DIR = os.path.join(PY_FILE_PATH, "skeletonsBoundary")
+SKELETON_SYSTEM_DIR = os.path.join(PY_FILE_PATH, "skeletonsSystem")
 CURRENT_DIR = os.getcwd() if len(sys.argv) == 1 else sys.argv[-1]
 TRI_SURFACE_DIR = os.path.join(CURRENT_DIR, "constant", "triSurface")
 ZERO_DIR = os.path.join(CURRENT_DIR, "0.gen")
@@ -16,47 +17,49 @@ SYSTEM_DIR = os.path.join(CURRENT_DIR, "system")
 os.makedirs(ZERO_DIR, exist_ok=True)
 
 
-def get_patch_type_for_meshing(input_name: str):
+def get_patch_type_from_patch_name(input_name: str):
     """Determine the patch type based on keywords in the name."""
-    patch_mappings = {
-        'symmetry': 'symmetry',
-        'mirror': 'symmetry',
-        'screen': 'screen',
-        'baffle': 'screen',
-        'inlet': 'inlet',
-        'outlet': 'outlet',
-        'min': 'empty',
-        'max': 'empty',
-        'slip': 'slip',
-        'atmosphere': 'inletOutlet',
-        'cyclicAMI': 'cyclicAMI',
-        'porous': 'cyclic',
-        'cyclic': 'cyclic'}
-    for patch_name, patch_type in patch_mappings.items():
+    common_types = ['symmetry', 'screen', 'inlet', 'outlet', 'slip', 'cyclicAMI', 'cyclic']
+    additional_types = [('mirror', 'symmetry'),
+                        ('baffle', 'screen'),
+                        ('min', 'empty'),
+                        ('max', 'empty'),
+                        ('atmosphere', 'inletOutlet'),
+                        ('porous', 'porousBafflePressure')]
+    all_types = [(i, i) for i in common_types] + additional_types
+    for patch_name, patch_type in all_types:
         if patch_name.lower() in input_name.lower():
             return patch_type
     return 'wall'
 
 
-def build_zero_file(base_name: str, types: dict, values: dict):
+def get_boundary_type_from_patch_type(input_type: str):
+    """Determine the boundary type based the patch type"""
+    common_boundary_types = ['inlet', 'outlet', 'empty', 'symmetry', 'slip', 'cyclicAMI', 'cyclic']
+    additional_boundary_types = [('inlet', 'fixedValue'),
+                                 ('outlet', 'zeroGradient'),
+                                 ('wall', 'zeroGradient')]
+    all_types = [(i, i) for i in common_boundary_types] + additional_boundary_types
+    for patch_type, boundary_type in all_types:
+        if patch_type.lower() in input_type.lower():
+            return boundary_type
+    return 'zeroGradient'
+
+
+def build_zero_file(base_name: str, local_boundary_types: dict, local_boundary_values: dict):
     """Creates a file in the zero directory with grouped patch settings."""
     output_path = os.path.join(ZERO_DIR, base_name)
-    skeleton_head_path = os.path.join(SKELETON_DIR, f"{base_name}Head")
-
-    # Ensure common patch types exist
-    types['cyclic'] = 'cyclic'
-    types['cyclicAMI'] = 'cyclicAMI'
-    types['empty'] = 'empty'
-    types['slip'] = 'slip'
-    types['symmetry'] = 'symmetry'
+    skeleton_head_path = os.path.join(SKELETON_BOUNDARY_DIR, f"{base_name}Head")
 
     # Group patches by type
     patch_groups = {}
-    for patch in patch_names:
-        patch_type = get_patch_type_for_meshing(patch)
+    for patch_name in patch_names:
+        patch_type = get_patch_type_from_patch_name(patch_name)
+        if patch_type not in local_boundary_types:
+            local_boundary_types[patch_type] = get_boundary_type_from_patch_type(patch_type)
         if patch_type not in patch_groups:
             patch_groups[patch_type] = []
-        patch_groups[patch_type].append(patch)
+        patch_groups[patch_type].append(patch_name)
 
     # Write the header
     with open(output_path, 'w') as outfile, open(skeleton_head_path) as head:
@@ -66,9 +69,9 @@ def build_zero_file(base_name: str, types: dict, values: dict):
             # Join patches with '|' and wrap in parentheses
             patch_group = f'"{patches[0]}"' if len(patches) == 1 else f'"({"|".join(patches)})"'
             outfile.write(f'    {patch_group}\n    {{\n')
-            outfile.write(f'        type            {types.get(patch_type, "wall")};\n')
-            if patch_type in values:
-                outfile.write(f'        value           {values[patch_type]};\n')
+            outfile.write(f'        type            {local_boundary_types.get(patch_type, "wall")};\n')
+            if patch_type in local_boundary_values:
+                outfile.write(f'        value           {local_boundary_values[patch_type]};\n')
             outfile.write('    }\n')
         outfile.write('    "(minX|maxX|minY|maxY|minZ|maxZ)"\n')
         outfile.write('    {\n        type            zeroGradient;\n    }\n')
@@ -92,7 +95,7 @@ def process_stl_files():
         new_file_name = f'{filename.split(".")[0]}.{filename.split(".")[1].lower()}'
         new_filepath = os.path.join(TRI_SURFACE_DIR, new_file_name)
         patch_name = re.split(r"\.", filename)[0]
-        if get_patch_type_for_meshing(patch_name) != "screen" and patch_name not in patches:
+        if get_patch_type_from_patch_name(patch_name) != "screen" and patch_name not in patches:
             print(f"Match: {patch_name}")
             patches.append(patch_name)
         # Read entire file content
@@ -112,9 +115,10 @@ def process_stl_files():
 
 def create_surface_features_dict():
     """Creates the surfaceFeaturesDict.gen file."""
+    print("Creating surfaceFeatureExtractDict.gen...")
     output_path = os.path.join(SYSTEM_DIR, "surfaceFeaturesDict.gen")
-    skeleton_head_path = os.path.join(SKELETON_DIR, "surfaceFeaturesHead")
-    skeleton_tail_path = os.path.join(SKELETON_DIR, "surfaceFeaturesTail")
+    skeleton_head_path = os.path.join(SKELETON_SYSTEM_DIR, "surfaceFeaturesHead")
+    skeleton_tail_path = os.path.join(SKELETON_SYSTEM_DIR, "surfaceFeaturesTail")
     with open(output_path, 'w') as sfefile:
         # Write the header
         with open(skeleton_head_path) as head:
@@ -131,9 +135,10 @@ def create_surface_features_dict():
 
 def create_snappy_hex_mesh_dict():
     """Creates the snappyHexMeshDict.gen file."""
+    print("Creating snappyHexMeshDict.gen...")
     output_path = os.path.join(SYSTEM_DIR, "snappyHexMeshDict.gen")
-    skeleton_head_path = os.path.join(SKELETON_DIR, "snappyHexMeshHead")
-    skeleton_tail_path = os.path.join(SKELETON_DIR, "snappyHexMeshTail")
+    skeleton_head_path = os.path.join(SKELETON_SYSTEM_DIR, "snappyHexMeshHead")
+    skeleton_tail_path = os.path.join(SKELETON_SYSTEM_DIR, "snappyHexMeshTail")
 
     # Write contents of skeleton header
     with open(output_path, 'w') as shm_file, open(skeleton_head_path) as head, open(skeleton_tail_path) as tail:
@@ -160,7 +165,7 @@ def create_snappy_hex_mesh_dict():
         # Write block for refinement surfaces
         shm_file.write('        refinementSurfaces  // MANDATORY: Definition and refinement of surfaces\n        {\n')
         for patch in patch_names:
-            patch_type = get_patch_type_for_meshing(patch)
+            patch_type = get_patch_type_from_patch_name(patch)
             patch_type = 'patch' if patch_type in {'inlet', 'outlet', 'slip', 'cyclic'} else patch_type
             shm_file.write(f'            {patch} {{level (0 0); patchInfo {{type {patch_type};}} }}\n')
         # Write example layout of honeycomb
@@ -178,90 +183,70 @@ def create_snappy_hex_mesh_dict():
 if __name__ == "__main__":
     print(f"Processing directory: {CURRENT_DIR}")
     patch_names = process_stl_files()
-
-    print("Creating surfaceFeatureExtractDict...")
     create_surface_features_dict()
-
-    print("Creating snappyHexMeshDict...")
     create_snappy_hex_mesh_dict()
 
     # Initial conditions U (velocity)
-    UTypeDict = {"inlet": "fixedValue",
-                 "outlet": "zeroGradient",
-                 "wall": "fixedValue"}
-    UValueDict = {"inlet": "uniform (0 0 0)", "wall": "uniform (0 0 0)"}
-    build_zero_file("U", UTypeDict, UValueDict)
+    U_boundary_types = {"wall": "fixedValue"}
+    U_boundary_values = {"inlet": "uniform (0 0 0)", "wall": "uniform (0 0 0)"}
+    build_zero_file("U", U_boundary_types, U_boundary_values)
 
     # Initial conditions for p (pressure)
-    pTypeDict = {"inlet": "zeroGradient",
-                 "outlet": "fixedValue",
-                 "wall": "zeroGradient"}
-    pValueDict = {"outlet": "uniform 103"}
-    build_zero_file("p", pTypeDict, pValueDict)
+    p_boundary_types = {"inlet": "zeroGradient",
+                        "outlet": "fixedValue"}
+    p_boundary_values = {"outlet": "uniform 0"}
+    build_zero_file("p", p_boundary_types, p_boundary_values)
 
     # Initial conditions for k (turbulent kinetic energy) used in k-ε, k-ω, and LES models
-    kTypeDict = {"inlet": "fixedValue",
-                 "outlet": "zeroGradient",
-                 "wall": "kqRWallFunction"}
-    kValueDict = {"inlet": "uniform 0.0503", "wall": "uniform 0.0503"}
-    build_zero_file("k", kTypeDict, kValueDict)
+    k_boundary_types = {"wall": "kqRWallFunction"}
+    k_boundary_values = {"inlet": "uniform 0.05", "wall": "uniform 0.05"}
+    build_zero_file("k", k_boundary_types, k_boundary_values)
 
     # Initial conditions for ε (rate of dissipation of turbulent kinetic energy) used in k-ε models
-    epsilonTypeDict = {"inlet": "fixedValue",
-                       "outlet": "zeroGradient",
-                       "wall": "epsilonWallFunction"}
-    epsilonValueDict = {"inlet": "uniform 2.67", "wall": "uniform 2.67"}
-    build_zero_file("epsilon", epsilonTypeDict, epsilonValueDict)
+    epsilon_boundary_types = {"wall": "epsilonWallFunction"}
+    epsilon_boundary_values = {"inlet": "uniform 2.7", "wall": "uniform 2.7"}
+    build_zero_file("epsilon", epsilon_boundary_types, epsilon_boundary_values)
 
     # Initial conditions nu_t (turbulent kinematic viscosity) used in k-ε, k-ω, Spalart-Allmaras, and LES models
-    nutTypeDict = {"inlet": "calculated",
-                   "outlet": "calculated",
-                   "wall": "nutUWallFunction"}
-    nutValueDict = {"inlet": "uniform 0", "outlet": "uniform 0", "wall": "uniform 0"}
-    build_zero_file("nut", nutTypeDict, nutValueDict)
+    nut_boundary_types = {"inlet": "calculated",
+                          "outlet": "calculated",
+                          "wall": "nutUWallFunction"}
+    nut_boundary_values = {"inlet": "uniform 0", "outlet": "uniform 0", "wall": "uniform 0"}
+    build_zero_file("nut", nut_boundary_types, nut_boundary_values)
 
     # Initial conditions for nu_tilda (turbulent kinematic viscosity) used Spalart-Allmaras models
-    nuTildaTypeDict = {"inlet": "fixedValue",
-                       "outlet": "zeroGradient",
-                       "wall": "zeroGradient"}
-    nuTildaValueDict = {"inlet": "uniform 0"}
-    build_zero_file("nuTilda", nuTildaTypeDict, nuTildaValueDict)
+    nuTilda_boundary_types = {}
+    nuTilda_boundary_values = {"inlet": "uniform 0"}
+    build_zero_file("nuTilda", nuTilda_boundary_types, nuTilda_boundary_values)
 
     # Initial conditions for ω (specific turbulence dissipation rate) used in k-ω turbulence models
-    omegaTypeDict = {"inlet": "fixedValue",
-                     "outlet": "zeroGradient",
-                     "wall": "zeroGradient"}
-    omegaValueDict = {"inlet": "$internalField"}
-    build_zero_file("omega", omegaTypeDict, omegaValueDict)
+    omega_boundary_types = {}
+    omega_boundary_values = {"inlet": "$internalField"}
+    build_zero_file("omega", omega_boundary_types, omega_boundary_values)
 
     # Initial conditions for kl (Turbulent Kinetic Energy per Unit Mass) used low-Re-number models or LES hybrid models
-    klTypeDict = {"inlet": "fixedValue",
-                  "outlet": "zeroGradient",
-                  "wall": "fixedValue"}
-    klValueDict = {"inlet": "uniform 0", "wall": "uniform 0"}
-    build_zero_file("kl", klTypeDict, klValueDict)
+    kl_boundary_types = {"wall": "fixedValue"}
+    kl_boundary_values = {"inlet": "uniform 0", "wall": "uniform 0"}
+    build_zero_file("kl", kl_boundary_types, kl_boundary_values)
 
     # Initial conditions for kt (Turbulent Thermal Energy) used in Turbulent heat transfer modeling (HVAC, combustion)
-    ktTypeDict = {"inlet": "fixedValue",
-                  "outlet": "zeroGradient",
-                  "wall": "fixedValue"}
-    ktValueDict = {"inlet": "uniform 0", "wall": "uniform 0"}
-    build_zero_file("kt", ktTypeDict, ktValueDict)
+    kt_boundary_types = {"wall": "fixedValue"}
+    kt_boundary_values = {"inlet": "uniform 0", "wall": "uniform 0"}
+    build_zero_file("kt", kt_boundary_types, kt_boundary_values)
 
     # Initial conditions for p_rgh (pressure considering gravity and buoyancy) used in multiphase simulations
-    p_rghTypeDict = {"inlet": "fixedFluxPressure",
-                     "outlet": "fixedFluxPressure",
-                     "wall": "fixedFluxPressure",
-                     "inletOutlet": "totalPressure"}
-    p_rghValueDict = {"inlet": "uniform 0", "outlet": "uniform 0", "wall": "uniform 0", "inletOutlet": "uniform 0"}
-    build_zero_file("p_rgh", p_rghTypeDict, p_rghValueDict)
+    p_rgh_boundary_types = {"inlet": "fixedFluxPressure",
+                            "outlet": "fixedFluxPressure",
+                            "wall": "fixedFluxPressure",
+                            "inletOutlet": "totalPressure"}
+    p_rgh_boundary_values = {"inlet": "uniform 0", "outlet": "uniform 0", "wall": "uniform 0",
+                             "inletOutlet": "uniform 0"}
+    build_zero_file("p_rgh", p_rgh_boundary_types, p_rgh_boundary_values)
 
     # Initial conditions for alpha.water (volumetric fraction of water) used in multiphase simulations
-    # The new 0 file is in alpha.water.orig - when using in simulation make sure to copy over to new file "alpha.water"
-    # The "alpha.water" file is changed during simulations so the "alpha.water.orig" file is retained to run future sims
-    alpha_water_type_dict = {"inlet": "fixedValue",
-                             "outlet": "zeroGradient",
-                             "wall": "zeroGradient",
+    # The new 0 file is in alpha.water.gen - when using in simulation make sure to copy over to new file "alpha.water"
+    # The "alpha.water" file is changed during simulations so the "alpha.water.gen" file is retained to run future sims
+    alpha_water_type_dict = {"wall": "zeroGradient",
                              "inletOutlet": "inletOutlet"}
     alpha_water_value_dict = {"inlet": "uniform 1", "outlet": "uniform 0", "inletOutlet": "uniform 0"}
-    build_zero_file("alphawaterorig", alpha_water_type_dict, alpha_water_value_dict)
+    build_zero_file("alphawater.gen", alpha_water_type_dict, alpha_water_value_dict)
