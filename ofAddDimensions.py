@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 """Changes the dimensions of files from [] to [0 0 0 0 0 0] for ParaView Compatibility"""
 
 import os
