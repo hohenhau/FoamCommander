@@ -1,0 +1,81 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  User generated                        |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Define scaling factor (0.1 = scale down, 1 = no change, 10 = scale up)
+scale 1;
+
+
+// -------------- Define block mesh coordinates -------------- //
+Xmin -0.500001;  // minimum x
+Xmax  0.500001;  // maximum x
+Ymin -0.500001;  // minimum y
+Ymax  0.500001;  // maximum y
+Zmin -2.000001;  // minimum z
+Zmax -0.249999;  // maximum z
+
+// ------------- Define cell sizes in each block ------------- //
+deltaX 0.05;  // Cell size in x-direction
+deltaY 0.05;  // Cell size in y-direction
+deltaZ 0.05;  // Cell size in z-direction
+
+
+// --------------- Calculate lengths of mesh ----------------- //
+LX #calc "$Xmax - $Xmin";  // Size of block in x-direction
+LY #calc "$Ymax - $Ymin";  // Size of block in y-direction
+LZ #calc "$Zmax - $Zmin";  // Size of block in z-direction
+
+
+// -------- Define number of cells in each direction --------- //
+NX #calc "round($LX / $deltaX)";  // Cells in x-direction
+NY #calc "round($LY / $deltaY)";  // Cells in y-direction
+NZ #calc "round($LZ / $deltaZ)";  // Cells in z-direction
+
+
+// ----------------- Setup of mesh dimensions ---------------- //
+vertices   // (x y z)
+(
+    ($Xmin $Ymin $Zmin)  // Point 1
+    ($Xmax $Ymin $Zmin)  // Point 2
+    ($Xmax $Ymax $Zmin)  // Point 3
+    ($Xmin $Ymax $Zmin)  // Point 4
+    ($Xmin $Ymin $Zmax)  // Point 5
+    ($Xmax $Ymin $Zmax)  // Point 6
+    ($Xmax $Ymax $Zmax)  // Point 7
+    ($Xmin $Ymax $Zmax)  // Point 8
+);
+
+blocks (hex (0 1 2 3 4 5 6 7) ($NX $NY $NZ) simpleGrading (1 1 1));
+edges();
+
+
+// ---------------------- Setup of faces --------------------- //
+
+boundary
+(
+    minX{type patch; faces ((0 4 7 3));}
+    maxX{type patch; faces ((2 6 5 1));}
+    minY{type patch; faces ((1 5 4 0));}
+    maxY{type patch; faces ((3 7 6 2));}
+    minZ{type patch; faces ((0 3 2 1));}
+    maxZ{type patch; faces ((4 5 6 7));}
+);
+
+mergePatchPairs();
+
+// ************************************************************************* //
+

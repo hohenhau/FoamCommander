@@ -1,0 +1,155 @@
+// Settings for the snapping.
+snapControls
+{
+    nSmoothPatch 3;
+    tolerance 4.0;
+    nSolveIter 30;
+    nRelaxIter 5;
+    nFeatureSnapIter 15; // default is 10
+    
+// New settings from openfoam 2.2 onwards for SHMesh
+
+implicitFeatureSnap false; // default is false - detects without doing surfaceFeatureExtract
+explicitFeatureSnap true; // default is true
+multiRegionFeatureSnap false; // deafault is false - detects features between multiple surfaces
+
+}
+
+
+    refinementRegions           // OPTIONAL: Specify additional regions to be refined
+    {
+        //exampleVolume {mode inside; levels ((1.0 2));}
+        //exampleSurface {mode distance; levels ((0.2 2) (0.3 1));} //vane leading edge
+    }
+
+    // Refinement parameters
+    // ~~~~~~~~~~~~~~~~~~~~~
+
+    maxLocalCells   100000000;          // Maximum cells per CPU core
+    maxGlobalCells 1000000000;          // Maximum cells aded before mesh deletion step
+    minRefinementCells  10;             // Was 0 Number of bad cells allowed in refinement stages (0 = none)
+    maxLoadUnbalance    0.10;           // Maximum processor load unbalance
+    nCellsBetweenLevels 3;              // Was 3 | Number of buffer layers between different levels
+
+
+    locationInMesh (1 0 0);    // Set (X, Y, Z) coordinates to decide which side of mesh to keep
+
+
+    resolveFeatureAngle 30;             // When to use maximum refinement specified in surfaces
+    allowFreeStandingZoneFaces false;   // Allow zone faces that share owner and neighbour cell zone
+}
+
+
+// Settings for mesh snapping
+// ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+snapControls
+{
+    nSmoothPatch 3;             // Was  3 | Patch smoothing iterations to find correspondence to surface
+    tolerance 0.7;              // Was  2 | Relative distance for points to be attracted by surface feature
+    nSolveIter 60;              // Was 30 | Number of mesh displacement relaxation iterations
+    nRelaxIter 30;              // Was  5 | Maximum number of snapping relaxation iterations
+    nFeatureSnapIter 20;        // Was 10 | Moprh iterations within main snapping to avoid sharp edges    // WARNING: too many nFeatureSnapIter can collapse boundary layers on patc>
+
+    implicitFeatureSnap false;    // was false | detect features by sampling surface
+    explicitFeatureSnap true;     // was true  | detect featured using castellatedMeshControls
+    multiRegionFeatureSnap true;  // was false | detects features between multiple surfaces
+}
+
+
+// Settings for the layer addition
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+addLayersControls
+{
+    relativeSizes true;    // decide if layer size is absolut or relative to nearby cells
+
+    layers
+    {
+
+        vanesA {nSurfaceLayers 4;}
+        //"(vanesA|vanesB)" {nSurfaceLayers 1;}
+
+        walls 
+        {
+                nSurfaceLayers 1;
+                //Local parameters 
+                //expansionRatio 
+                //finalLayerThickness 0.3; 
+                //minThickness 0.1;
+        }
+    }
+
+    expansionRatio 1.20;        // Was 1.2   | Rate at which cell layers grow
+    finalLayerThickness 0.75;   // Was 1     | Thickness of layer in relation to neighbour cell
+    minThickness 1e-30;         // Was 0.001 | Minimum thickness of layer
+    nGrow 0;                    // Was 0     | Forces cells to grow away from the surface 
+
+
+    // Advanced layer settings
+    // ~~~~~~~~~~~~~~~~~~~~~~~
+
+    featureAngle 170;           // was 60 | when not to extrude surface (0 = flat 90 = perpendicular faces
+    slipFeatureAngle 30;        // was 30 | Angle above which mesh is allowed to slip at non-patch sides
+    nRelaxIter 50;              // was  5 | Max. snapping relaxation iterations (good mesh shouldnt reach this)
+    nSmoothSurfaceNormals 2;    // was  1 | Smoothing iterations of surface normals
+    nSmoothNormals 8;           // was  3 | Smoothing iterations of interior mesh movement direction
+    nSmoothThickness 20;        // Was 10 | Smooth layer thickness over surface patches
+
+    maxFaceThicknessRatio 0.5;     // Was 0.5 | Stop layer growth on highly warped cells
+    maxThicknessToMedialRatio 0.3; // Was 0.3 | Reduce layer growth if ratio thickness to medial distance is large
+    minMedialAxisAngle 90;         // was  90 | Angle used to pick up medial axis points
+    nBufferCellsNoExtrude 0;       // Was   0 | Create buffer region for new layer terminations
+    layerTerminationAngle -180;    // When to attempt extruding at sharp edges (-180 = always)
+
+    nBufferCellsNoExtrude 0;    // Create buffer region for new layer terminations
+    nLayerIter 60;              // Overall max number of layer addition iterations
+
+    nRelaxedIter 30;            // number of iterations before relaxed settings are used
+}
+
+
+// Generic mesh quality settings (These determine actions at any undoable phase)
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+meshQualityControls
+{
+    maxNonOrtho 65;             // was 65
+    maxBoundarySkewness 20;     // was 20
+    maxInternalSkewness 4;      // was 4
+    maxConcave 80;              // was 80
+    minVol 1e-15;               // was 1e-13
+    minTetQuality 1e-15;        // was 1e-15 | (large negative for best layer insertion)
+    //minVolCollapseRatio   0.5;  // was 0.5 | if <0: delete always, else keep cells with higher ratio
+    minArea 1e-11;               // was 2e-8 | Minimum face area. <0 disables ASTAR = -1
+    minTwist 0.05;              // minimum face twist. <-1 disables
+    minDeterminant 0.001;       // was 0.001 | Minimum normalised cell determinant. 1 = hex, <= 0 is illegal cell
+    minFaceWeight 0.03;         // was 0.05 | Minimum face interpolation weight (0.5 for orthogonal mesh)
+    minFaceFlatness 0.5;        // was 0.5
+    minVolRatio 0.01;           // minimum volume ratio to neighbour cell
+    minTriangleTwist -1;        // was -1 |  enter >0 for fluent compatibility
+
+    // Advanced
+
+    nSmoothScale 10;             // was 4 | number of error distribution iterations
+    errorReduction 0.8;         // was 0.75 | amount to scale back displacement at error points
+
+    // Relaxed layer settings
+    // ~~~~~~~~~~~~~~~~~~~~~~
+    relaxed
+    {
+        maxNonOrtho 75;
+    }
+}
+
+// Advanced mesh quality settings
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+debug 0;
+
+// Merge tolerance. Is fraction of overall bounding box of initial mesh.
+// Note: the write tolerance needs to be higher than this.
+mergeTolerance 1E-6;
+
+
+// ************************************************************************* //

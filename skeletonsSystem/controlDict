@@ -1,0 +1,101 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  User-modified for version 12          |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     pimpleFoam; // Type of solver to be used in the simulation
+
+startFrom       latestTime; // Start simulation from the latest available time
+
+startTime       0; // specifies start unless overridden by 'latestTime'
+
+stopAt          endTime; // Simulation will run until end time
+
+endTime         5; // End time of the simulation
+
+deltaT          0.0001; //has no impact on SIMPLE solver
+
+writeControl    adjustableRunTime; // Can be set to "timeStep"
+
+writeInterval   0.5; // Interval at which data is written to the disk
+
+purgeWrite      0; // limits the number of time steps retained (0 = keep all)
+
+writeFormat     binary; //can be "ascii" or "binary"
+
+writePrecision  6; // Default is 6
+
+writeCompression off; //can be "off" or "compressed"
+
+timeFormat      general; // naming format of the time directories
+
+timePrecision   6; //  decimal places used in naming the directories
+
+runTimeModifiable true; // Parameters can be modified during the simulation
+
+adjustTimeStep  yes; // Adjusts timestep based on Courant Number
+
+maxCo           0.999; // Set to below 1 for good stability
+
+functions
+{
+    CourantNo
+    {
+        type                    CourantNo;                              // Mandatory entries (unmodifiable)
+        libs                    ("libfieldFunctionObjects.so");         // Mandatory entries (unmodifiable)
+        executeControl          writeTime;                              // Optional (inherited) entries
+        executeInterval         1;                                      // Optional (inherited) entries
+        writeControl            writeTime;                              // Optional (inherited) entries
+        writeInterval           1;                                      // Optional (inherited) entries
+        enabled                 true;                                   // Optional (inherited) entries
+    }
+
+    yPlus
+    {
+        type                    yPlus;                                  // Mandatory entries (unmodifiable)
+        libs                    ("libfieldFunctionObjects.so");         // Mandatory entries (unmodifiable)
+        executeInterval         1;                                      // Optional (inherited) entries
+        writeControl            writeTime;                              // Optional (inherited) entries
+        writeInterval           1;                                      // Optional (inherited) entries
+        enabled                 true;                                   // Optional (inherited) entries
+    }
+
+    turbulenceFields
+    {
+        type                    turbulenceFields;                       // Mandatory entries (unmodifiable)
+        libs                    ("libfieldFunctionObjects.so");         // Mandatory entries (unmodifiable)
+        executeControl          writeTime;                              // Optional (inherited) entries
+        executeInterval         1;                                      // Optional (inherited) entries
+        writeControl            writeTime;                              // Optional (inherited) entries
+        writeInterval           1;                                      // Optional (inherited) entries
+        fields                  (L I);                                  // Mandatory entries (runtime modifiable)
+        enabled                 false;                                   // Optional (inherited) entries
+    }
+
+
+    residuals
+    {
+        type                    residuals;                              // Mandatory entries (unmodifiable)
+        libs                    ("libutilityFunctionObjects.so");       // Mandatory entries (unmodifiable)
+        executeControl          writeTime;                              // Optional (inherited) entries
+        executeInterval         1;                                      // Optional (inherited) entries
+        writeControl            timeStep;                               // Optional (inherited) entries
+        writeInterval           1;                                      // Optional (inherited) entries
+        fields                  (".*");                                 // Mandatory entries (runtime modifiable)
+        enabled                 true;                                   // Optional (inherited) entries
+    }
+}
+
+// ************************************************************************* //
+
