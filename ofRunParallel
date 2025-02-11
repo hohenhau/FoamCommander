@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Remove all processor directories (from a previous parallel run)
+rm -r processor* ???
+
+# Decompose the domain for parallel computing
+decomposePar
+
+# Renumber the mesh for better convergence (not usable with cyclics!)
+# renumberMesh -overwrite -constant
+
+# Monitor the run using pyFoam
+# pyFoamPlotRunner.py
+
+# Grab the number of processors from decomposeParDict
+NPROCS=$(foamDictionary -entry numberOfSubdomains -value system/decomposeParDict)
+
+# Grab the solver from controlDict
+SOLVER=$(foamDictionary -entry application -value system/controlDict)
+
+# Run the detected solver in parallel
+mpirun -np $NPROCS $SOLVER -parallel 2>&1 | tee log
+# mpirun -np $NPROCS foamRun -solver $SOLVER -parallel 2>&1 | tee log
+# foamJob -parallel -np $NPROCS foamRun -solver $SOLVER 2>&1 | tee log
