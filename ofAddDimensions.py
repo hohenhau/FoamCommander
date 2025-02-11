@@ -16,8 +16,14 @@ def is_numeric(string):
 
 def update_dimensions(file_path):
     with open(file_path, 'rb') as file:
-        for line in file:
-            print(file)
+        relevant_line = None
+        for line_number, line in enumerate(file):
+            if <line can be encoded as utf-8> and 'dimensions' in line:
+                relevant_line_number
+                break
+    with open(file_path, 'w', encoding='utf-8'):
+        file[line_number] = 'dimensions      [0 0 0 0 0 0 0];\n'
+
     # try:
     #     with open(file_path, 'rb') as file:
     #         lines = []
