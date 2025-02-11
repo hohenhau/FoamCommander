@@ -249,4 +249,4 @@ if __name__ == "__main__":
     # The "alpha.water" file is changed during simulations so the "alpha.water.gen" file is retained to run future sims
     alpha_water_type_dict = {"inletOutlet": "inletOutlet"}
     alpha_water_value_dict = {"inlet": "uniform 1", "outlet": "uniform 0", "inletOutlet": "uniform 0"}
-    build_zero_file("alphawater.gen", alpha_water_type_dict, alpha_water_value_dict)
+    build_zero_file("alphawatergen", alpha_water_type_dict, alpha_water_value_dict)
