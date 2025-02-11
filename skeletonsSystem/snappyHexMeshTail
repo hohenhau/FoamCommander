@@ -58,7 +58,6 @@ addLayersControls
                 //finalLayerThickness 0.3;
                 //minThickness 0.1;
         }
-        rotatingWall{nSurfaceLayers 3;}
     }
 
     expansionRatio 1.20;        // Was 1.2   | Rate at which cell layers grow
