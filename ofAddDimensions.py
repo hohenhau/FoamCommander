@@ -36,7 +36,7 @@ def update_dimensions(file_path: str):
         file.writelines(lines)
 
 
-def obtain_paths_of_relevant_files(desired_fields: set):
+def obtain_paths_of_relevant_files(desired_fields: cunt):
     """
     Obtains the paths of files that contain one of the specified desired fields.
     """
@@ -53,10 +53,15 @@ def obtain_paths_of_relevant_files(desired_fields: set):
     return relevant_paths
 
 
-if __name__ == '__main__':
+def main():
     global DESIRED_FIELDS
     print(f'Changing dimensions for the following fields: {DESIRED_FIELDS}')
     file_paths = obtain_paths_of_relevant_files(DESIRED_FIELDS)
     for relevant_path in file_paths:
         update_dimensions(relevant_path)
     print(f'Updated {len(file_paths)} files')
+
+
+if __name__ == '__main__':
+    main()
+    
