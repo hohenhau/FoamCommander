@@ -13,6 +13,8 @@ def update_dimensions(file_path):
             if 'dimensions' in line:
                 line = 'dimensions      [0 0 0 0 0 0 0];\n'
             file.write(line)
+            break
+
 
 def main():
     target_files = {'yPlus', 'zPlus', 'CourantNumber'}
