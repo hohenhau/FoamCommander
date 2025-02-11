@@ -8,7 +8,6 @@
 
 FoamFile
 {
-    version     2.0;
     format      ascii;
     class       dictionary;
     object      blockMeshDict;
@@ -16,8 +15,7 @@ FoamFile
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// Define scaling factor (0.1 = scale down, 1 = no change, 10 = scale up)
-scale 1;
+scale 1; // Define scaling factor (0.1 = down, 1 = no change, 10 = up)
 
 
 // -------------- Define block mesh coordinates -------------- //
@@ -27,6 +25,7 @@ Ymin -1.500000;  // minimum y
 Ymax  1.500000;  // maximum y
 Zmin -1.000000;  // minimum z
 Zmax -1.000000;  // maximum z
+
 
 // ------------- Define cell sizes in each block ------------- //
 deltaX 0.05;  // Cell size in x-direction
@@ -64,7 +63,6 @@ edges();
 
 
 // ---------------------- Setup of faces --------------------- //
-
 boundary
 (
     minX{type patch; faces ((0 4 7 3));}
