@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import csv
 from io import StringIO
 from tabulate import tabulate
