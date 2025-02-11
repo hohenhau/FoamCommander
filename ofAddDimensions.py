@@ -32,7 +32,7 @@ def update_dimensions(file_path: str):
         print(f"No closing '];' found for dimensions field in {file_path}")
         return
     # Replace the old dimensions with the new ones
-    new_dimensions = b'dimensions      [0 0 0 0 0 0 0];\n'
+    new_dimensions = b'dimensions      [0 0 0 0 0 0 0];'
     new_data = data[:start_index] + new_dimensions + data[end_index+2:]
     # Write the modified binary data back to the file
     with open(file_path, 'wb') as file:
