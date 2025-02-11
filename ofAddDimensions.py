@@ -39,8 +39,12 @@ def main():
     for time_step in time_steps:
         time_dir = os.path.join(base_dir, time_step)
         for field in fields:
+            # Collect all files from the directory
             time_files = [i for i in os.listdir(time_dir)]
-            relevant_files += [i for i in time_files if os.path.isfile(i) and field in i]
+            # Filter out the relevant files using the fields
+            time_files = [i for i in time_files if os.path.isfile(i) and field in i]
+            print(time_files)
+            relevant_files = relevant_files + time_files
     for files in relevant_files:
         print(files)
         
