@@ -27,21 +27,16 @@ porosityA
         cellZone        honeycombCells; // Cell zone name (must match to snappyHexMesh)
         type            DarcyForchheimer; // Options: {DarcyForchheimer, PowerLaw}
 
-        // Set the viscous terms very high to only allow flow in one direction
+        // Very high viscous terms can restrict the flow to a single direction
         d   (7e5 1e10 1e10);  // (x y z) Darcy (viscous) term - proportional to velocity
         f   (  5    0    0);  // (x y z) Forchheimer (inertial) term - proportional to velocity^2
 
         coordinateSystem
         {
             origin  (0 0 0);  // Optional to set separate coordinate system
-
-            rotation
-            {
-                type    axesRotation;
                 e1  (1 0 0); // Primary direction (first basis vector)
                 e2  (0 1 0); // Secondary direction (second basis vector)
                 // Third axis (e3) is automatically computed (e1 x e2)
-            }
         }
     }
 }
