@@ -1,0 +1,47 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  User generated                        |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      sampleDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+graphA
+{
+    fields (U p);                  // Fields to be included
+    interpolationScheme cellPoint; // Linear weighted interpolation using cell values
+    setFormat csv;                 // Write format for the graph
+    writeControl writeTime;        // Interval at which to write data
+    type sets;                     // Options: {sets, surfaces, clouds, patches}
+    libs ("libsampling.so");       // Sampling library to be used
+
+    sharedConfig  // Configuration shared by all sets
+    {
+        type     uniform;  // midPoint, midPointAndFace
+        axis     xyz;      // Options: {x, y, z, xyz}
+        nPoints  101;      // Number of sampling points
+    }
+
+    sets
+    (
+        centre // Name of set
+        {
+            $sharedConfig;  // Add shared configuration
+            start (0 0 0);  // Start of the line
+            end   (3 0 0);  // End of the line
+        }
+    );
+}
+
+// ************************************************************************* //
+
