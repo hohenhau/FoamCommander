@@ -16,7 +16,7 @@ FoamFile
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-porosity1
+porosityA
 {
     type          explicitPorositySource;
     active        yes;
