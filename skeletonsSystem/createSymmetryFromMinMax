@@ -1,0 +1,39 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  User generated                        |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      createPatchDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+pointSync false;  // Synchronisation of coupled points after creation
+
+patches
+(
+    {
+        name mirrorMin;               // name of new patch
+        patchInfo {type symmetry;}    // type of new patch
+        constructFrom patches;        // Options {'patches', 'set'}
+        patches (minY);               // name of old patches (can be blockmesh patches)
+    }
+      
+    {
+        name mirrorMax;               // name of new patch
+        patchInfo {type symmetry;}    // type of new patch
+        constructFrom patches;        // Options {'patches', 'set'}
+        patches (minY);               // name of old patches (can be blockmesh patches)
+    }
+);
+
+// ************************************************************************* //
+
