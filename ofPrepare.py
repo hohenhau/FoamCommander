@@ -170,6 +170,7 @@ def build_zero_file(base_name: str, local_boundary_types: dict, local_boundary_v
                 continue
             if patch_type in {'baffle', 'cyclic'}:
                 patches = [f"{char}{i}" for char in patches for i in [0, 1]]
+                patch_type = 'cyclic'
             # Join patches with '|' and wrap in parentheses
             patch_group = f'"{patches[0]}"' if len(patches) == 1 else f'"({"|".join(patches)})"'
             outfile.write(f'    {patch_group}\n    {{\n')
