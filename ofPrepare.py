@@ -19,8 +19,10 @@ os.makedirs(ZERO_DIR, exist_ok=True)
 
 def get_patch_type_from_patch_name(input_name: str):
     """Determine the patch type based on keywords in the name."""
-    common_types = ['inlet', 'inletOutlet', 'outlet', 'empty', 'baffle', 'symmetry', 'slip', 'cyclicAMI', 'cyclic', 'honeycomb']
+    common_types = ['inlet', 'inletOutlet', 'outlet', 'empty', 'symmetry', 'slip', 'cyclicAMI', 'cyclic']
     additional_types = [('mirror', 'symmetry'),
+                        ('honeycomb', 'honeycomb'),
+                        ('baffle', 'baffle'),
                         ('screen', 'baffle'),
                         ('porous', 'baffle'),
                         ('min', 'empty'),
@@ -46,42 +48,11 @@ def get_boundary_type_from_patch_type(input_type: str):
     return 'zeroGradient'
 
 
-def build_zero_file(base_name: str, local_boundary_types: dict, local_boundary_values: dict):
-    """Creates a file in the zero directory with grouped patch settings."""
-    output_path = os.path.join(ZERO_DIR, base_name)
-    skeleton_head_path = os.path.join(SKELETON_BOUNDARY_DIR, f"{base_name}Head")
-    # Group patches by type
-    patch_groups = {}
-    for patch_name in patch_names:
-        patch_type = get_patch_type_from_patch_name(patch_name)
-        if patch_type not in local_boundary_types:
-            local_boundary_types[patch_type] = get_boundary_type_from_patch_type(patch_type)
-        if patch_type not in patch_groups:
-            patch_groups[patch_type] = []
-        patch_groups[patch_type].append(patch_name)
-    # Write the header
-    with open(output_path, 'w') as outfile, open(skeleton_head_path) as head:
-        outfile.write(head.read())
-        # Write grouped patches using pipe separator
-        for patch_type, patches in patch_groups.items():
-            # Join patches with '|' and wrap in parentheses
-            patch_group = f'"{patches[0]}"' if len(patches) == 1 else f'"({"|".join(patches)})"'
-            outfile.write(f'    {patch_group}\n    {{\n')
-            outfile.write(f'        type            {local_boundary_types.get(patch_type, "wall")};\n')
-            if patch_type in local_boundary_values:
-                outfile.write(f'        value           {local_boundary_values[patch_type]};\n')
-            outfile.write('    }\n')
-        outfile.write('    "(minX|maxX|minY|maxY|minZ|maxZ)"\n')
-        outfile.write('    {\n        type            zeroGradient;\n    }\n')
-        outfile.write('}\n')
-
-
-def process_stl_files():
+def load_and_process_stl_files():
     """Processes STL files, renaming and extracting patch names."""
     if not os.path.exists(TRI_SURFACE_DIR) or not os.path.isdir(TRI_SURFACE_DIR):
         print(f"Error: Directory '{TRI_SURFACE_DIR}' does not exist.")
         sys.exit(1)  # Terminate program
-
     stl_files = [f for f in os.listdir(TRI_SURFACE_DIR) if f.lower().endswith(".stl")]
     if not stl_files:
         print("No STL files found. Exiting...")
@@ -156,7 +127,7 @@ def create_snappy_hex_mesh_dict():
         shm_file.write('        );\n\n')
         # Write block for refinement surfaces
         shm_file.write('        refinementSurfaces  // MANDATORY: Definition and refinement of surfaces\n')
-        shm_file.wite('        { // Refinement levels (min max) are linked to the proximity to a surface')
+        shm_file.write('        { // Refinement levels (min max) are linked to the proximity to a surface')
         for patch in patch_names:
             patch_type = get_patch_type_from_patch_name(patch)
             if patch_type == 'baffle':
@@ -176,16 +147,45 @@ def create_snappy_hex_mesh_dict():
         shm_file.write(tail.read())
 
 
-if __name__ == "__main__":
-    print(f"Processing directory: {CURRENT_DIR}")
-    patch_names = process_stl_files()
-    create_surface_features_dict()
-    create_snappy_hex_mesh_dict()
+def build_zero_file(base_name: str, local_boundary_types: dict, local_boundary_values: dict):
+    """Creates a file in the zero directory with grouped patch settings."""
+    output_path = os.path.join(ZERO_DIR, base_name)
+    skeleton_head_path = os.path.join(SKELETON_BOUNDARY_DIR, f"{base_name}Head")
+    # Group patches by type
+    patch_groups = {}
+    for patch_name in patch_names:
+        patch_type = get_patch_type_from_patch_name(patch_name)
+        if patch_type not in local_boundary_types:
+            local_boundary_types[patch_type] = get_boundary_type_from_patch_type(patch_type)
+        if patch_type not in patch_groups:
+            patch_groups[patch_type] = []
+        patch_groups[patch_type].append(patch_name)
+    # Write the header
+    with open(output_path, 'w') as outfile, open(skeleton_head_path) as head:
+        outfile.write(head.read())
+        # Write grouped patches using pipe separator
+        for patch_type, patches in patch_groups.items():
+            # Do not add surfaces associated with baffles or honeycombs as boundaries
+            if patch_type in {'baffle', 'honeycomb'}:
+                continue
+            # Join patches with '|' and wrap in parentheses
+            patch_group = f'"{patches[0]}"' if len(patches) == 1 else f'"({"|".join(patches)})"'
+            outfile.write(f'    {patch_group}\n    {{\n')
+            outfile.write(f'        type            {local_boundary_types.get(patch_type, "wall")};\n')
+            if patch_type in local_boundary_values:
+                outfile.write(f'        value           {local_boundary_values[patch_type]};\n')
+            outfile.write('    }\n')
+        outfile.write('    "(minX|maxX|minY|maxY|minZ|maxZ)"\n')
+        outfile.write('    {\n        type            zeroGradient;\n    }\n')
+        outfile.write('}\n')
 
+
+def create_zero_files():
+    """Build the zero files for the various fields and boundaries"""
     # Initial conditions U (velocity)
-    U_boundary_types = {"wall": "fixedValue"}
-    U_boundary_values = {"inlet": "uniform (0 0 0)", "wall": "uniform (0 0 0)"}
-    build_zero_file("U", U_boundary_types, U_boundary_values)
+    u_boundary_types = {"wall": "fixedValue"}
+    u_boundary_values = {"inlet": "uniform (0 0 0)", "wall": "uniform (0 0 0)"}
+    build_zero_file("U", u_boundary_types, u_boundary_values)
 
     # Initial conditions for p (pressure)
     p_boundary_types = {"inlet": "zeroGradient",
@@ -245,3 +245,11 @@ if __name__ == "__main__":
     alpha_water_type_dict = {"inletOutlet": "inletOutlet"}
     alpha_water_value_dict = {"inlet": "uniform 1", "outlet": "uniform 0", "inletOutlet": "uniform 0"}
     build_zero_file("alphawatergen", alpha_water_type_dict, alpha_water_value_dict)
+
+
+if __name__ == "__main__":
+    print(f"Processing directory: {CURRENT_DIR}")
+    patch_names = load_and_process_stl_files()
+    create_surface_features_dict()
+    create_snappy_hex_mesh_dict()
+    create_zero_files()
