@@ -28,7 +28,7 @@ porosityA
         type            DarcyForchheimer; // Options: {DarcyForchheimer, PowerLaw}
 
         // Set the viscous terms very high to only allow flow in one direction
-        d   (7e5 1e10 1e10);  // (x y z) Darcy (viscous) term - proportional to velocity 
+        d   (7e5 1e10 1e10);  // (x y z) Darcy (viscous) term - proportional to velocity
         f   (  5    0    0);  // (x y z) Forchheimer (inertial) term - proportional to velocity^2
 
         coordinateSystem
