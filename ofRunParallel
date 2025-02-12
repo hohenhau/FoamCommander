@@ -20,5 +20,3 @@ SOLVER=$(foamDictionary -entry application -value system/controlDict)
 
 # Run the detected solver in parallel
 mpirun -np $NPROCS --rankfile system/rankfile $SOLVER -parallel 2>&1 | tee log
-# mpirun -np $NPROCS foamRun -solver $SOLVER -parallel 2>&1 | tee log
-# foamJob -parallel -np $NPROCS foamRun -solver $SOLVER 2>&1 | tee log
