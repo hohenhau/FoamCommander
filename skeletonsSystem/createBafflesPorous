@@ -23,8 +23,8 @@ baffles  // Baffles to create
 {
     cyclicFacesA  // First baffle to be created
     {
-        type        faceZone;      // select faces & orientation
-        zoneName    screenFacesA;  // name specified in snappyhexmesh
+        type        faceZone;           // select faces & orientation
+        zoneName    porousBaffleFaces;  // name specified in snappyhexmesh
 
         patches
         {
