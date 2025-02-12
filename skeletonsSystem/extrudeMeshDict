@@ -1,0 +1,64 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  User generated                        |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      extrudeProperties;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// What to extrude. Options:
+//      patch   : from patch of another case ('sourceCase')
+//      mesh    : as above but with original case included
+//      surface : from externally read surface
+constructFrom patch;
+
+sourceCase ".";  // If construct from (flipped) patch
+
+sourcePatches (minSurface);  // If construct from surface
+
+exposedPatchName maxSurface;  // If construct from patch: patch to use for back (can be same as sourcePatch)
+
+flipNormals true;  // Flip surface normals before usage.
+
+extrudeModel linearNormal;  // Linear extrusion in point-normal direction
+
+nLayers 1;  // Number of layers to be extruded
+
+expansionRatio 1.0;  // Expansion rate of layers
+
+linearNormalCoeffs {thickness 0.001;}  // Thickness of extruded layer
+
+mergeFaces false; // Merge front and back? Usually only makes sense for 360deg wedges
+
+mergeTol 0; // Merge small edges. Fraction of bounding box
+
+
+/*
+Extrusion Models:
+extrudeModel linearNormal;  // Linear extrusion in point-normal direction
+extrudeModel linearRadial;  // Extrudes into sphere around (0 0 0)
+extrudeModel sigmaRadial;  // Extrudes into sphere with grading according to pressure (atmospherics)
+extrudeModel wedge;  // Wedge extrusion. If nLayers is 1 assumes symmetry around plane.
+
+linearRadialCoeffs{R 0.1;}
+sigmaRadialCoeffs {RTbyg 1; pRef 1; pStrat 1;}
+wedgeCoeffs
+{
+    axisPt      (0  2.1 0);
+    axis        (-1   0 0);
+    angle       360;  // For nLayers=1 assume symmetry so angle/2 on each side
+}
+
+*/
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
