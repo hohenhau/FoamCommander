@@ -22,9 +22,9 @@ def get_patch_type_from_patch_name(input_name: str):
     common_types = ['inlet', 'inletOutlet', 'outlet', 'empty', 'symmetry', 'slip', 'cyclicAMI', 'cyclic']
     additional_types = [('mirror', 'symmetry'),
                         ('honeycomb', 'honeycomb'),
-                        ('baffle', 'baffle'),
-                        ('screen', 'baffle'),
-                        ('porous', 'baffle'),
+                        ('baffle', 'cyclic'),
+                        ('screen', 'cyclic'),
+                        ('porous', 'cyclic'),
                         ('min', 'empty'),
                         ('max', 'empty'),
                         ('atmosphere', 'inletOutlet')]
@@ -168,7 +168,7 @@ def build_zero_file(base_name: str, local_boundary_types: dict, local_boundary_v
             # Do not add surfaces associated with baffles or honeycombs as boundaries
             if patch_type == 'honeycomb':
                 continue
-            if patch_type == 'baffle':
+            if patch_type == 'cyclic':
                 patches = [f"{char}{i}" for char in patches for i in [0, 1]]
             # Join patches with '|' and wrap in parentheses
             patch_group = f'"{patches[0]}"' if len(patches) == 1 else f'"({"|".join(patches)})"'
