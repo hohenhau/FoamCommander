@@ -1,0 +1,66 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  User generated                        |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      createBafflesDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Only relevant if your face selection type can pick up a boundary
+internalFacesOnly true;  // Only relevant if face selection can detect boundaries
+
+baffles  // Baffles to create
+{
+    cyclicFacesA  // First baffle to be created
+    {
+        type        faceZone;      // select faces & orientation
+        zoneName    screenFacesA;  // name specified in snappyhexmesh
+
+        patches
+        {
+            master  // Master side patch
+            {
+                name            porous_halfA0;
+                type            cyclic;
+                neighbourPatch  porous_halfA1;
+
+                patchFields  // Optional override of patchfields (default is type "calculated")
+                {
+                    p
+                    {
+                        type            porousBafflePressure;
+                        patchType       cyclic;
+                        D               21800000;  // Darcy coefficient (porosity = 0.54)
+                        I               657;       // Inertial coefficient
+                        length          0.003;     // Linear scaling of pressure drop
+                        uniformJump     false;
+                        value           uniform 0;
+                    }
+                }
+            }
+
+            slave  // Slave side patch
+            {
+                name            porous_halfA1;
+                type            cyclic;
+                neighbourPatch  porous_halfA0;
+                patchFields {${...master.patchFields}}
+            }
+        }
+    }
+    // cyclicFacesB  // Specify additional baffles here
+    // {
+    // }
+}
+
+// ************************************************************************* //
