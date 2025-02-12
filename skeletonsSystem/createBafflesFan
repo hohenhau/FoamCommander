@@ -1,0 +1,64 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  User generated                        |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      createBafflesDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Only relevant if your face selection type can pick up a boundary
+internalFacesOnly true;  // Only relevant if face selection can detect boundaries
+
+baffles  // Baffles to create
+{
+    cyclicFacesA  // First baffle to be created
+    {
+        type        faceZone;      // select faces & orientation
+        zoneName    screenFacesA;  // name specified in snappyhexmesh
+
+        patches
+        {
+            master  // Master side patch
+            {
+                name            fan_halfA0;
+                type            cyclic;
+                neighbourPatch  fan_halfA1;
+
+                patchFields  // Optional override of patchfields (default is type "calculated")
+                {
+                    p
+                    {
+                        type            fan;
+                        patchType       cyclic;
+                        jump            uniform 0;
+                        value           uniform 0;
+                        jumpTable       constant 1000;      //was polynomial 1((100 0));
+                    }
+                }
+            }
+
+            slave  // Slave side patch
+            {
+                name            fan_halfA1;
+                type            cyclic;
+                neighbourPatch  fan_halfA0;
+                patchFields {${...master.patchFields}}
+            }
+        }
+    }
+    // cyclicFacesB  // Specify additional baffles here
+    // {
+    // }
+}
+
+// ************************************************************************* //
