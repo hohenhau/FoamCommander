@@ -27,18 +27,19 @@ porosity1
         cellZone        honeycombCells; // Name of cell zone (match to snappyHexMesh)
         type            DarcyForchheimer; // Power law is another option
 
-        d   (1e10 1e10 7e5);    // Darcy (viscous) term - proportional to velocity 
-        f   (   0    0   5);    // Forchheimer (inertial) term - proportional to velocity^2
+        d   (1e10 1e10 7e5);  // (x y z) Darcy (viscous) term - proportional to velocity 
+        f   (   0    0   5);  // (x y z) Forchheimer (inertial) term - proportional to velocity^2
 
         coordinateSystem
         {
-            origin  (0 0 0);    // Optional to set separate coordinate system
+            origin  (0 0 0);  // Optional to set separate coordinate system
 
             rotation
             {
                 type    axesRotation;
-                e1  (1 0 0);
-                e2  (0 1 0);
+                e1  (1 0 0); // Primary direction (first basis vector)
+                e2  (0 1 0); // Secondary direction (second basis vector)
+                // Third axis (e3) is automatically computed (e1 x e2)
             }
         }
     }
