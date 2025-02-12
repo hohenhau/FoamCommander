@@ -1,8 +1,8 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  User generated                        |
-|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|  \\    /   O peration     | Version: 12                                     |
+|   \\  /    A nd           | Web:      www.openfoam.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 
@@ -16,51 +16,66 @@ FoamFile
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// Only relevant if your face selection type can pick up a boundary
-internalFacesOnly true;  // Only relevant if face selection can detect boundaries
+// Wire Screen Parameters
+D 21800000;  // Darcy coefficient
+I 657;       // Inertial coefficient
+L 0.03;      // Linear scaling of pressure drop
 
-baffles  // Baffles to create
+// Only relevant if your face selection type can pick up a boundary
+internalFacesOnly true;  // Ensures only internal faces are selected
+
+baffles  // Define baffles to be created
 {
-    cyclicFacesA  // First baffle to be created
+    porousBaffle  // Name of the baffle
     {
-        type        faceZone;           // select faces & orientation
-        zoneName    porousBaffleFaces;  // name specified in snappyhexmesh
+        type        faceZone;      // Select faces & orientation
+        zoneName    porousBaffleFaces;  // Face zone name as defined in snappyHexMesh
 
         patches
         {
-            master  // Master side patch
+            master  // Master patch
             {
                 name            porous_halfA0;
                 type            cyclic;
                 neighbourPatch  porous_halfA1;
-
-                patchFields  // Optional override of patchfields (default is type "calculated")
+                transform       none;  // No rotational transformation
+                patchFields  // Optional override of patch fields
                 {
                     p
                     {
                         type            porousBafflePressure;
                         patchType       cyclic;
-                        D               21800000;  // Darcy coefficient (porosity = 0.54)
-                        I               657;       // Inertial coefficient
-                        length          0.003;     // Linear scaling of pressure drop
+                        D               $D;  // Darcy coefficient
+                        I               $I;  // Inertial coefficient
+                        length          $L;  // Scaling of pressure drop
                         uniformJump     false;
                         value           uniform 0;
                     }
                 }
             }
 
-            slave  // Slave side patch
+            slave  // Slave patch
             {
                 name            porous_halfA1;
                 type            cyclic;
                 neighbourPatch  porous_halfA0;
-                patchFields {${...master.patchFields}}
+                transform       none;
+                patchFields  // Explicitly define patch fields
+                {
+                    p
+                    {
+                        type            porousBafflePressure;
+                        patchType       cyclic;
+                        D               $D;  // Darcy coefficient
+                        I               $I;  // Inertial coefficient
+                        length          $L;  // Scaling of pressure drop
+                        uniformJump     false;
+                        value           uniform 0;
+                    }
+                }
             }
         }
     }
-    // cyclicFacesB  // Specify additional baffles here
-    // {
-    // }
 }
 
 // ************************************************************************* //
