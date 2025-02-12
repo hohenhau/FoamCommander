@@ -167,17 +167,17 @@ def create_snappy_hex_mesh_dict():
         for patch in patch_names:
             patch_type = get_patch_type_from_patch_name(patch)
             if patch_type == 'baffle':
-                shm_file.write(f'            {patch} {{level (0 0); faceZone {patch_type}Faces; }}\n')
+                shm_file.write(f'            {patch} {{level (0 0); faceZone {patch}Faces; }}\n')
             elif patch_type == 'honeycomb':
                 shm_file.write(f'            {patch}\n')
                 shm_file.write('                {level (0 0);\n')
                 shm_file.write(f'                faceZone {patch}Faces;\n')
                 shm_file.write(f'                cellZone {patch}Cells;\n')
                 shm_file.write('                cellZoneInside inside;}\n')
-            elif patch_type == 'wall':
+            elif patch_type in {'wall', 'slip', 'empty', 'symmetry'}:
                 shm_file.write(f'            {patch} {{level (0 0); patchInfo {{type {patch_type};}} }}\n')
             else:
-                shm_file.write(f'            {patch} {{level (0 0); patchInfo {{type "patch";}} }}\n')
+                shm_file.write(f'            {patch} {{level (0 0); patchInfo {{type patch;}} }}\n')
 
         # Write contents of skeleton tail
         shm_file.write(tail.read())
