@@ -50,7 +50,6 @@ def build_zero_file(base_name: str, local_boundary_types: dict, local_boundary_v
     """Creates a file in the zero directory with grouped patch settings."""
     output_path = os.path.join(ZERO_DIR, base_name)
     skeleton_head_path = os.path.join(SKELETON_BOUNDARY_DIR, f"{base_name}Head")
-
     # Group patches by type
     patch_groups = {}
     for patch_name in patch_names:
@@ -60,7 +59,6 @@ def build_zero_file(base_name: str, local_boundary_types: dict, local_boundary_v
         if patch_type not in patch_groups:
             patch_groups[patch_type] = []
         patch_groups[patch_type].append(patch_name)
-
     # Write the header
     with open(output_path, 'w') as outfile, open(skeleton_head_path) as head:
         outfile.write(head.read())
@@ -88,7 +86,6 @@ def process_stl_files():
     if not stl_files:
         print("No STL files found. Exiting...")
         sys.exit(1)  # Terminate program
-
     patches = list()
     for filename in stl_files:
         filepath = os.path.join(TRI_SURFACE_DIR, filename)
@@ -139,29 +136,24 @@ def create_snappy_hex_mesh_dict():
     output_path = os.path.join(SYSTEM_DIR, "snappyHexMeshDict.gen")
     skeleton_head_path = os.path.join(SKELETON_SYSTEM_DIR, "snappyHexMeshHead")
     skeleton_tail_path = os.path.join(SKELETON_SYSTEM_DIR, "snappyHexMeshTail")
-
     # Write contents of skeleton header
     with open(output_path, 'w') as shm_file, open(skeleton_head_path) as head, open(skeleton_tail_path) as tail:
         shm_file.write(head.read())
-
         # Write geometry list consisting of .stl files
         for patch in patch_names:
             shm_file.write(f'        {patch}.stl {{type triSurfaceMesh; name {patch}; file "{patch}.stl";}}\n')
         shm_file.write('        // refinementBox {type searchableBox; min (0.0 0.0 0.0); max (1.0 1.0 1.0);}\n')
         shm_file.write('};\n\n')
-
         # Write blocks for castellated mesh generation
         shm_file.write('// Settings for castellatedMesh generation\n')
         shm_file.write('// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n')
         shm_file.write('castellatedMeshControls\n{\n')
-
         # Write block for features
         shm_file.write('        features  // OPTIONAL: Refinement of edges (default = {file "name.eMesh"; level 0;}\n')
         shm_file.write('        (\n')
         for patch in patch_names:
             shm_file.write(f'            {{file "{patch}.eMesh"; level 3;}}\n')
         shm_file.write('        );\n\n')
-
         # Write block for refinement surfaces
         shm_file.write('        refinementSurfaces  // MANDATORY: Definition and refinement of surfaces\n')
         shm_file.wite('        { // Refinement levels (min max) are linked to the proximity to a surface')
@@ -179,7 +171,7 @@ def create_snappy_hex_mesh_dict():
                 shm_file.write(f'            {patch} {{level (0 0); patchInfo {{type {patch_type};}} }}\n')
             else:
                 shm_file.write(f'            {patch} {{level (0 0); patchInfo {{type patch;}} }}\n')
-
+        shm_file.write('        }\n\n')
         # Write contents of skeleton tail
         shm_file.write(tail.read())
 
