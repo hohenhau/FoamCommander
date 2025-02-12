@@ -42,7 +42,7 @@ constraints            // OPTIONAL decomposition constraints
     }*/
 
     /* Keep owner and neighbour of BAFFLES on the same processor
-    // Use for porous wire screens
+    // Use for porousBaffles, fanBaffles, wire screens, etc.
     preserveBaffles
     {
         type    preserveBaffles;
