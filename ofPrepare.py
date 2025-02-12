@@ -163,7 +163,8 @@ def create_snappy_hex_mesh_dict():
         shm_file.write('        );\n\n')
 
         # Write block for refinement surfaces
-        shm_file.write('        refinementSurfaces  // MANDATORY: Definition and refinement of surfaces\n        {\n')
+        shm_file.write('        refinementSurfaces  // MANDATORY: Definition and refinement of surfaces\n')
+        shm_file.wite('        { // Refinement levels (min max) are linked to the proximity to a surface')
         for patch in patch_names:
             patch_type = get_patch_type_from_patch_name(patch)
             if patch_type == 'baffle':
