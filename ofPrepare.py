@@ -23,8 +23,8 @@ def get_patch_type_from_patch_name(input_name: str):
     additional_types = [('mirror', 'symmetry'),
                         ('honeycomb', 'honeycomb'),
                         ('baffle', 'baffle'),
-                        ('screen', 'baffle'),
                         ('porous', 'baffle'),
+                        ('screen', 'baffle'),
                         ('min', 'empty'),
                         ('max', 'empty'),
                         ('atmosphere', 'inletOutlet')]
@@ -40,7 +40,8 @@ def get_boundary_type_from_patch_type(input_type: str):
     common_boundary_types = ['empty', 'symmetry', 'slip', 'cyclicAMI', 'cyclic']
     additional_boundary_types = [('inlet', 'fixedValue'),
                                  ('outlet', 'zeroGradient'),
-                                 ('wall', 'zeroGradient')]
+                                 ('wall', 'zeroGradient'),
+                                 ('baffle', 'cyclic')]
     all_types = [(i, i) for i in common_boundary_types] + additional_boundary_types
     for patch_type, boundary_type in all_types:
         if patch_type.lower() in input_type.lower():
@@ -170,7 +171,6 @@ def build_zero_file(base_name: str, local_boundary_types: dict, local_boundary_v
                 continue
             if patch_type in {'baffle', 'cyclic'}:
                 patches = [f"{char}{i}" for char in patches for i in [0, 1]]
-                patch_type = 'cyclic'
             # Join patches with '|' and wrap in parentheses
             patch_group = f'"{patches[0]}"' if len(patches) == 1 else f'"({"|".join(patches)})"'
             outfile.write(f'    {patch_group}\n    {{\n')
