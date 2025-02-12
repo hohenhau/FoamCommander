@@ -24,7 +24,6 @@ NPROCS=$(foamDictionary -entry numberOfSubdomains -value system/decomposeParDict
 # Run snappyHexMesh in parallel, logging the output to 'log_mesh'
 mpirun -np $NPROCS --rankfile system/rankfile snappyHexMesh -parallel -overwrite 2>&1 | tee log_mesh
 
-mpirun -np $NPROCS snappyHexMesh -parallel -overwrite -rankfile system/rankfile 2>&1 | tee log_mesh
 # foamJob -parallel -np $NPROCS snappyHexMesh -overwrite 2>&1 | tee log_mesh
 
 # Renumber the mesh to improve the performance after refinement
