@@ -10,4 +10,4 @@ NPROCS=$(foamDictionary -entry numberOfSubdomains -value system/decomposeParDict
 SOLVER=$(foamDictionary -entry application -value system/controlDict)
 
 # Continue the simulation in parallel & display output on the screen
-mpirun -np $NPROCS $SOLVER -parallel 2>&1 | tee -a log
+mpirun -np $NPROCS $SOLVER -parallel -rankfile system/rankfile 2>&1 | tee -a log
