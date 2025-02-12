@@ -23,9 +23,9 @@ porosity1
 
     explicitPorositySourceCoeffs
     {
-        selectionMode   cellZone;
-        cellZone        honeycombCells; // Name of cell zone (match to snappyHexMesh)
-        type            DarcyForchheimer; // Power law is another option
+        selectionMode   cellZone; // Options: {cellZone, points, box, cylinder, sphere}
+        cellZone        honeycombCells; // Cell zone name (must match to snappyHexMesh)
+        type            DarcyForchheimer; // Options: {DarcyForchheimer, PowerLaw}
 
         d   (1e10 1e10 7e5);  // (x y z) Darcy (viscous) term - proportional to velocity 
         f   (   0    0   5);  // (x y z) Forchheimer (inertial) term - proportional to velocity^2
