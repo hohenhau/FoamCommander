@@ -30,7 +30,7 @@ mpirun -np $NPROCS --rankfile system/rankfile snappyHexMesh -parallel -overwrite
 renumberMesh -constant -noZero -overwrite
 
 # Reconstruct the decomposed mesh back into a single mesh (useful for post-processing)
-reconstructParMesh -constant -withZero
+redistributePar -reconstruct
 
 # Remove meshing directories
 rm -r processor*
