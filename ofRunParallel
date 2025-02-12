@@ -4,7 +4,7 @@
 rm -r processor* ???
 
 # Decompose the domain for parallel computing
-decomposePar
+decomposePar -copyZero
 
 # Renumber the mesh for better convergence (not usable with cyclics!)
 # renumberMesh -overwrite -constant
