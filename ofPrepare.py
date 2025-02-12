@@ -166,8 +166,10 @@ def build_zero_file(base_name: str, local_boundary_types: dict, local_boundary_v
         # Write grouped patches using pipe separator
         for patch_type, patches in patch_groups.items():
             # Do not add surfaces associated with baffles or honeycombs as boundaries
-            if patch_type in {'baffle', 'honeycomb'}:
+            if patch_type == 'honeycomb':
                 continue
+            if patch_type == 'baffle':
+                patches = [f"{char}{i}" for char in patches for i in [0, 1]]
             # Join patches with '|' and wrap in parentheses
             patch_group = f'"{patches[0]}"' if len(patches) == 1 else f'"({"|".join(patches)})"'
             outfile.write(f'    {patch_group}\n    {{\n')
