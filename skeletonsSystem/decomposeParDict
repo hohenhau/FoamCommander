@@ -37,7 +37,7 @@ constraints            // OPTIONAL decomposition constraints
     singleProcessorFaceSets
     {
         type    singleProcessorFaceSets;
-        singleProcessorFaceSets ((f1 -1));
+        singleProcessorFaceSets ((exampleName -1));
         enabled false;
     }*/
 
@@ -50,7 +50,7 @@ constraints            // OPTIONAL decomposition constraints
     }*/
 
     /* Keep onwer and neighbour of FACE ZONES on the same processor
-    // Use for face zones
+    // Use for face zones, i.e. the surfaces of honeycombs
     preserveFaceZones
     {
         type    preserveFaceZones;
