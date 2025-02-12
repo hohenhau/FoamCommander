@@ -19,14 +19,13 @@ os.makedirs(ZERO_DIR, exist_ok=True)
 
 def get_patch_type_from_patch_name(input_name: str):
     """Determine the patch type based on keywords in the name."""
-    common_types = ['inlet', 'outlet', 'empty', 'symmetry', 'slip', 'cyclicAMI', 'cyclic']
+    common_types = ['inlet', 'inletOutlet', 'outlet', 'empty', 'baffle', 'symmetry', 'slip', 'cyclicAMI', 'cyclic', 'honeycomb']
     additional_types = [('mirror', 'symmetry'),
-                        ('screen', 'screen'),
-                        ('baffle', 'screen'),
+                        ('screen', 'baffle'),
+                        ('porous', 'baffle'),
                         ('min', 'empty'),
                         ('max', 'empty'),
-                        ('atmosphere', 'inletOutlet'),
-                        ('porous', 'porousBafflePressure')]
+                        ('atmosphere', 'inletOutlet')]
     all_types = [(i, i) for i in common_types] + additional_types
     for patch_name, patch_type in all_types:
         if patch_name.lower() in input_name.lower():
@@ -111,7 +110,7 @@ def process_stl_files():
         # If the original file had a different case, remove it
         if filepath != new_filepath:
             os.remove(filepath)
-    return patches
+    return sorted(patches)
 
 
 def create_surface_features_dict():
@@ -167,15 +166,18 @@ def create_snappy_hex_mesh_dict():
         shm_file.write('        refinementSurfaces  // MANDATORY: Definition and refinement of surfaces\n        {\n')
         for patch in patch_names:
             patch_type = get_patch_type_from_patch_name(patch)
-            patch_type = 'patch' if patch_type in {'inlet', 'outlet', 'slip', 'cyclic'} else patch_type
-            shm_file.write(f'            {patch} {{level (0 0); patchInfo {{type {patch_type};}} }}\n')
-        # Write example layout of honeycomb
-        shm_file.write('            // honeycombExample\n')
-        shm_file.write('            //    {level (4 4);\n')
-        shm_file.write('            //    faceZone honeycombFacesA;\n')
-        shm_file.write('            //    cellZone honeycombCellsA;\n')
-        shm_file.write('            //    cellZoneInside inside;}\n')
-        shm_file.write('        }\n\n')
+            if patch_type == 'baffle':
+                shm_file.write(f'            {patch} {{level (0 0); faceZone {patch_type}Faces; }}\n')
+            elif patch_type == 'honeycomb':
+                shm_file.write(f'            {patch}\n')
+                shm_file.write('                {level (0 0);\n')
+                shm_file.write(f'                faceZone {patch}Faces;\n')
+                shm_file.write(f'                cellZone {patch}Cells;\n')
+                shm_file.write('                cellZoneInside inside;}\n')
+            elif patch_type == 'wall':
+                shm_file.write(f'            {patch} {{level (0 0); patchInfo {{type {patch_type};}} }}\n')
+            else:
+                shm_file.write(f'            {patch} {{level (0 0); patchInfo {{type "patch";}} }}\n')
 
         # Write contents of skeleton tail
         shm_file.write(tail.read())
