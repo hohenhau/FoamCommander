@@ -1,0 +1,52 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  User generated                        |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      createPatchDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+pointSync false;  //synchronisation of coupled points after creation
+
+patches
+(
+    {
+        name cyclicPatchA0;                    // New name of 1st patch
+        patches (cyclicA0);                    // Name of stl patch
+        constructFrom patches;                 // Basis of construction
+        patchInfo
+        {
+            type             cyclicAMI;         // Type of new patch
+            matchTolerance   0.00001;           // Bad mesh needs higher tolerance
+            transform        translational;     // Type of connection
+            separationVector (-1.000 0 2.000);  // Distance between patches
+            neighbourPatch   cyclicPatchA1;     // Name of connected patch
+        }
+    }
+
+    {
+        name cyclicPatchA1;                     // New name of 2nd patch
+        patches (cyclicA1);                     // Name of stl patch
+        constructFrom patches;                  // Basis of construction
+        patchInfo
+        {
+            type             cyclicAMI;         // Type of new patch
+            matchTolerance   0.00001;           // Bad mesh needs higher tolerance
+            transform        translational;     // Type of connection
+            separationVector (1.000 0 -2.000);  // Reverse distance between patches 
+            neighbourPatch   cyclicPatchA0;     // Name of connected patch
+        }
+    }
+);
+
+// ************************************************************************* //
