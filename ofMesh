@@ -26,7 +26,7 @@ mpirun -np $NPROCS --rankfile system/rankfile snappyHexMesh -parallel -overwrite
 # foamJob -parallel -np $NPROCS snappyHexMesh -overwrite 2>&1 | tee log_mesh
 
 # Reconstruct the decomposed mesh back into a single mesh (useful for post-processing)
-reconstructPar
+reconstructPar -constant
 
 # Remove meshing directories
 rm -r processor*
