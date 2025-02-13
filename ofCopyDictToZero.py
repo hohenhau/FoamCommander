@@ -17,21 +17,24 @@ def parse_baffle_settings(origin_path):
         content = file.read()
 
     baffle_data = {}
-    patch_pattern = re.compile(r'(\w+)\s*{\s*name\s+(\w+);.*?patchFields\s*{\s*p\s*{(.*?)}}', re.S)
 
-    for patch_match in patch_pattern.finditer(content):
-        logical_patch_name = patch_match.group(1)
-        physical_patch_name = patch_match.group(2)
-        patch_content = patch_match.group(3)
+    patch_block_pattern = re.compile(
+        r'(\w+)\s*{\s*name\s*(\S+);.*?patchFields\s*{\s*p\s*{(.*?)}}', re.S
+    )
+
+    for match in patch_block_pattern.finditer(content):
+        logical_name = match.group(1)
+        physical_name = match.group(2)
+        patch_fields_content = match.group(3)
 
         coefficients = {}
         for key in ['D', 'I', 'length', 'uniformJump', 'value']:
-            match = re.search(fr'{key}\s+(.*?);', patch_content)
-            if match:
-                coefficients[key] = match.group(1).strip()
+            key_match = re.search(fr'{key}\s+(.*?);', patch_fields_content)
+            if key_match:
+                coefficients[key] = key_match.group(1).strip()
 
         if coefficients:
-            base_name = re.sub(r'\d+$', '', physical_patch_name)
+            base_name = re.sub(r'\d+$', '', physical_name)  # Extract base name like porousBaffle
             if base_name not in baffle_data:
                 baffle_data[base_name] = coefficients
 
@@ -58,8 +61,8 @@ def update_target_file(target_path, baffle_data):
         value           {coeffs['value']};
     }}'''
 
-        if re.search(fr'\"{patch_group}\"', content):
-            content = re.sub(fr'\"{patch_group}\".*?}}', patch_block, content, flags=re.S)
+        if re.search(fr'"{patch_group}"', content):
+            content = re.sub(fr'"{patch_group}".*?}}', patch_block, content, flags=re.S)
         else:
             insert_pos = content.rfind('}')
             content = content[:insert_pos] + patch_block + '\n' + content[insert_pos:]
