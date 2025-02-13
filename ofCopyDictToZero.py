@@ -4,6 +4,7 @@
 
 import re
 import sys
+import os
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -108,8 +109,10 @@ def update_p_file_content(p_content: str, patch_configs: Dict[str, Dict]) -> str
 
 def main(source_path: str, target_path: str):
     """Main function to coordinate the configuration copying process."""
-    source = Path(source_path)
-    target = Path(target_path)
+    # Convert paths to be relative to current working directory
+    cwd = os.getcwd()
+    source = Path(cwd) / source_path
+    target = Path(cwd) / target_path
     
     # Read source file
     source_content = read_file(source)
@@ -144,6 +147,7 @@ if __name__ == "__main__":
     #     print("Usage: python script.py <source_file> <target_file>")
     #     print("Example: python script.py system/createBafflePorous 0/p")
     #     sys.exit(1)
+    
     # main(sys.argv[1], sys.argv[2])
     main('system/createBafflePorous', '0/p')
 
