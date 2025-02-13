@@ -24,23 +24,47 @@ def extract_master_patches(content: str) -> Dict[str, Dict]:
     """Extract patch configurations from createBafflePorous file."""
     patches = {}
     
+    # Clean the content by removing ** marks
+    content = re.sub(r'\*+', '', content)
+    
     # Find the baffles section
-    baffles_match = re.search(r'baffles\s*{([^}]*)}', content, re.DOTALL)
+    baffles_match = re.search(r'baffles\s*{(.*?)}(?=\s*//|\s*$)', content, re.DOTALL)
     if not baffles_match:
+        print("Debug: Baffles section not found")
         return patches
 
     baffles_content = baffles_match.group(1)
     
-    # Find all patches with p configuration, regardless of their name
-    patch_pattern = r'[^{]*?name\s+(\w+)[^{]*patchFields\s*{[^{]*p\s*{([^}]*)}'
-    matches = re.finditer(patch_pattern, baffles_content, re.DOTALL)
+    # Find patches section
+    patches_match = re.search(r'patches\s*{(.*?)}(?=\s*//|\s*$)', baffles_content, re.DOTALL)
+    if not patches_match:
+        print("Debug: Patches section not found")
+        return patches
+
+    patches_content = patches_match.group(1)
     
-    for match in matches:
-        patch_name = match.group(1)
-        config = match.group(2)
+    # Find all patches with p configuration
+    patch_sections = re.finditer(r'(\w+)\s*{(?:[^{}]|{(?:[^{}]|{[^{}]*})*})*}', patches_content, re.DOTALL)
+    
+    for section in patch_sections:
+        section_content = section.group(0)
+        
+        # Get patch name
+        name_match = re.search(r'name\s+(\w+)', section_content)
+        if not name_match:
+            continue
+            
+        patch_name = name_match.group(1)
+        
+        # Look for p configuration
+        p_config_match = re.search(r'p\s*{([^}]*)}', section_content, re.DOTALL)
+        if not p_config_match:
+            continue
+            
+        config = p_config_match.group(1)
         
         # Find the neighbour patch name
-        neighbour_match = re.search(rf'neighbourPatch\s+(\w+)', match.group(0))
+        neighbour_match = re.search(r'neighbourPatch\s+(\w+)', section_content)
         if not neighbour_match:
             continue
             
