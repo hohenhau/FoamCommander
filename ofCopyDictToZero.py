@@ -17,11 +17,11 @@ def parse_baffle_settings(origin_path):
         content = file.read()
 
     baffle_data = {}
-    baffle_pattern = re.compile(r'(master\w+)\s*{.*?patchFields\s*{\s*p\s*{(.*?)}}', re.S)
+    patch_pattern = re.compile(r'(\w+)\s*{.*?patchFields\s*{\s*p\s*{(.*?)}}', re.S)
 
-    for master_match in baffle_pattern.finditer(content):
-        master_name = master_match.group(1)
-        patch_content = master_match.group(2)
+    for patch_match in patch_pattern.finditer(content):
+        patch_name = patch_match.group(1)
+        patch_content = patch_match.group(2)
 
         coefficients = {}
         for key in ['D', 'I', 'length', 'uniformJump', 'value']:
@@ -29,7 +29,8 @@ def parse_baffle_settings(origin_path):
             if match:
                 coefficients[key] = match.group(1).strip()
 
-        baffle_data[master_name] = coefficients
+        if coefficients:  # Only store if valid coefficients were found
+            baffle_data[patch_name] = coefficients
 
     return baffle_data
 
@@ -41,8 +42,8 @@ def update_target_file(target_path, baffle_data):
     with open(target_path, 'r') as file:
         content = file.read()
 
-    for master, coeffs in baffle_data.items():
-        base_name = re.sub('master', '', master, flags=re.IGNORECASE)
+    for patch, coeffs in baffle_data.items():
+        base_name = re.sub(r'master|slave|owner|first_half|second_half', '', patch, flags=re.IGNORECASE).strip()
         patch_group = f'(porousBaffle{base_name}0|porousBaffle{base_name}1)'
         patch_block = f'''{patch_group}
     {{
