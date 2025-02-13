@@ -16,11 +16,6 @@ FoamFile
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// Wire Screen Parameters
-D 21800000;  // Darcy coefficient
-I 657;       // Inertial coefficient
-L 0.03;      // Linear scaling of pressure drop
-
 // Only relevant if your face selection type can pick up a boundary
 internalFacesOnly true;  // Ensures only internal faces are selected
 
@@ -35,44 +30,32 @@ baffles  // Define baffles to be created
         {
             master  // Master patch
             {
-                name            porous_halfA0;
+                name            porousBaffle0;
                 type            cyclic;
-                neighbourPatch  porous_halfA1;
-                transform       none;  // No rotational transformation
+                neighbourPatch  porousBaffle1;
+                transform       none;  // Option {rotational, none, transormational} 
+
                 patchFields  // Optional override of patch fields
                 {
-                    p
+                    p // This section must be copied to 0 when starting simulation 
                     {
                         type            porousBafflePressure;
                         patchType       cyclic;
-                        D               $D;  // Darcy coefficient
-                        I               $I;  // Inertial coefficient
-                        length          $L;  // Scaling of pressure drop
+                        D               20000000;  // Darcy coefficient (porosity = 0.63)
+                        I               280;       // Inertial coefficient
+                        length          0.003;     // Scaling of pressure drop
                         uniformJump     false;
                         value           uniform 0;
                     }
                 }
             }
-
             slave  // Slave patch
             {
-                name            porous_halfA1;
+                name            porousBaffle1;
                 type            cyclic;
-                neighbourPatch  porous_halfA0;
+                neighbourPatch  porousBaffle0;
                 transform       none;
-                patchFields  // Explicitly define patch fields
-                {
-                    p
-                    {
-                        type            porousBafflePressure;
-                        patchType       cyclic;
-                        D               $D;  // Darcy coefficient
-                        I               $I;  // Inertial coefficient
-                        length          $L;  // Scaling of pressure drop
-                        uniformJump     false;
-                        value           uniform 0;
-                    }
-                }
+                patchFields     {${...master.patchFields}}
             }
         }
     }
