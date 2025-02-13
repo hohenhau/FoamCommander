@@ -21,49 +21,57 @@ def read_file(file_path: Path) -> Optional[str]:
         return None
 
 def extract_master_patches(content: str) -> Dict[str, Dict]:
-    """Extract master patch configurations from createBafflePorous file."""
+    """Extract patch configurations from createBafflePorous file."""
     patches = {}
     
-    # Find all master patches and their configurations
-    master_pattern = r'(\w+)\s*//\s*Master patch\s*\{[^{]*patchFields\s*\{[^{]*p\s*\{([^}]*)\}'
-    matches = re.finditer(master_pattern, content, re.DOTALL)
+    # Find the baffles section
+    baffles_match = re.search(r'baffles\s*{([^}]*)}', content, re.DOTALL)
+    if not baffles_match:
+        return patches
+
+    baffles_content = baffles_match.group(1)
+    
+    # Find all patches with p configuration, regardless of their name
+    patch_pattern = r'[^{]*?name\s+(\w+)[^{]*patchFields\s*{[^{]*p\s*{([^}]*)}'
+    matches = re.finditer(patch_pattern, baffles_content, re.DOTALL)
     
     for match in matches:
-        master_name = match.group(1)
+        patch_name = match.group(1)
         config = match.group(2)
         
-        # Extract patch name
-        name_match = re.search(r'name\s+(\w+)', match.group(0))
-        if name_match:
-            patch_name = name_match.group(1)
+        # Find the neighbour patch name
+        neighbour_match = re.search(rf'neighbourPatch\s+(\w+)', match.group(0))
+        if not neighbour_match:
+            continue
             
-            # Parse configuration parameters
-            params = {}
-            param_patterns = {
-                'type': r'type\s+(\w+)',
-                'patchType': r'patchType\s+(\w+)',
-                'D': r'D\s+(\d+)',
-                'I': r'I\s+(\d+)',
-                'length': r'length\s+([0-9.]+)',
-                'uniformJump': r'uniformJump\s+(\w+)',
-                'value': r'value\s+(\w+\s+[0-9.]+)'
-            }
-            
-            for param, pattern in param_patterns.items():
-                param_match = re.search(pattern, config)
-                if param_match:
-                    params[param] = param_match.group(1)
-            
-            patches[patch_name] = params
+        # Parse configuration parameters
+        params = {}
+        param_patterns = {
+            'type': r'type\s+(\w+)',
+            'patchType': r'patchType\s+(\w+)',
+            'D': r'D\s+(\d+)',
+            'I': r'I\s+(\d+)',
+            'length': r'length\s+([0-9.]+)',
+            'uniformJump': r'uniformJump\s+(\w+)',
+            'value': r'value\s+(\w+\s+[0-9.]+)'
+        }
+        
+        for param, pattern in param_patterns.items():
+            param_match = re.search(pattern, config)
+            if param_match:
+                params[param] = param_match.group(1)
+        
+        patches[patch_name] = {
+            'config': params,
+            'neighbour': neighbour_match.group(1)
+        }
     
     return patches
 
 def update_p_file_content(p_content: str, patch_configs: Dict[str, Dict]) -> str:
     """Update the p file content with new patch configurations."""
-    # Create the new boundaryField entries
     new_entries = []
     
-    # Keep existing entries that we don't need to modify
     boundary_field_match = re.search(r'boundaryField\s*\{([^}]*)\}', p_content, re.DOTALL)
     if not boundary_field_match:
         print("Error: Could not find boundaryField section in p file")
@@ -78,22 +86,26 @@ def update_p_file_content(p_content: str, patch_configs: Dict[str, Dict]) -> str
             new_entries.append(entry.group(0))
     
     # Add new porous baffle entries
-    for base_name, config in patch_configs.items():
-        # Extract patch number (0 or 1) from base name
-        patch_num = re.search(r'(\d+)$', base_name).group(1)
-        paired_name = base_name[:-1] + ('1' if patch_num == '0' else '0')
+    processed_pairs = set()
+    for patch_name, patch_data in patch_configs.items():
+        neighbour_name = patch_data['neighbour']
+        pair_key = tuple(sorted([patch_name, neighbour_name]))
         
-        entry = f'''    "({base_name}|{paired_name})"
+        if pair_key in processed_pairs:
+            continue
+            
+        entry = f'''    "({patch_name}|{neighbour_name})"
     {{
-        type            {config.get('type', 'porousBafflePressure')};
-        patchType       {config.get('patchType', 'cyclic')};
-        D               {config.get('D', '0')};
-        I               {config.get('I', '0')};
-        length          {config.get('length', '0')};
-        uniformJump     {config.get('uniformJump', 'false')};
-        value           {config.get('value', 'uniform 0')};
+        type            {patch_data['config'].get('type', 'porousBafflePressure')};
+        patchType       {patch_data['config'].get('patchType', 'cyclic')};
+        D               {patch_data['config'].get('D', '0')};
+        I               {patch_data['config'].get('I', '0')};
+        length          {patch_data['config'].get('length', '0')};
+        uniformJump     {patch_data['config'].get('uniformJump', 'false')};
+        value           {patch_data['config'].get('value', 'uniform 0')};
     }}'''
         new_entries.append(entry)
+        processed_pairs.add(pair_key)
     
     # Reconstruct the file content
     before_boundary = p_content[:boundary_field_match.start()]
@@ -109,31 +121,25 @@ def update_p_file_content(p_content: str, patch_configs: Dict[str, Dict]) -> str
 
 def main(source_path: str, target_path: str):
     """Main function to coordinate the configuration copying process."""
-    # Convert paths to be relative to current working directory
     cwd = os.getcwd()
     source = Path(cwd) / source_path
     target = Path(cwd) / target_path
     
-    # Read source file
     source_content = read_file(source)
     if not source_content:
         sys.exit(1)
     
-    # Read target file
     target_content = read_file(target)
     if not target_content:
         sys.exit(1)
     
-    # Extract configurations from source
     patch_configs = extract_master_patches(source_content)
     if not patch_configs:
-        print("Error: No master patch configurations found in source file")
+        print("Error: No patch configurations found in source file")
         sys.exit(1)
     
-    # Update target content
     new_content = update_p_file_content(target_content, patch_configs)
     
-    # Write updated content to target file
     try:
         with open(target, 'w') as f:
             f.write(new_content)
