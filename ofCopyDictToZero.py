@@ -24,30 +24,40 @@ def extract_master_patches(content: str) -> Dict[str, Dict]:
     """Extract patch configurations from createBafflePorous file."""
     patches = {}
     
-    # Clean the content by removing ** marks
+    # Clean the content
     content = re.sub(r'\*+', '', content)
+    print("Debug: Looking for baffles section...")
     
-    # Find the baffles section
-    baffles_match = re.search(r'baffles\s*{(.*?)}(?=\s*//|\s*$)', content, re.DOTALL)
+    # Find the baffles section with a more lenient pattern
+    baffles_pattern = r'baffles[^{]*{(.*?)^}(?=\s*//|\s*$)'
+    baffles_match = re.search(baffles_pattern, content, re.DOTALL | re.MULTILINE)
+    
     if not baffles_match:
-        print("Debug: Baffles section not found")
+        print("Debug: Pattern failed. Printing content around 'baffles':")
+        if 'baffles' in content:
+            start = content.find('baffles')
+            print(content[max(0, start-50):min(len(content), start+200)])
         return patches
 
     baffles_content = baffles_match.group(1)
+    print("Debug: Found baffles section. Length:", len(baffles_content))
     
     # Find patches section
-    patches_match = re.search(r'patches\s*{(.*?)}(?=\s*//|\s*$)', baffles_content, re.DOTALL)
+    patches_match = re.search(r'patches\s*{(.*?)}(?=\s*[}\n])', baffles_content, re.DOTALL)
     if not patches_match:
-        print("Debug: Patches section not found")
+        print("Debug: Patches section not found in baffles content")
+        print("Debug: Baffles content preview:", baffles_content[:200])
         return patches
 
     patches_content = patches_match.group(1)
+    print("Debug: Found patches section. Length:", len(patches_content))
     
     # Find all patches with p configuration
     patch_sections = re.finditer(r'(\w+)\s*{(?:[^{}]|{(?:[^{}]|{[^{}]*})*})*}', patches_content, re.DOTALL)
     
     for section in patch_sections:
         section_content = section.group(0)
+        print(f"Debug: Processing patch section: {section.group(1)}")
         
         # Get patch name
         name_match = re.search(r'name\s+(\w+)', section_content)
@@ -55,6 +65,7 @@ def extract_master_patches(content: str) -> Dict[str, Dict]:
             continue
             
         patch_name = name_match.group(1)
+        print(f"Debug: Found patch name: {patch_name}")
         
         # Look for p configuration
         p_config_match = re.search(r'p\s*{([^}]*)}', section_content, re.DOTALL)
@@ -89,6 +100,11 @@ def extract_master_patches(content: str) -> Dict[str, Dict]:
             'config': params,
             'neighbour': neighbour_match.group(1)
         }
+    
+    if not patches:
+        print("Debug: No valid patches found after processing")
+    else:
+        print(f"Debug: Found {len(patches)} valid patches")
     
     return patches
 
