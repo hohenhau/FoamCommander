@@ -17,11 +17,12 @@ def parse_baffle_settings(origin_path):
         content = file.read()
 
     baffle_data = {}
-    patch_pattern = re.compile(r'(\w+)\s*{.*?patchFields\s*{\s*p\s*{(.*?)}}', re.S)
+    patch_pattern = re.compile(r'(\w+)\s*{\s*name\s+(\w+);.*?patchFields\s*{\s*p\s*{(.*?)}}', re.S)
 
     for patch_match in patch_pattern.finditer(content):
-        patch_name = patch_match.group(1)
-        patch_content = patch_match.group(2)
+        logical_patch_name = patch_match.group(1)
+        physical_patch_name = patch_match.group(2)
+        patch_content = patch_match.group(3)
 
         coefficients = {}
         for key in ['D', 'I', 'length', 'uniformJump', 'value']:
@@ -29,8 +30,10 @@ def parse_baffle_settings(origin_path):
             if match:
                 coefficients[key] = match.group(1).strip()
 
-        if coefficients:  # Only store if valid coefficients were found
-            baffle_data[patch_name] = coefficients
+        if coefficients:
+            base_name = re.sub(r'\d+$', '', physical_patch_name)
+            if base_name not in baffle_data:
+                baffle_data[base_name] = coefficients
 
     return baffle_data
 
@@ -42,10 +45,9 @@ def update_target_file(target_path, baffle_data):
     with open(target_path, 'r') as file:
         content = file.read()
 
-    for patch, coeffs in baffle_data.items():
-        base_name = re.sub(r'master|slave|owner|first_half|second_half', '', patch, flags=re.IGNORECASE).strip()
+    for base_name, coeffs in baffle_data.items():
         patch_group = f'(porousBaffle{base_name}0|porousBaffle{base_name}1)'
-        patch_block = f'''{patch_group}
+        patch_block = f'''    "{patch_group}"
     {{
         type            porousBafflePressure;
         patchType       cyclic;
@@ -56,11 +58,10 @@ def update_target_file(target_path, baffle_data):
         value           {coeffs['value']};
     }}'''
 
-        # Replace or insert block
-        if re.search(fr'\({patch_group}\)', content):
-            content = re.sub(fr'\({patch_group}\).*?}}', patch_block, content, flags=re.S)
+        if re.search(fr'\"{patch_group}\"', content):
+            content = re.sub(fr'\"{patch_group}\".*?}}', patch_block, content, flags=re.S)
         else:
-            insert_pos = content.rfind('}')  # Insert before the last closing bracket
+            insert_pos = content.rfind('}')
             content = content[:insert_pos] + patch_block + '\n' + content[insert_pos:]
 
     with open(target_path, 'w') as file:
@@ -77,3 +78,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
