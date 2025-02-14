@@ -45,7 +45,8 @@ baffles  // Define baffles to be created
                         I               280;       // Inertial coefficient
                         length          0.003;     // Scaling of pressure drop
                         uniformJump     false;
-                        jump           uniform 0;
+                        value           uniform 0;
+                        jump            uniform 0;
                     }
                 }
             }
