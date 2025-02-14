@@ -38,11 +38,10 @@ baffles  // Baffles to create
                 {
                     p
                     {
-                        type            fan;
-                        patchType       cyclic;
-                        jump            uniform 0;
-                        value           uniform 0;
-                        jumpTable       constant 1000;      //was polynomial 1((100 0));
+                        type                fanPressure;
+                        patchType           cyclic;
+                        volumetricFlowRate  1.00; // m^3/s
+                        value               uniform 0;
                     }
                 }
             }
