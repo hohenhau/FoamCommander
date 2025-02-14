@@ -24,15 +24,15 @@ baffles  // Baffles to create
     cyclicFacesA  // First baffle to be created
     {
         type        faceZone;      // select faces & orientation
-        zoneName    screenFacesA;  // name specified in snappyhexmesh
+        zoneName    fanBaffleFaces;  // name specified in snappyhexmesh
 
         patches
         {
             master  // Master side patch
             {
-                name            fan_halfA0;
+                name            fanBaffle0;
                 type            cyclic;
-                neighbourPatch  fan_halfA1;
+                neighbourPatch  fanBaffle1;
 
                 patchFields  // Optional override of patchfields (default is type "calculated")
                 {
@@ -40,7 +40,7 @@ baffles  // Baffles to create
                     {
                         type                fanPressure;
                         patchType           cyclic;
-                        volumetricFlowRate  1.00; // m^3/s
+                        volumetricFlowRate  2.25; // m^3/s
                         value               uniform 0;
                     }
                 }
@@ -48,9 +48,9 @@ baffles  // Baffles to create
 
             slave  // Slave side patch
             {
-                name            fan_halfA1;
+                name            fanBaffle1;
                 type            cyclic;
-                neighbourPatch  fan_halfA0;
+                neighbourPatch  fanBaffle0;
                 patchFields {${...master.patchFields}}
             }
         }
