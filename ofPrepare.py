@@ -98,36 +98,46 @@ def create_surface_features_dict():
     print(f"snappyHexMeshDict.gen created at: {output_path}")
 
 
-def create_snappy_hex_mesh_dict():
-    """Creates the snappyHexMeshDict.gen file."""
+ddef create_snappy_hex_mesh_dict():
+    """Creates the snappyHexMeshDict.gen file with proper comment line replacement."""
     print("Creating snappyHexMeshDict.gen...")
-    template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "snappyHexMeshDict")  # Template file
+    template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "snappyHexMeshDict")
     output_path = os.path.join(SYSTEM_DIR, "snappyHexMeshDict.gen")
-    stl_block, surface_block, mesh_block = '\n', '\n', '\n'
+    # Prepare replacement blocks
+    stl_block = '\n'
     for patch in patch_names:
         stl_block += f'{" " * 8}{patch}.stl {{type triSurfaceMesh; name {patch}; file "{patch}.stl";}}\n'
+    mesh_block = '\n'
+    for patch in patch_names:
         mesh_block += f'{" " * 12}{{file "{patch}.eMesh"; level 3;}}\n'
+    surface_block = '\n'
+    for patch in patch_names:
         patch_type = get_patch_type_from_patch_name(patch)
         if patch_type == 'baffle':
             surface_block += f'{" " * 12}{patch} {{level (0 0); faceZone {patch}Faces; }}\n'
         elif patch_type == 'honeycomb':
             surface_block += (f'{" " * 12}{patch}\n'
-                              f'{" " * 16}{{level (0 0);\n'
-                              f'{" " * 16}faceZone {patch}Faces;\n'
-                              f'{" " * 16}cellZone {patch}Cells;\n'
-                              f'{" " * 16}cellZoneInside inside;}}\n')
+                            f'{" " * 16}{{level (0 0);\n'
+                            f'{" " * 16}faceZone {patch}Faces;\n'
+                            f'{" " * 16}cellZone {patch}Cells;\n'
+                            f'{" " * 16}cellZoneInside inside;}}\n')
         elif patch_type in {'wall', 'slip', 'empty', 'symmetry'}:
             surface_block += f'{" " * 12}{patch} {{level (0 0); patchInfo {{type {patch_type};}} }}\n'
         else:
             surface_block += f'{" " * 12}{patch} {{level (0 0); patchInfo {{type patch;}} }}\n'
-    replacements = [(stl_block.rstrip(), r'^\s*\$STL_FILES_AND_GEOMETRIES\$.*$'),
-                    (mesh_block.rstrip(), r'^\s*\$MESH_FEATURES\$.*$'),
-                    (surface_block.rstrip(), r'^\s*\$REFINEMENT_SURFACES\$.*$')]
-    with open(template_path, 'r') as template_file, open(output_path, 'w') as output_file:
-        updated_content = template_file.read()
-        for replacement_text, pattern in replacements:
-            updated_content = re.sub(pattern, replacement_text, updated_content, flags=re.MULTILINE)
-        output_file.write(updated_content)
+    # Read the template file
+    with open(template_path, 'r') as template_file:
+        content = template_file.read()
+    # Define the patterns to match the entire lines containing the variables
+    patterns_and_replacements = [(r'.*\$STL_FILES_AND_GEOMETRIES\$.*\n', stl_block),
+                                 (r'.*\$MESH_FEATURES\$.*\n', mesh_block),
+                                 (r'.*\$REFINEMENT_SURFACES\$.*\n', surface_block)]
+    # Perform the replacements
+    for pattern, replacement in patterns_and_replacements:
+        content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
+    # Write the updated content
+    with open(output_path, 'w') as output_file:
+        output_file.write(content)
     print(f"snappyHexMeshDict.gen created at: {output_path}")
 
 
