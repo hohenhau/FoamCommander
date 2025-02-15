@@ -1,0 +1,185 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  User generated                        |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;  // Template for steady-state SIMPLE algorithm
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver                  GAMG;
+        smoother                GaussSeidel;
+        tolerance               1e-06;
+        relTol                  1e-04;
+    }
+
+    pFinal
+    {
+        solver                  GAMG;
+        smoother                GaussSeidel;
+        tolerance               1e-08;
+        relTol                  1e-06;
+    }
+
+    "(U|k|omega)"
+    {
+        solver                  smoothSolver;
+        smoother                GaussSeidel;
+        tolerance               1e-08;
+        relTol                  1e-06;
+    }
+
+    "(U|k|omega)Final"
+    {
+        $U;
+        tolerance               1e-08;
+        relTol                  1e-06;
+    }
+
+}
+
+PIMPLE
+{
+    nOuterCorrectors            1;
+    nCorrectors                 2;
+    nNonOrthogonalCorrectors    0;
+    pRefCell                    0;
+    pRefValue                   0;
+}
+
+relaxationFactors
+{
+    equations
+    {
+        "U.*"                   0.9;
+        "k.*"                   0.7;
+        "omega.*"               0.7;
+    }
+}
+
+// ************************************************************************* //
+
+
+
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  User generated                        |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+solvers  // Numerical algorithms used to solve the field equations
+{
+    p
+    {
+        solver          GAMG;  // Standard algorithm for pressure
+        smoother        DIC;   // Good for symmetric GAMG
+        tolerance       1e-6;  // Absolute tolerance of the residual
+        relTol          0.01;  // Relative tolerance compared to start of iteration
+    }
+
+    "(U|k|epsilon|omega)"
+    {
+        solver          smoothSolver;   // Fast but less robust compared to PBiCG
+        preconditioner  symGaussSeidel; // Good for smoothSolver
+        tolerance       1e-6;           // Absolute tolerance of the residual
+        relTol          0.01;           // Relative tolerance compared to start of iteration
+    }
+}
+
+/* ------------------------ Solver Options & Notes ------------------------- *\
+solver - The algorithm to solve the linear system of equations (matrices) for a 
+field. Symmetric matrices (A = transpose(A)) are for diffusion-like terms, while 
+non-symmetric matrices are for turbulence & velocity. Common solver option are:
+   - GAMG = Geometric-Algebraic MultiGrid - usually used for Pressure
+   - smoothSolver = Smoothed solver - fast but less robust compared to PBiCG
+   - PBiCG = Preconditioned Bi-Conjugate Gradient - slow/robust 
+   - PCG = Preconditioned Conjugate Gradient (only for symmetric matrices)
+
+smoother - Technique (for GAMG and smoothSolver) to reduce local errors during 
+each iteration by smoothing the solution field. Common options are:
+   - DIC = Diagonal-based incomplete Cholesky - good for symmetric GAMG - fast & somewhat robust
+   - DICGaussSeidel = Combination of DIC GaussSeidel
+   - GaussSeidel = Classic Gauss-Seidel - good for non-symmetri smoothSolver - slower but more robust
+   - symGaussSeidel = Symmetric Gauss-Seidel (good for smoothSolver) - somewhat robust
+
+preconditioner - Matrix-based technique transforming the a system of equations into an 
+equivalent one that is better *conditioned* and easier to solve. Common ptions are:
+   - DILU = Diagonal-based incomplete LU - good for non-symmetric matrices - fast & robust
+   - FDIC = Fast Diagonal-based Incomplete Cholesky - good for symmetic PCG - faster than DIC
+
+tolerance - is the absolute residual below which a solution for a variable
+is considered converged for a single solver iteration
+
+relTol - The relative tolerance stops the solver if the residual drop is small 
+compared to the initial residual of that iteration. To ignore set "relTol 0;"
+\*---------------------------------------------------------------------------*/
+
+SIMPLE  // Semi-Implicit Method for Pressure-Linked Equations (for steady-state)
+{
+    nNonOrthogonalCorrectors  1;  // Additional corrections for non-orthogonal meshes
+    consistent  no;  // Enables the SIMPLEC formulation for faster convergence
+    residualControl  // Threshold below which the solution is considered converged
+    {
+        p                           1e-4;
+        "U.*"                       1e-4;
+        "(k.*|epsilon.*|omega.*)"   1e-4;
+    }
+}
+/* ------------------------ SIMPLE Options & Notes ------------------------- *\
+consistent - Enables the SIMPLEC formulation (C = consistent). This modifies the 
+pressure correction equation to improve the convergence rate by reducing the degree 
+of under-relaxation required. All relaxation factors can be set to around 1.0. It
+is generally faster but less robust than the standard SIMPLE algorithm
+
+residualControl - Only applicable to some solvers, including GAMG and PBICG
+\*---------------------------------------------------------------------------*/
+
+
+relaxationFactors // Control under-relaxation to stabilise iterative solvers
+{
+    fields        // Applied to variables like pressure
+    {
+        p  0.3;   // 0.3 is typical for pressure steady-state
+    }
+    equations     //  Applied to entire equations
+    {
+        "U.*"  0.7;   // 0.7 is typical for steady-state
+        "(k.*|epsilon.*|omega.*)"  0.7;  // 0.7 is typical for steady-state
+    }
+}
+/* ---------------------- Relaxation Options & Notes ----------------------- *\
+Relaxation Factors can be between 0 and 1. 1 means the solution fully updates
+with each step, O means the simulation does not update at all (not practical), 
+and a value beteen 0 and 1 blends the previous and current simulation. Lower
+factors increase stability but reduce rate of convergence. Typical values are
+between 0.3 and 0.7 for steady state solutions, but transient solutions often 
+use a value of 1.0 for faster convergence. 
+\*---------------------------------------------------------------------------*/
+
+// ************************************************************************* //
