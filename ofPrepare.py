@@ -104,14 +104,10 @@ def create_snappy_hex_mesh_dict():
     template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "snappyHexMeshDict")
     output_path = os.path.join(SYSTEM_DIR, "snappyHexMeshDict.gen")
     # Prepare replacement blocks
-    stl_block = '\n'
+    stl_block, mesh_block, surface_block,  = '', '', ''
     for patch in patch_names:
         stl_block += f'{" " * 8}{patch}.stl {{type triSurfaceMesh; name {patch}; file "{patch}.stl";}}\n'
-    mesh_block = '\n'
-    for patch in patch_names:
         mesh_block += f'{" " * 12}{{file "{patch}.eMesh"; level 3;}}\n'
-    surface_block = '\n'
-    for patch in patch_names:
         patch_type = get_patch_type_from_patch_name(patch)
         if patch_type == 'baffle':
             surface_block += f'{" " * 12}{patch} {{level (0 0); faceZone {patch}Faces; }}\n'
