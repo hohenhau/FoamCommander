@@ -87,7 +87,7 @@ def create_surface_features_dict():
     print("Creating surfaceFeaturesDict.gen...")
     template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "surfaceFeaturesDict")  # Template file
     output_path = os.path.join(SYSTEM_DIR, "surfaceFeaturesDict.gen")
-    replacement_pattern = r'.*\$STL_FILES\$.*\n'
+    replacement_pattern = r'.*\$STL_FILES\$.*'  # Match any line containing $STL_FILES$
     replacement_text = '\n'
     for patch in patch_names:
         replacement_text += f'    "{patch}.stl"\n'
@@ -95,7 +95,7 @@ def create_surface_features_dict():
         updated_content = template_file.read()
         updated_content = re.sub(replacement_pattern, replacement_text, updated_content, flags=re.MULTILINE)
         output_file.write(updated_content)
-    print(f"snappyHexMeshDict.gen created at: {output_path}")
+    print(f"surfaceFeaturesDict.gen created at: {output_path}")
 
 
 def create_snappy_hex_mesh_dict():
