@@ -6,8 +6,8 @@ import sys
 
 # Global Variables
 PY_FILE_PATH = os.path.dirname(os.path.realpath(__file__))
-SKELETON_BOUNDARY_DIR = os.path.join(PY_FILE_PATH, "skeletonsBoundary")
-SKELETON_SYSTEM_DIR = os.path.join(PY_FILE_PATH, "skeletonsSystem")
+TEMPLATE_BOUNDARY_DIR = os.path.join(PY_FILE_PATH, "templatesBoundary")
+TEMPLATE_SYSTEM_DIR = os.path.join(PY_FILE_PATH, "templatesSystem")
 CURRENT_DIR = os.getcwd() if len(sys.argv) == 1 else sys.argv[-1]
 TRI_SURFACE_DIR = os.path.join(CURRENT_DIR, "constant", "triSurface")
 ZERO_DIR = os.path.join(CURRENT_DIR, "0.gen")
@@ -85,73 +85,56 @@ def load_and_process_stl_files():
 def create_surface_features_dict():
     """Creates the surfaceFeaturesDict.gen file."""
     print("Creating surfaceFeaturesDict.gen...")
+    template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "surfaceFeaturesDict")  # Template file
     output_path = os.path.join(SYSTEM_DIR, "surfaceFeaturesDict.gen")
-    skeleton_head_path = os.path.join(SKELETON_SYSTEM_DIR, "surfaceFeaturesHead")
-    skeleton_tail_path = os.path.join(SKELETON_SYSTEM_DIR, "surfaceFeaturesTail")
-    with open(output_path, 'w') as sfefile:
-        # Write the header
-        with open(skeleton_head_path) as head:
-            sfefile.write(head.read())
-        # Write each patch
-        print('Detecting the surfaces and features of the following:')
-        for patch in patch_names:
-            print(f"{patch}.stl")
-            sfefile.write(f'    "{patch}.stl"\n')
-        # Write the tail
-        with open(skeleton_tail_path) as tail:
-            sfefile.write(tail.read())
+    replacement_pattern = r'^\s*\$STL_FILES\$.*$'
+    replacement_text = '\n'
+    for patch in patch_names:
+        replacement_text += f'    "{patch}.stl"\n'
+    with open(template_path, 'r') as template_file, open(output_path, 'w') as output_file:
+        updated_content = template_file.read()
+        updated_content = re.sub(replacement_pattern, replacement_text, updated_content, flags=re.MULTILINE)
+        output_file.write(updated_content)
+    print(f"snappyHexMeshDict.gen created at: {output_path}")
 
 
 def create_snappy_hex_mesh_dict():
     """Creates the snappyHexMeshDict.gen file."""
     print("Creating snappyHexMeshDict.gen...")
+    template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "snappyHexMeshDict")  # Template file
     output_path = os.path.join(SYSTEM_DIR, "snappyHexMeshDict.gen")
-    skeleton_head_path = os.path.join(SKELETON_SYSTEM_DIR, "snappyHexMeshHead")
-    skeleton_tail_path = os.path.join(SKELETON_SYSTEM_DIR, "snappyHexMeshTail")
-    # Write contents of skeleton header
-    with open(output_path, 'w') as shm_file, open(skeleton_head_path) as head, open(skeleton_tail_path) as tail:
-        shm_file.write(head.read())
-        # Write geometry list consisting of .stl files
-        for patch in patch_names:
-            shm_file.write(f'        {patch}.stl {{type triSurfaceMesh; name {patch}; file "{patch}.stl";}}\n')
-        shm_file.write('        // refinementBox {type searchableBox; min (0.0 0.0 0.0); max (1.0 1.0 1.0);}\n')
-        shm_file.write('};\n\n')
-        # Write blocks for castellated mesh generation
-        shm_file.write('// Settings for castellatedMesh generation\n')
-        shm_file.write('// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n')
-        shm_file.write('castellatedMeshControls\n{\n')
-        # Write block for features
-        shm_file.write('        features  // OPTIONAL: Refinement of edges (default = {file "name.eMesh"; level 0;}\n')
-        shm_file.write('        (\n')
-        for patch in patch_names:
-            shm_file.write(f'            {{file "{patch}.eMesh"; level 3;}}\n')
-        shm_file.write('        );\n\n')
-        # Write block for refinement surfaces
-        shm_file.write('        refinementSurfaces  // MANDATORY: Definition and refinement of surfaces\n')
-        shm_file.write('        { // Refinement levels (min max) are linked to the proximity to a surface\n')
-        for patch in patch_names:
-            patch_type = get_patch_type_from_patch_name(patch)
-            if patch_type == 'baffle':
-                shm_file.write(f'            {patch} {{level (0 0); faceZone {patch}Faces; }}\n')
-            elif patch_type == 'honeycomb':
-                shm_file.write(f'            {patch}\n')
-                shm_file.write('                {level (0 0);\n')
-                shm_file.write(f'                faceZone {patch}Faces;\n')
-                shm_file.write(f'                cellZone {patch}Cells;\n')
-                shm_file.write('                cellZoneInside inside;}\n')
-            elif patch_type in {'wall', 'slip', 'empty', 'symmetry'}:
-                shm_file.write(f'            {patch} {{level (0 0); patchInfo {{type {patch_type};}} }}\n')
-            else:
-                shm_file.write(f'            {patch} {{level (0 0); patchInfo {{type patch;}} }}\n')
-        shm_file.write('        }\n\n')
-        # Write contents of skeleton tail
-        shm_file.write(tail.read())
+    stl_block, surface_block, mesh_block = '\n', '\n', '\n'
+    for patch in patch_names:
+        stl_block += f'{" " * 8}{patch}.stl {{type triSurfaceMesh; name {patch}; file "{patch}.stl";}}\n'
+        mesh_block += f'{" " * 12}{{file "{patch}.eMesh"; level 3;}}\n'
+        patch_type = get_patch_type_from_patch_name(patch)
+        if patch_type == 'baffle':
+            surface_block += f'{" " * 12}{patch} {{level (0 0); faceZone {patch}Faces; }}\n'
+        elif patch_type == 'honeycomb':
+            surface_block += (f'{" " * 12}{patch}\n'
+                              f'{" " * 16}{{level (0 0);\n'
+                              f'{" " * 16}faceZone {patch}Faces;\n'
+                              f'{" " * 16}cellZone {patch}Cells;\n'
+                              f'{" " * 16}cellZoneInside inside;}}\n')
+        elif patch_type in {'wall', 'slip', 'empty', 'symmetry'}:
+            surface_block += f'{" " * 12}{patch} {{level (0 0); patchInfo {{type {patch_type};}} }}\n'
+        else:
+            surface_block += f'{" " * 12}{patch} {{level (0 0); patchInfo {{type patch;}} }}\n'
+    replacements = [(stl_block.rstrip(), r'^\s*\$STL_FILES_AND_GEOMETRIES\$.*$'),
+                    (mesh_block.rstrip(), r'^\s*\$MESH_FEATURES\$.*$'),
+                    (surface_block.rstrip(), r'^\s*\$REFINEMENT_SURFACES\$.*$')]
+    with open(template_path, 'r') as template_file, open(output_path, 'w') as output_file:
+        updated_content = template_file.read()
+        for replacement_text, pattern in replacements:
+            updated_content = re.sub(pattern, replacement_text, updated_content, flags=re.MULTILINE)
+        output_file.write(updated_content)
+    print(f"snappyHexMeshDict.gen created at: {output_path}")
 
 
 def build_zero_file(base_name: str, local_boundary_types: dict, local_boundary_values: dict):
     """Creates a file in the zero directory with grouped patch settings."""
     output_path = os.path.join(ZERO_DIR, base_name)
-    skeleton_head_path = os.path.join(SKELETON_BOUNDARY_DIR, f"{base_name}Head")
+    template_head_path = os.path.join(TEMPLATE_BOUNDARY_DIR, f"{base_name}Head")
     # Group patches by type
     patch_groups = {}
     for patch_name in patch_names:
@@ -162,7 +145,7 @@ def build_zero_file(base_name: str, local_boundary_types: dict, local_boundary_v
             patch_groups[patch_type] = []
         patch_groups[patch_type].append(patch_name)
     # Write the header
-    with open(output_path, 'w') as outfile, open(skeleton_head_path) as head:
+    with open(output_path, 'w') as outfile, open(template_head_path) as head:
         outfile.write(head.read())
         # Write grouped patches using pipe separator
         for patch_type, patches in patch_groups.items():
