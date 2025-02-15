@@ -98,7 +98,7 @@ def create_surface_features_dict():
     print(f"snappyHexMeshDict.gen created at: {output_path}")
 
 
-ddef create_snappy_hex_mesh_dict():
+def create_snappy_hex_mesh_dict():
     """Creates the snappyHexMeshDict.gen file with proper comment line replacement."""
     print("Creating snappyHexMeshDict.gen...")
     template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "snappyHexMeshDict")
