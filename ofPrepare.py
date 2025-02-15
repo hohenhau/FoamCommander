@@ -87,8 +87,8 @@ def create_surface_features_dict():
     print("Creating surfaceFeaturesDict.gen...")
     template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "surfaceFeaturesDict")  # Template file
     output_path = os.path.join(SYSTEM_DIR, "surfaceFeaturesDict.gen")
-    replacement_pattern = r'.*\$STL_FILES\$.*'  # Match any line containing $STL_FILES$
-    replacement_text = '\n'
+    replacement_pattern = r'.*\$STL_FILES\$.*\n'  # Match any line containing $STL_FILES$
+    replacement_text = ''
     for patch in patch_names:
         replacement_text += f'    "{patch}.stl"\n'
     with open(template_path, 'r') as template_file, open(output_path, 'w') as output_file:
