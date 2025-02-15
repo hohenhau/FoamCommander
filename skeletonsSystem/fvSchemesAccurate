@@ -1,0 +1,125 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  User generated                        |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;  // Finite Volume Schemes for accurate simulations
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes  // Time differencing schemes (1st order = stable, 2nd order = accurate)
+{
+    default  Crank-Nicolson 0.9;
+}
+    /* -------------------- Temporal Options and Notes --------------------- *\
+    default  steadyState;        // Time-independent (for steady state simulations)
+    default  Euler;              // 1st order (more stable)
+    default  backward;           // 2nd order but less accurate than Crank-Nicolson
+    default  CrankNicolson 0.7;  // 2nd order (0=fully Euler, 1=fully CN)
+    NOTE: Crank-Nicolson is stable at 0.3, fully 2nd order at 0.5, but more is
+    most accurate above 0.7
+    \* --------------------------------------------------------------------- */
+
+
+gradSchemes  // Calculate the gradient between cell centres and walls
+{
+    default      linearCorrected;
+    grad(U)      cellLimited leastSquares 1;
+}
+    /* --------------------- Gradient Options & Notes --------------------- *\
+    FORMAT: <OPTIONAL limiter> <scheme> <SOMETIMES coefficient>
+    default  Gauss linear;           // 2nd order central differencing, balancing speed and accuracy
+    default  Gauss linearCorrected;  // Like linear but with non-orthogonal correction 
+    default  leastSquares 1;         // Highly accurate (1 = most accurate)
+    default  none;                   // Forces explicit definition of all terms
+    default  cellLimited Gauss linear;    // 0 = no limit & 1 = limited
+    default  cellLimited leastSquares 1;  // 0 = no limit & 1 = limited
+    
+    NOTE: In limited schemes 0 = most accurate & 1 = most stable (limited). The
+    limitedLinear schemes are specifically designed to limit linear interpolation, 
+    while cellLimited schemes apply additional limiting at the cell level
+    \* --------------------------------------------------------------------- */
+
+
+divSchemes // Calculate the divergence (i.e. spread) typically for flux & convection terms
+{
+    default                        Gauss limitedLinear 1; 
+    div((nuEff*dev2(T(grad(U)))))  Gauss linearCorrected;
+}
+    /* -------------------- Divergence Options & Notes --------------------- *\
+    FORMAT: <OPTIONAL limiter> <scheme> <SOMETIMES coefficient> <OPTIONAL gradient to use for corrections>
+    default  Gauss upwind;           // 1st order upwind, quick & robust but diffusive
+    default  Gauss linearUpwind;     // 2nd order upwind, good balance of accuracy/stability
+    default  Gauss limitedLinear 1;  // Limited linear interpolation (prevents oscillations/overshoots)
+    default  Gauss limitedLinearV 1; // Vector limited linear interpolation (optimized for sharp gradients)
+    default  Gauss linear;           // 2nd order central differencing, balancing speed and accuracy
+    default  Gauss linearCorrected;  // Like linear but with non-orthogonal correction 
+    default  none;                   // Forces explicit definition of all terms
+    default  cellLimited Gauss linearUpwind;   // 0 = no limit & 1 = limited
+    default  cellLimited Gauss linearUpwindV;  // 0 = no limit & 1 = limited
+    default  cellLimited Gauss linear;         // 0 = no limit & 1 = limited
+    
+    div(phi,U) Gauss LUST grad(U); // Linear-Upwind Stabilised Transport (75% linear, 25% upwind)
+    Here "phi" is the flux term and calculates how the other terms are transported.
+
+    The term div((nuEff*dev2(T(grad(U))))) represents the rate of change or flow 
+    of momentum in the fluid, factoring in the velocity gradient & the viscosity. 
+    It is important for simulating viscous flow & turbulence and * MUST BE * set 
+    at least to "linear" or a more accurate scheme
+    \* --------------------------------------------------------------------- */
+
+
+
+laplacianSchemes // Used to discretise diffusion terms (heat conduction, viscosity) in equations
+{
+    default  Gauss linear corrected;
+}
+    /* --------------------- Laplacian Options & Notes --------------------- *\
+    FORMAT: <interpolation scheme> <snGrad scheme>
+    default  Gauss linear limited 1;  // More stable and faster
+    default  Gauss linear corrected;  // More accurate but slower
+
+    The 'limited' scheme limits the surface gradient while the 'corrected' scheme is 
+    more accurate and corrects the surface-normal gradient for non-orthogonality.
+    \* --------------------------------------------------------------------- */
+
+
+snGradSchemes // Defines how the gradient normal to a face is calculated
+{
+    default  corrected;
+}
+    /* ------------------ Surface-Normal Options & Notes ------------------- *\
+    FORMAT: <snGrad scheme>
+    default  limited 1;  // Limits the surface-normal gradient (0 = no limit & 1 = limited)
+    default  corrected;  // More accurate but slower than limited 
+    
+    The 'limited' scheme limits the surface gradient while the 'corrected' scheme is 
+    more accurate and corrects the surface-normal gradient for non-orthogonality. 
+    \* --------------------------------------------------------------------- */
+
+
+interpolationSchemes  // Used to interpolate values from cell centers to face centers
+{
+    default  linear;
+}
+    /* ------------------- Interpolation Options & Notes ------------------- *\
+    FORMAT: <interpolation scheme>
+    default linear;  // Uses second-order central differencing for interpolation 
+    \* --------------------------------------------------------------------- */
+
+
+wallDist  // How to calculate the distances between cell centres & the nearest wall
+{
+    method meshWave;  // Calculates distances using a wave propagation algorithm
+}
+
+// ************************************************************************* //
