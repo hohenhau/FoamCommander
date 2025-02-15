@@ -64,7 +64,7 @@ def load_and_process_stl_files():
         new_file_name = f'{filename.split(".")[0]}.{filename.split(".")[1].lower()}'
         new_filepath = os.path.join(TRI_SURFACE_DIR, new_file_name)
         patch_name = re.split(r"\.", filename)[0]
-        if get_patch_type_from_patch_name(patch_name) != "screen" and patch_name not in patches:
+        if patch_name not in patches:
             print(f"Match: {patch_name}")
             patches.append(patch_name)
         # Read entire file content
@@ -119,6 +119,8 @@ def create_snappy_hex_mesh_dict():
                             f'{" " * 16}cellZoneInside inside;}}\n')
         elif patch_type in {'wall', 'slip', 'empty', 'symmetry'}:
             surface_block += f'{" " * 12}{patch} {{level (0 0); patchInfo {{type {patch_type};}} }}\n'
+        elif patch_type in {'slip'}:
+            surface_block += f'{" " * 12}{patch} {{level (0 0); patchInfo {{type wall;}} }}\n'
         else:
             surface_block += f'{" " * 12}{patch} {{level (0 0); patchInfo {{type patch;}} }}\n'
     # Read the template file
