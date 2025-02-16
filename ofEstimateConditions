@@ -10,12 +10,12 @@ def calc_reynolds_number(length: float, velocity: float, kinematic_viscosity: fl
 
 def calc_turb_intensity(reynolds_number: float):
     turb_coefficient = 0.16
-    turb_intensity = turb_coefficient * reynolds_number
+    turb_intensity = turb_coefficient * reynolds_number ** (-1/8)
     return turb_intensity
 
 
 def calc_turb_kinetic_energy(velocity: float, turb_intensity: float):
-    turbulent_kinetic_energy = (3 / 2) * (velocity / turb_intensity) ** 2
+    turbulent_kinetic_energy = (3 / 2) * (velocity * turb_intensity) ** 2
     return turbulent_kinetic_energy
 
 
@@ -48,13 +48,24 @@ def calc_turb_viscosity_omega(turb_kinetic_energy: float, specific_turb_dissipat
     return turbulent_viscosity
 
 
-def get_input():
+def get_metric(prompt: str):
+    try:
+        metric = float(input("Enter the hydraulic diameter (m): "))
+    except: 
+        raise TypeError("Input must be a number")
+    if x < 0:
+        raise ValueError("Number must be positive")
+    return metric
+
+
+def get_flow_metrics():
     # Prompt user for inputs
-    hydraulic_diameter = float(input("Enter the hydraulic diameter (m): "))
-    free_stream_velocity = float(input("Enter the free stream velocity (m/s): "))
+    hydraulic_diameter = get_metric("Enter the hydraulic diameter (m): ")
+    float(input("Enter the hydraulic diameter (m): "))
+    free_stream_velocity = get_metric("Enter the free stream velocity (m/s): ")
     # Provide hints for kinematic viscosity
     print("Kinematic viscosity (m^2/s) is approximately 0.000001 for water and 0.0000148 for air")
-    kinematic_viscosity = float(input("Enter the kinematic viscosity (m^2/s): "))
+    kinematic_viscosity = get_metric("Enter the kinematic viscosity (m^2/s): ")
     return hydraulic_diameter, free_stream_velocity, kinematic_viscosity
 
 
@@ -94,7 +105,7 @@ def main():
     results['turb_viscosity'] = turb_viscosity
 
     return results
-    
+
 if __name__ == "__main__":
     main()
 
