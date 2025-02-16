@@ -2,5 +2,5 @@
 
 """ Script to estimate initial values for CFD Simulations"""
 
-def some_function():
+def test_function():
   print('Hello world, it works!')
