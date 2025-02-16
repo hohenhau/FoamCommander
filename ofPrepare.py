@@ -198,11 +198,11 @@ def create_zero_boundaries(names, fm):
     field_configs = {
         "U": {"types": {"wall": "fixedValue"},
               "values": {"inlet": "uniform (0 0 0)", "wall": "uniform (0 0 0)"},
-              "internal_field": None},
+              "internal_field": 0},
               
         "p": {"types": {"inlet": "zeroGradient", "outlet": "fixedValue"},
               "values": {"outlet": "uniform 0"},
-              "internal_field": None},
+              "internal_field": 0},
               
         "k": {"types": {"wall": "kqRWallFunction"},
               "values": {"inlet": "internalField", "wall": "uniform 0"},
@@ -218,7 +218,7 @@ def create_zero_boundaries(names, fm):
                 
         "nuTilda": {"types": {},
                     "values": {"inlet": "uniform 0"},
-                    "internal_field": None},
+                    "internal_field": 0},
                     
         "omega": {"types": {"wall": "omegaWallFunction"},
                  "values": {"inlet": "$internalField", "wall": "uniform 1e5"},  # value for wall needs to be high (1e5 or 1e6)
@@ -226,21 +226,21 @@ def create_zero_boundaries(names, fm):
                  
         "kl": {"types": {"wall": "fixedValue"},
                "values": {"inlet": "uniform 0", "wall": "uniform 0"},
-               "internal_field": None},
+               "internal_field": 0},
                
         "kt": {"types": {"wall": "fixedValue"},
                "values": {"inlet": "uniform 0", "wall": "uniform 0"},
-               "internal_field": None},
+               "internal_field": 0},
                
         "p_rgh": {"types": {"inlet": "fixedFluxPressure", "outlet": "fixedFluxPressure",
                            "wall": "fixedFluxPressure", "inletOutlet": "totalPressure"},
                  "values": {"inlet": "uniform 0", "outlet": "uniform 0",
                            "wall": "uniform 0", "inletOutlet": "uniform 0"},
-                 "internal_field": None},
+                 "internal_field": 0},
                  
         "alphawatergen": {"types": {"inletOutlet": "inletOutlet"},
                          "values": {"inlet": "uniform 1", "outlet": "uniform 0", "inletOutlet": "uniform 0"},
-                         "internal_field": None}
+                         "internal_field": 0}
     }
 
     for field_name, config in field_configs.items():
