@@ -199,12 +199,12 @@ def create_zero_boundaries(names, fm):
 
     # Initial conditions for k (turbulent kinetic energy) used in k-ε, k-ω, and LES models
     k_boundary_types = {"wall": "kqRWallFunction"}
-    k_boundary_values = {"inlet": "uniform 0.05", "wall": "uniform 0.05"}
+    k_boundary_values = {"inlet": "internalField", "wall": "uniform 0"}
     build_zero_file(names, "k", k_boundary_types, k_boundary_values, fm.turb_kinetic_energy.value)
 
     # Initial conditions for ε (rate of dissipation of turbulent kinetic energy) used in k-ε models
     epsilon_boundary_types = {"wall": "epsilonWallFunction"}
-    epsilon_boundary_values = {"inlet": "uniform 2.7", "wall": "uniform 2.7"}
+    epsilon_boundary_values = {"inlet": "$internalField", "wall": "uniform 0"}
     build_zero_file(names, "epsilon", epsilon_boundary_types, epsilon_boundary_values, fm.turb_dissipation_rate.value)
 
     # Initial conditions nu_t (turbulent kinematic viscosity) used in k-ε, k-ω, Spalart-Allmaras, and LES models
@@ -220,8 +220,8 @@ def create_zero_boundaries(names, fm):
     build_zero_file(names, "nuTilda", nu_tilda_boundary_types, nu_tilda_boundary_values)
 
     # Initial conditions for ω (specific turbulence dissipation rate) used in k-ω turbulence models
-    omega_boundary_types = {}
-    omega_boundary_values = {"inlet": "$internalField"}
+    omega_boundary_types = {"wall": "omegaWallFunction"}
+    omega_boundary_values = {"inlet": "$internalField", "wall": "uniform 1e5"}  # Omega uses large values (1e5 or 1e6) at the wall
     build_zero_file(names, "omega", omega_boundary_types, omega_boundary_values, fm.specific_dissipation.value)
 
     # Initial conditions for kl (Turbulent Kinetic Energy per Unit Mass) used low-Re-number models or LES hybrid models
