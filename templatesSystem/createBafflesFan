@@ -38,10 +38,12 @@ baffles  // Baffles to create
                 {
                     p
                     {
-                        type                fanPressure;
-                        patchType           cyclic;
-                        volumetricFlowRate  2.25; // m^3/s
-                        value               uniform 0;
+                        type            fanPressure;
+                        patchType       cyclic;
+                        direction       in;
+                        fanCurve        table ((2.24 -1e6) (2.25 0) (2.26 1e6));  // Steep slope at Q=2.25
+                        p0              uniform 0;  // Reference pressure
+                        value           uniform 0;
                     }
                 }
             }
@@ -52,6 +54,7 @@ baffles  // Baffles to create
                 type            cyclic;
                 neighbourPatch  fanBaffle0;
                 patchFields {${...master.patchFields}}
+                // CANNOT USE this copy method if there are mulitple patches
             }
         }
     }

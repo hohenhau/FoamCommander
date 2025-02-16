@@ -57,6 +57,8 @@ baffles  // Define baffles to be created
                 neighbourPatch  porousBaffle0;
                 transform       none;
                 patchFields     {${...master.patchFields}}
+                // CANNOT USE this copy method if there are mulitple patches
+
             }
         }
     }

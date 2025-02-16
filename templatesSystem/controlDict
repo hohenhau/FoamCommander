@@ -16,7 +16,9 @@ FoamFile
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     pimpleFoam; // Type of solver to be used in the simulation
+application     foamRun; // Type of solver to be used in the simulation
+
+solver          incompressibleFluid; // Choice of solver
 
 startFrom       latestTime; // Start simulation from the latest available time
 

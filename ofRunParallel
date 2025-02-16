@@ -3,6 +3,18 @@
 # Remove all processor directories (from a previous parallel run)
 rm -r processor*
 
+# Grab the number of processors from decomposeParDict
+NPROCS=$(foamDictionary -entry numberOfSubdomains -value system/decomposeParDict)
+
+# Grab the application from controlDict
+APP=$(foamDictionary -entry application -value system/controlDict)
+
+# Grab the solver from controlDict
+SOLVER=$(foamDictionary -entry solver -value system/controlDict)
+
+# Print solver and processors to terminal
+echo Running $APP with the $SOLVER solver on $NPROCS processors
+
 # Decompose the domain for parallel computing
 decomposePar
 
@@ -15,11 +27,5 @@ cp -r 0 processor*/*
 # Monitor the run using pyFoam
 # pyFoamPlotRunner.py
 
-# Grab the number of processors from decomposeParDict
-NPROCS=$(foamDictionary -entry numberOfSubdomains -value system/decomposeParDict)
-
-# Grab the solver from controlDict
-SOLVER=$(foamDictionary -entry application -value system/controlDict)
-
 # Run the detected solver in parallel
-mpirun -np $NPROCS --rankfile system/rankfile $SOLVER -parallel 2>&1 | tee log
+mpirun -np $NPROCS --rankfile system/rankfile $APP -solver $SOLVER -parallel 2>&1 | tee log

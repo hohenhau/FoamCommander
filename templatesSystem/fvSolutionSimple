@@ -30,7 +30,7 @@ solvers  // Numerical algorithms used to solve the field equations
     "(U|k|epsilon|omega)"
     {
         solver          smoothSolver;   // Fast but less robust compared to PBiCG
-        preconditioner  symGaussSeidel; // Good for smoothSolver
+        smoother        symGaussSeidel; // Good for smoothSolver
         tolerance       1e-6;           // Absolute tolerance of the residual
         relTol          0.01;           // Relative tolerance compared to start of iteration
     }
