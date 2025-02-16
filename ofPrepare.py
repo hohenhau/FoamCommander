@@ -183,72 +183,68 @@ def build_zero_file(names: list, field: str, boundary_types: dict, boundary_vals
     print(f"snappyHexMeshDict.gen created at: {output_path}")
 
 
+
+
+    common_boundary_types = ['empty', 'symmetry', 'slip', 'cyclicAMI', 'cyclic']
+    additional_boundary_types = [('inlet', 'fixedValue'),
+                                 ('outlet', 'zeroGradient'),
+                                 ('wall', 'zeroGradient'),
+                                 ('baffle', 'cyclic')]
+
+
 def create_zero_boundaries(names, fm):
     """Build the zero files for the various fields and boundaries"""
+    
+    field_configs = {
+        "U": {"types": {"wall": "fixedValue"},
+              "values": {"inlet": "uniform (0 0 0)", "wall": "uniform (0 0 0)"},
+              "internal_field": None},
+              
+        "p": {"types": {"inlet": "zeroGradient", "outlet": "fixedValue"},
+              "values": {"outlet": "uniform 0"},
+              "internal_field": None},
+              
+        "k": {"types": {"wall": "kqRWallFunction"},
+              "values": {"inlet": "internalField", "wall": "uniform 0"},
+              "internal_field": fm.turb_kinetic_energy.value},
+              
+        "epsilon": {"types": {"wall": "epsilonWallFunction"},
+                   "values": {"inlet": "$internalField", "wall": "uniform 0"},
+                   "internal_field": fm.turb_dissipation_rate.value},
+                   
+        "nut": {"types": {"inlet": "calculated", "outlet": "calculated", "wall": "nutUWallFunction"},
+                "values": {"inlet": "uniform 0", "outlet": "uniform 0", "wall": "uniform 0"},
+                "internal_field": fm.turb_viscosity.value},
+                
+        "nuTilda": {"types": {},
+                    "values": {"inlet": "uniform 0"},
+                    "internal_field": None},
+                    
+        "omega": {"types": {"wall": "omegaWallFunction"},
+                 "values": {"inlet": "$internalField", "wall": "uniform 1e5"},  # value for wall needs to be high (1e5 or 1e6)
+                 "internal_field": fm.specific_dissipation.value},
+                 
+        "kl": {"types": {"wall": "fixedValue"},
+               "values": {"inlet": "uniform 0", "wall": "uniform 0"},
+               "internal_field": None},
+               
+        "kt": {"types": {"wall": "fixedValue"},
+               "values": {"inlet": "uniform 0", "wall": "uniform 0"},
+               "internal_field": None},
+               
+        "p_rgh": {"types": {"inlet": "fixedFluxPressure", "outlet": "fixedFluxPressure",
+                           "wall": "fixedFluxPressure", "inletOutlet": "totalPressure"},
+                 "values": {"inlet": "uniform 0", "outlet": "uniform 0",
+                           "wall": "uniform 0", "inletOutlet": "uniform 0"},
+                 "internal_field": None},
+                 
+        "alphawatergen": {"types": {"inletOutlet": "inletOutlet"},
+                         "values": {"inlet": "uniform 1", "outlet": "uniform 0", "inletOutlet": "uniform 0"},
+                         "internal_field": None}
+    }
 
-    # Initial conditions U (velocity)
-    u_boundary_types = {"wall": "fixedValue"}
-    u_boundary_values = {"inlet": "uniform (0 0 0)", "wall": "uniform (0 0 0)"}
-    build_zero_file(names, "U", u_boundary_types, u_boundary_values)
-
-    # Initial conditions for p (pressure)
-    p_boundary_types = {"inlet": "zeroGradient",
-                        "outlet": "fixedValue"}
-    p_boundary_values = {"outlet": "uniform 0"}
-    build_zero_file(names, "p", p_boundary_types, p_boundary_values)
-
-    # Initial conditions for k (turbulent kinetic energy) used in k-ε, k-ω, and LES models
-    k_boundary_types = {"wall": "kqRWallFunction"}
-    k_boundary_values = {"inlet": "internalField", "wall": "uniform 0"}
-    build_zero_file(names, "k", k_boundary_types, k_boundary_values, fm.turb_kinetic_energy.value)
-
-    # Initial conditions for ε (rate of dissipation of turbulent kinetic energy) used in k-ε models
-    epsilon_boundary_types = {"wall": "epsilonWallFunction"}
-    epsilon_boundary_values = {"inlet": "$internalField", "wall": "uniform 0"}
-    build_zero_file(names, "epsilon", epsilon_boundary_types, epsilon_boundary_values, fm.turb_dissipation_rate.value)
-
-    # Initial conditions nu_t (turbulent kinematic viscosity) used in k-ε, k-ω, Spalart-Allmaras, and LES models
-    nut_boundary_types = {"inlet": "calculated",
-                          "outlet": "calculated",
-                          "wall": "nutUWallFunction"}
-    nut_boundary_values = {"inlet": "uniform 0", "outlet": "uniform 0", "wall": "uniform 0"}
-    build_zero_file(names, "nut", nut_boundary_types, nut_boundary_values, fm.turb_viscosity.value)
-
-    # Initial conditions for nu_tilda (turbulent kinematic viscosity) used Spalart-Allmaras models
-    nu_tilda_boundary_types = {}
-    nu_tilda_boundary_values = {"inlet": "uniform 0"}
-    build_zero_file(names, "nuTilda", nu_tilda_boundary_types, nu_tilda_boundary_values)
-
-    # Initial conditions for ω (specific turbulence dissipation rate) used in k-ω turbulence models
-    omega_boundary_types = {"wall": "omegaWallFunction"}
-    omega_boundary_values = {"inlet": "$internalField", "wall": "uniform 1e5"}  # Omega uses large values (1e5 or 1e6) at the wall
-    build_zero_file(names, "omega", omega_boundary_types, omega_boundary_values, fm.specific_dissipation.value)
-
-    # Initial conditions for kl (Turbulent Kinetic Energy per Unit Mass) used low-Re-number models or LES hybrid models
-    kl_boundary_types = {"wall": "fixedValue"}
-    kl_boundary_values = {"inlet": "uniform 0", "wall": "uniform 0"}
-    build_zero_file(names, "kl", kl_boundary_types, kl_boundary_values)
-
-    # Initial conditions for kt (Turbulent Thermal Energy) used in Turbulent heat transfer modeling (HVAC, combustion)
-    kt_boundary_types = {"wall": "fixedValue"}
-    kt_boundary_values = {"inlet": "uniform 0", "wall": "uniform 0"}
-    build_zero_file(names, "kt", kt_boundary_types, kt_boundary_values)
-
-    # Initial conditions for p_rgh (pressure considering gravity and buoyancy) used in multiphase simulations
-    p_rgh_boundary_types = {"inlet": "fixedFluxPressure",
-                            "outlet": "fixedFluxPressure",
-                            "wall": "fixedFluxPressure",
-                            "inletOutlet": "totalPressure"}
-    p_rgh_boundary_values = {"inlet": "uniform 0", "outlet": "uniform 0", "wall": "uniform 0",
-                             "inletOutlet": "uniform 0"}
-    build_zero_file(names, "p_rgh", p_rgh_boundary_types, p_rgh_boundary_values)
-
-    # Initial conditions for alpha.water (volumetric fraction of water) used in multiphase simulations
-    # The new 0 file is in "alphawatergen" - when using in simulation make sure to copy over to new file "alphawater"
-    # The "alpha.water" file is changed during simulations so the "alphawatergen" file is retained to run future sims
-    alpha_water_type_dict = {"inletOutlet": "inletOutlet"}
-    alpha_water_value_dict = {"inlet": "uniform 1", "outlet": "uniform 0", "inletOutlet": "uniform 0"}
-    build_zero_file(names, "alphawatergen", alpha_water_type_dict, alpha_water_value_dict)
+    for field_name, config in field_configs.items():
+        build_zero_file(names, field_name, config["types"], config["values"], config["internal_field"])
 
 
 def prepare_files():
