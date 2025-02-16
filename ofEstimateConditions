@@ -58,7 +58,7 @@ def get_input():
     return hydraulic_diameter, free_stream_velocity, kinematic_viscosity
 
 
-if __name__ == "__main__":
+def main():
     print('Beginning estimation of initial field and boundary values')
     hydraulic_diameter, free_stream_velocity, kinematic_viscosity = get_input()
 
@@ -68,8 +68,7 @@ if __name__ == "__main__":
     turb_length_scale = calc_turb_length_scale(hydraulic_diameter)
     turb_dissipation_rate = calc_turb_dissipation_rate(turb_kinetic_energy, turb_length_scale)
     specific_turb_dissipation_rate = calc_specific_turb_dissipation_rate(turb_kinetic_energy, turb_length_scale)
-    turb_viscosity_epsilon = calc_turb_viscosity_epsilon(turb_kinetic_energy, turb_dissipation_rate)
-    turb_viscosity_omega = calc_turb_viscosity_omega(turb_kinetic_energy, specific_turb_dissipation_rate)
+    turb_viscosity = calc_turb_viscosity_epsilon(turb_kinetic_energy, turb_dissipation_rate)
 
     print(f'Hydraulic diameter (D) = {hydraulic_diameter}')
     print(f'Free-stream velocity (U) = {free_stream_velocity}')
@@ -80,7 +79,24 @@ if __name__ == "__main__":
     print(f'Turbulence length scale (L) = {turb_length_scale}')
     print(f'Turbulence dissipation rate (ε / epsilon) = {turb_dissipation_rate}')
     print(f'Specific turbulence dissipation rate (ω / omega) = {specific_turb_dissipation_rate}')
-    print(f'Turbulent viscosity for k-ε = {turb_viscosity_epsilon}')
-    print(f'Turbulent viscosity for k-ω = {turb_viscosity_omega}')
+    print(f'Turbulent viscosity for k-ε = {turb_viscosity}')
+
+    results = dict()
+    results['hydraulic_diameter'] = hydraulic_diameter
+    results['free_stream_velocity'] = free_stream_velocity
+    results['kinematic_viscosity'] = kinematic_viscosity
+    results['reynolds_number'] = reynolds_number
+    results['turb_intensity'] = turb_intensity
+    results['turb_kinetic_energy'] = turb_kinetic_energy
+    results['turb_length_scale'] = turb_length_scale
+    results['turb_dissipation_rate'] = turb_dissipation_rate
+    results['specific_turb_dissipation_rate'] = specific_turb_dissipation_rate
+    results['turb_viscosity'] = turb_viscosity
+
+    return results
+    
+if __name__ == "__main__":
+    main()
+
 
 
