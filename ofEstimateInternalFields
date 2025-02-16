@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
-import argparse
+import sys
+from ofParseArgs import detect_and_parse_arguments
 
 
 class FlowMetric:
@@ -25,7 +26,7 @@ class FlowMetrics:
         self.turb_length_scale = FlowMetric("Turbulence Length Scale", "l_t", args.turb_length_scale)
         self.turb_dissipation_rate = FlowMetric("Turbulence Dissipation Rate", "epsilon", args.turb_dissipation_rate)
         self.specific_dissipation = FlowMetric("Specific Dissipation Rate", "omega", args.specific_dissipation)
-        self.turb_viscosity = FlowMetric("Turbulent Viscosity", "mu_t", args.turb_viscosity)
+        self.turb_viscosity = FlowMetric("Turbulent Viscosity", "nu_t", args.turb_viscosity)
 
         self.collect_inputs()
         self.perform_calculations()
@@ -119,19 +120,23 @@ class FlowMetrics:
                 print(f"Invalid input: {e}")
 
 
-def create_flow_metrics():
-    parser = argparse.ArgumentParser(description="Estimate initial flow values for CFD simulations.")
-    metrics = [
-        "hydraulic_diameter", "free_stream_velocity", "kinematic_viscosity", "reynolds_number",
-        "turb_intensity", "turb_kinetic_energy", "turb_length_scale", "turb_dissipation_rate",
-        "specific_dissipation", "turb_viscosity"]
-    for metric in metrics:
-        parser.add_argument(f"-{metric}", type=float, help=f"Set {metric.replace('_', ' ')}")
-    args = parser.parse_args()
+def estimate_internal_fields(args=None):
+    """
+    Creates flow metrics for CFD simulation. Uses arguments passed externally if available,
+    otherwise calls detect_and_parse_arguments to get arguments.
+
+    :param args: Arguments passed externally (if any)
+    :return: FlowMetrics object
+    """
+    # If args are not passed, use the detect_and_parse_arguments function to retrieve them
+    if not args:
+        args = detect_and_parse_arguments(sys)  # This will handle the argument parsing
+
+    # Create FlowMetrics object using the arguments
     flow_metrics = FlowMetrics(args)
     print(flow_metrics)
     return flow_metrics
 
 
 if __name__ == "__main__":
-    create_flow_metrics()
+    estimate_internal_fields()

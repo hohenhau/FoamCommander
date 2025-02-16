@@ -3,6 +3,8 @@
 import os
 import re
 import sys
+from ofEstimateMetrics import estimate_internal_fields
+from ofParseArgs import detect_and_parse_arguments
 
 # Global Variables
 PY_FILE_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -92,9 +94,9 @@ def perform_regex_replacements(patterns_and_replacements: list, template_path: s
     # Write the updated content
     with open(output_path, 'w') as output_file:
         output_file.write(content)
-        
 
-def create_surface_features_dict():
+
+def create_surface_features_dict(patch_names):
     """Creates the surfaceFeaturesDict.gen file."""
     print("Creating surfaceFeaturesDict.gen...")
     template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "surfaceFeaturesDict")  # Template file
@@ -107,13 +109,13 @@ def create_surface_features_dict():
     print(f"surfaceFeaturesDict.gen created at: {output_path}")
 
 
-def create_snappy_hex_mesh_dict():
+def create_snappy_hex_mesh_dict(patch_names):
     """Creates the snappyHexMeshDict.gen file with proper comment line replacement."""
     print("Creating snappyHexMeshDict.gen...")
     template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "snappyHexMeshDict")
     output_path = os.path.join(SYSTEM_DIR, "snappyHexMeshDict.gen")
     # Prepare replacement blocks
-    stl_block, mesh_block, surface_block,  = str(), str(), str()
+    stl_block, mesh_block, surface_block, = str(), str(), str()
     for patch in patch_names:
         stl_block += f'{" " * 8}{patch}.stl {{type triSurfaceMesh; name {patch}; file "{patch}.stl";}}\n'
         mesh_block += f'{" " * 12}{{file "{patch}.eMesh"; level 3;}}\n'
@@ -122,19 +124,16 @@ def create_snappy_hex_mesh_dict():
             surface_block += f'{" " * 12}{patch} {{level (0 0); faceZone {patch}Faces; }}\n'
         elif patch_type == 'honeycomb':
             surface_block += (f'{" " * 12}{patch}\n'
-                            f'{" " * 16}{{level (0 0);\n'
-                            f'{" " * 16}faceZone {patch}Faces;\n'
-                            f'{" " * 16}cellZone {patch}Cells;\n'
-                            f'{" " * 16}cellZoneInside inside;}}\n')
+                              f'{" " * 16}{{level (0 0);\n'
+                              f'{" " * 16}faceZone {patch}Faces;\n'
+                              f'{" " * 16}cellZone {patch}Cells;\n'
+                              f'{" " * 16}cellZoneInside inside;}}\n')
         elif patch_type in {'wall', 'slip', 'empty', 'symmetry'}:
             surface_block += f'{" " * 12}{patch} {{level (0 0); patchInfo {{type {patch_type};}} }}\n'
         elif patch_type in {'slip'}:
             surface_block += f'{" " * 12}{patch} {{level (0 0); patchInfo {{type wall;}} }}\n'
         else:
             surface_block += f'{" " * 12}{patch} {{level (0 0); patchInfo {{type patch;}} }}\n'
-    # Read the template file
-    with open(template_path, 'r') as template_file:
-        content = template_file.read()
     # Define the patterns to match the entire lines containing the variables
     patterns_and_replacements = [(r'.*\$STL_FILES_AND_GEOMETRIES\$.*\n', stl_block),
                                  (r'.*\$MESH_FEATURES\$.*\n', mesh_block),
@@ -144,19 +143,19 @@ def create_snappy_hex_mesh_dict():
     print(f"snappyHexMeshDict.gen created at: {output_path}")
 
 
-def build_zero_file(base_name: str, local_boundary_types: dict, local_boundary_values: dict, internal_field: float):
+def build_zero_file(names: list, field: str, boundary_types: dict, boundary_vals: dict, internal_val=0):
     """Creates a file in the zero directory with grouped patch settings."""
-    template_path = os.path.join(TEMPLATE_BOUNDARY_DIR, f"{base_name}")
-    output_path = os.path.join(ZERO_DIR, base_name)
+    template_path = os.path.join(TEMPLATE_BOUNDARY_DIR, f"{field}")
+    output_path = os.path.join(ZERO_DIR, field)
     # Group patches by type
     patch_groups = {}
-    for patch_name in patch_names:
-        patch_type = get_patch_type_from_patch_name(patch_name)
-        if patch_type not in local_boundary_types:
-            local_boundary_types[patch_type] = get_boundary_type_from_patch_type(patch_type)
+    for name in names:
+        patch_type = get_patch_type_from_patch_name(name)
+        if patch_type not in boundary_types:
+            boundary_types[patch_type] = get_boundary_type_from_patch_type(patch_type)
         if patch_type not in patch_groups:
             patch_groups[patch_type] = []
-        patch_groups[patch_type].append(patch_name)
+        patch_groups[patch_type].append(name)
     boundary_block = str()
     # Grouped patches in regex format using pipe separator
     for patch_type, patches in patch_groups.items():
@@ -170,69 +169,70 @@ def build_zero_file(base_name: str, local_boundary_types: dict, local_boundary_v
         patch_group = f'"{patches[0]}"' if len(patches) == 1 else f'"({"|".join(patches)})"'
         # Add the patch text to the text block
         boundary_block += f'    {patch_group}\n    {{\n'
-        boundary_block += f'        type            {local_boundary_types.get(patch_type, "wall")};\n'
-        if patch_type in local_boundary_values:
-            boundary_block += (f'        value           {local_boundary_values[patch_type]};\n')
-        boundary_block += ('    }\n')
+        boundary_block += f'        type            {boundary_types.get(patch_type, "wall")};\n'
+        if patch_type in boundary_vals:
+            boundary_block += f'        value           {boundary_vals[patch_type]};\n'
+        boundary_block += '    }\n'
     # Define the value block
-    internal_field_block = f'internalField   uniform {internal_field};  // Adjust internal field as necessary'
+    internal_field_block = f'internalField   uniform {internal_val};  // Adjust internal field as necessary'
     # Define the patterns to match the entire lines containing the variables
     patterns_and_replacements = [(r'.*\$INTERNAL_FIELD\$.*\n', internal_field_block),
-                                 (r'.*\$BOUNDARY_FIELDS\$.*\n', boundary_block)] 
+                                 (r'.*\$BOUNDARY_FIELDS\$.*\n', boundary_block)]
     # Perform the replacements
     perform_regex_replacements(patterns_and_replacements, template_path, output_path)
     print(f"snappyHexMeshDict.gen created at: {output_path}")
 
 
-def create_zero_files():
+def create_zero_boundaries(names, fm):
     """Build the zero files for the various fields and boundaries"""
+
     # Initial conditions U (velocity)
     u_boundary_types = {"wall": "fixedValue"}
     u_boundary_values = {"inlet": "uniform (0 0 0)", "wall": "uniform (0 0 0)"}
-    build_zero_file("U", u_boundary_types, u_boundary_values)
+    build_zero_file(names, "U", u_boundary_types, u_boundary_values)
 
     # Initial conditions for p (pressure)
     p_boundary_types = {"inlet": "zeroGradient",
                         "outlet": "fixedValue"}
     p_boundary_values = {"outlet": "uniform 0"}
-    build_zero_file("p", p_boundary_types, p_boundary_values)
+    build_zero_file(names, "p", p_boundary_types, p_boundary_values)
 
     # Initial conditions for k (turbulent kinetic energy) used in k-ε, k-ω, and LES models
     k_boundary_types = {"wall": "kqRWallFunction"}
     k_boundary_values = {"inlet": "uniform 0.05", "wall": "uniform 0.05"}
-    build_zero_file("k", k_boundary_types, k_boundary_values)
+    build_zero_file(names, "k", k_boundary_types, k_boundary_values, fm.turb_kinetic_energy.value)
 
     # Initial conditions for ε (rate of dissipation of turbulent kinetic energy) used in k-ε models
     epsilon_boundary_types = {"wall": "epsilonWallFunction"}
     epsilon_boundary_values = {"inlet": "uniform 2.7", "wall": "uniform 2.7"}
-    build_zero_file("epsilon", epsilon_boundary_types, epsilon_boundary_values)
+    build_zero_file(names, "epsilon", epsilon_boundary_types, epsilon_boundary_values, fm.turb_dissipation_rate.value)
 
     # Initial conditions nu_t (turbulent kinematic viscosity) used in k-ε, k-ω, Spalart-Allmaras, and LES models
     nut_boundary_types = {"inlet": "calculated",
                           "outlet": "calculated",
                           "wall": "nutUWallFunction"}
     nut_boundary_values = {"inlet": "uniform 0", "outlet": "uniform 0", "wall": "uniform 0"}
-    build_zero_file("nut", nut_boundary_types, nut_boundary_values)
+    build_zero_file(names, "nut", nut_boundary_types, nut_boundary_values, fm.turb_viscosity.value)
 
     # Initial conditions for nu_tilda (turbulent kinematic viscosity) used Spalart-Allmaras models
-    nuTilda_boundary_types = {}
-    nuTilda_boundary_values = {"inlet": "uniform 0"}
-    build_zero_file("nuTilda", nuTilda_boundary_types, nuTilda_boundary_values)
+    nu_tilda_boundary_types = {}
+    nu_tilda_boundary_values = {"inlet": "uniform 0"}
+    build_zero_file(names, "nuTilda", nu_tilda_boundary_types, nu_tilda_boundary_values)
 
     # Initial conditions for ω (specific turbulence dissipation rate) used in k-ω turbulence models
     omega_boundary_types = {}
     omega_boundary_values = {"inlet": "$internalField"}
-    build_zero_file("omega", omega_boundary_types, omega_boundary_values)
+    build_zero_file(names, "omega", omega_boundary_types, omega_boundary_values, fm.specific_dissipation.value)
 
     # Initial conditions for kl (Turbulent Kinetic Energy per Unit Mass) used low-Re-number models or LES hybrid models
     kl_boundary_types = {"wall": "fixedValue"}
     kl_boundary_values = {"inlet": "uniform 0", "wall": "uniform 0"}
-    build_zero_file("kl", kl_boundary_types, kl_boundary_values)
+    build_zero_file(names, "kl", kl_boundary_types, kl_boundary_values)
 
     # Initial conditions for kt (Turbulent Thermal Energy) used in Turbulent heat transfer modeling (HVAC, combustion)
     kt_boundary_types = {"wall": "fixedValue"}
     kt_boundary_values = {"inlet": "uniform 0", "wall": "uniform 0"}
-    build_zero_file("kt", kt_boundary_types, kt_boundary_values)
+    build_zero_file(names, "kt", kt_boundary_types, kt_boundary_values)
 
     # Initial conditions for p_rgh (pressure considering gravity and buoyancy) used in multiphase simulations
     p_rgh_boundary_types = {"inlet": "fixedFluxPressure",
@@ -241,19 +241,25 @@ def create_zero_files():
                             "inletOutlet": "totalPressure"}
     p_rgh_boundary_values = {"inlet": "uniform 0", "outlet": "uniform 0", "wall": "uniform 0",
                              "inletOutlet": "uniform 0"}
-    build_zero_file("p_rgh", p_rgh_boundary_types, p_rgh_boundary_values)
+    build_zero_file(names, "p_rgh", p_rgh_boundary_types, p_rgh_boundary_values)
 
     # Initial conditions for alpha.water (volumetric fraction of water) used in multiphase simulations
-    # The new 0 file is in alpha.watergen - when using in simulation make sure to copy over to new file "alpha.water"
-    # The "alpha.water" file is changed during simulations so the "alpha.watergen" file is retained to run future sims
+    # The new 0 file is in "alphawatergen" - when using in simulation make sure to copy over to new file "alphawater"
+    # The "alpha.water" file is changed during simulations so the "alphawatergen" file is retained to run future sims
     alpha_water_type_dict = {"inletOutlet": "inletOutlet"}
     alpha_water_value_dict = {"inlet": "uniform 1", "outlet": "uniform 0", "inletOutlet": "uniform 0"}
-    build_zero_file("alphawatergen", alpha_water_type_dict, alpha_water_value_dict)
+    build_zero_file(names, "alphawatergen", alpha_water_type_dict, alpha_water_value_dict)
+
+
+def prepare_files():
+    print(f"Processing directory: {CURRENT_DIR}")
+    patch_names = load_and_process_stl_files()
+    create_surface_features_dict(patch_names)
+    create_snappy_hex_mesh_dict(patch_names)
+    arguments = detect_and_parse_arguments(sys)
+    flow_metrics = estimate_internal_fields(arguments)
+    create_zero_boundaries(patch_names, flow_metrics)
 
 
 if __name__ == "__main__":
-    print(f"Processing directory: {CURRENT_DIR}")
-    patch_names = load_and_process_stl_files()
-    create_surface_features_dict()
-    create_snappy_hex_mesh_dict()
-    create_zero_files()
+    prepare_files()
