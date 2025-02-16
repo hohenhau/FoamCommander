@@ -17,8 +17,8 @@ FoamFile
 // Specific turbulence dissipation rate (ω)
 // Models: k-ω
 // Estimate wall functions with:
-// ω = √(k) / (C_μ^0.25 * κ * y) where: k is turbulent kinetic energy, 
-// C_μ is 0.09 (model constant), κ is 0.41 (von Karman constant) and 
+// ω = √(k) / (C_μ^0.25 * κ * y) where: k is turbulent kinetic energy,
+// C_μ is 0.09 (model constant), κ is 0.41 (von Karman constant) and
 // y is the distance to the wall (first cell height)
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
