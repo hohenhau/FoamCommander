@@ -3,5 +3,5 @@
 import test_input
 
 print('Testing imported function')
-test_function()
+test_input.test_function()
 
