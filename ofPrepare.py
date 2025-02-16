@@ -82,19 +82,28 @@ def load_and_process_stl_files():
     return sorted(patches)
 
 
+def perform_regex_replacements(patterns_and_replacements: list, template_path: str, output_path: str):
+    # Read the template file
+    with open(template_path, 'r') as template_file:
+        content = template_file.read()
+    # Perform the replacements
+    for pattern, replacement in patterns_and_replacements:
+        content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
+    # Write the updated content
+    with open(output_path, 'w') as output_file:
+        output_file.write(content)
+        
+
 def create_surface_features_dict():
     """Creates the surfaceFeaturesDict.gen file."""
     print("Creating surfaceFeaturesDict.gen...")
     template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "surfaceFeaturesDict")  # Template file
     output_path = os.path.join(SYSTEM_DIR, "surfaceFeaturesDict.gen")
     replacement_pattern = r'.*\$STL_FILES\$.*\n'  # Match any line containing $STL_FILES$
-    replacement_text = ''
+    replacement_text = str()
     for patch in patch_names:
         replacement_text += f'    "{patch}.stl"\n'
-    with open(template_path, 'r') as template_file, open(output_path, 'w') as output_file:
-        updated_content = template_file.read()
-        updated_content = re.sub(replacement_pattern, replacement_text, updated_content, flags=re.MULTILINE)
-        output_file.write(updated_content)
+    perform_regex_replacements([(replacement_pattern, replacement_text)], template_path, output_path)
     print(f"surfaceFeaturesDict.gen created at: {output_path}")
 
 
@@ -104,7 +113,7 @@ def create_snappy_hex_mesh_dict():
     template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "snappyHexMeshDict")
     output_path = os.path.join(SYSTEM_DIR, "snappyHexMeshDict.gen")
     # Prepare replacement blocks
-    stl_block, mesh_block, surface_block,  = '', '', ''
+    stl_block, mesh_block, surface_block,  = str(), str(), str()
     for patch in patch_names:
         stl_block += f'{" " * 8}{patch}.stl {{type triSurfaceMesh; name {patch}; file "{patch}.stl";}}\n'
         mesh_block += f'{" " * 12}{{file "{patch}.eMesh"; level 3;}}\n'
@@ -131,18 +140,14 @@ def create_snappy_hex_mesh_dict():
                                  (r'.*\$MESH_FEATURES\$.*\n', mesh_block),
                                  (r'.*\$REFINEMENT_SURFACES\$.*\n', surface_block)]
     # Perform the replacements
-    for pattern, replacement in patterns_and_replacements:
-        content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
-    # Write the updated content
-    with open(output_path, 'w') as output_file:
-        output_file.write(content)
+    perform_regex_replacements(patterns_and_replacements, template_path, output_path)
     print(f"snappyHexMeshDict.gen created at: {output_path}")
 
 
-def build_zero_file(base_name: str, local_boundary_types: dict, local_boundary_values: dict):
+def build_zero_file(base_name: str, local_boundary_types: dict, local_boundary_values: dict, internal_field: float):
     """Creates a file in the zero directory with grouped patch settings."""
+    template_path = os.path.join(TEMPLATE_BOUNDARY_DIR, f"{base_name}")
     output_path = os.path.join(ZERO_DIR, base_name)
-    template_head_path = os.path.join(TEMPLATE_BOUNDARY_DIR, f"{base_name}Head")
     # Group patches by type
     patch_groups = {}
     for patch_name in patch_names:
@@ -152,26 +157,31 @@ def build_zero_file(base_name: str, local_boundary_types: dict, local_boundary_v
         if patch_type not in patch_groups:
             patch_groups[patch_type] = []
         patch_groups[patch_type].append(patch_name)
-    # Write the header
-    with open(output_path, 'w') as outfile, open(template_head_path) as head:
-        outfile.write(head.read())
-        # Write grouped patches using pipe separator
-        for patch_type, patches in patch_groups.items():
-            # Do not add surfaces associated with baffles or honeycombs as boundaries
-            if patch_type == 'honeycomb':
-                continue
-            if patch_type in {'baffle', 'cyclic'}:
-                patches = [f"{char}{i}" for char in patches for i in [0, 1]]
-            # Join patches with '|' and wrap in parentheses
-            patch_group = f'"{patches[0]}"' if len(patches) == 1 else f'"({"|".join(patches)})"'
-            outfile.write(f'    {patch_group}\n    {{\n')
-            outfile.write(f'        type            {local_boundary_types.get(patch_type, "wall")};\n')
-            if patch_type in local_boundary_values:
-                outfile.write(f'        value           {local_boundary_values[patch_type]};\n')
-            outfile.write('    }\n')
-        outfile.write('    "(minX|maxX|minY|maxY|minZ|maxZ)"\n')
-        outfile.write('    {\n        type            zeroGradient;\n    }\n')
-        outfile.write('}\n')
+    boundary_block = str()
+    # Grouped patches in regex format using pipe separator
+    for patch_type, patches in patch_groups.items():
+        # Do not add surfaces associated with honeycombs as boundaries
+        if patch_type == 'honeycomb':
+            continue
+        # Double up cyclic boundaries and baffles
+        if patch_type in {'baffle', 'cyclic'}:
+            patches = [f"{patch}{ending}" for patch in patches for ending in [0, 1]]
+        # Join patches with '|' and wrap in parentheses
+        patch_group = f'"{patches[0]}"' if len(patches) == 1 else f'"({"|".join(patches)})"'
+        # Add the patch text to the text block
+        boundary_block += f'    {patch_group}\n    {{\n'
+        boundary_block += f'        type            {local_boundary_types.get(patch_type, "wall")};\n'
+        if patch_type in local_boundary_values:
+            boundary_block += (f'        value           {local_boundary_values[patch_type]};\n')
+        boundary_block += ('    }\n')
+    # Define the value block
+    internal_field_block = f'internalField   uniform {internal_field};  // Adjust internal field as necessary'
+    # Define the patterns to match the entire lines containing the variables
+    patterns_and_replacements = [(r'.*\$INTERNAL_FIELD\$.*\n', internal_field_block),
+                                 (r'.*\$BOUNDARY_FIELDS\$.*\n', boundary_block)] 
+    # Perform the replacements
+    perform_regex_replacements(patterns_and_replacements, template_path, output_path)
+    print(f"snappyHexMeshDict.gen created at: {output_path}")
 
 
 def create_zero_files():
