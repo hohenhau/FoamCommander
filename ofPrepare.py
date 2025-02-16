@@ -205,7 +205,7 @@ def create_zero_boundaries(names, fm):
               "internal_field": 0},
               
         "k": {"types": {"wall": "kqRWallFunction"},
-              "values": {"inlet": "internalField", "wall": "uniform 0"},
+              "values": {"inlet": "$internalField", "wall": "uniform 0"},
               "internal_field": fm.turb_kinetic_energy.value},
               
         "epsilon": {"types": {"wall": "epsilonWallFunction"},
