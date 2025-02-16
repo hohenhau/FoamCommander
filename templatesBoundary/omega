@@ -25,7 +25,7 @@ internalField   uniform 0.9;  // Update to the estimated $INTERNAL_FIELD$
 
 boundaryField
 {
-    // Insert the required $BOUNDARY_FIELDS$ 
+    // Insert the required $BOUNDARY_FIELDS$
     "(minX|maxX|minY|maxY|minZ|maxZ)"
     {
         type            zeroGradient;

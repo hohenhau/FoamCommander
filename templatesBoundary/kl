@@ -14,7 +14,7 @@ FoamFile
     object      kl;
 }
 
-// Turbulent Kinetic Energy per Unit Mass 
+// Turbulent Kinetic Energy per Unit Mass
 // Models: low-Re-number, LES hybrid models
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -25,7 +25,7 @@ internalField   uniform 0;
 
 boundaryField
 {
-    // Insert the required $BOUNDARY_FIELDS$ 
+    // Insert the required $BOUNDARY_FIELDS$
     "(minX|maxX|minY|maxY|minZ|maxZ)"
     {
         type            zeroGradient;

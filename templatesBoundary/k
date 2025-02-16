@@ -14,7 +14,7 @@ FoamFile
     object      k;
 }
 
-// Turbulent kinetic energy 
+// Turbulent kinetic energy
 // Models: k-ε, k-ω, LES
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -25,7 +25,7 @@ internalField   uniform 0.0010;  // Update to the estimated $INTERNAL_FIELD$
 
 boundaryField
 {
-    // Insert the required $BOUNDARY_FIELDS$ 
+    // Insert the required $BOUNDARY_FIELDS$
     "(minX|maxX|minY|maxY|minZ|maxZ)"
     {
         type            zeroGradient;
