@@ -21,7 +21,7 @@ FoamFile
 
 dimensions      [0 2 -2 0 0 0 0];
 
-internalField   uniform 0.0503;            //// was 0.00325
+internalField   uniform 0.0010;  // Update to the estimated $INTERNAL_FIELD$
 
 boundaryField
 {
@@ -31,3 +31,5 @@ boundaryField
         type            zeroGradient;
     }
 }
+
+// ************************************************************************* //
