@@ -3,109 +3,124 @@
 """ Script to estimate initial values for CFD Simulations"""
 
 
-def calc_reynolds_number(length: float, velocity: float, kinematic_viscosity: float, ):
-    reynolds_number = length * velocity / kinematic_viscosity
-    return reynolds_number
+class FlowMetric:
+    """A class to define the attributes of a flow metric"""
+    def __init__(self, name: str, symbol: str, value: float = None):
+        self.description = name
+        self.symbol = symbol
+        self.value = value
 
 
-def calc_turb_intensity(reynolds_number: float):
-    turb_coefficient = 0.16
-    turb_intensity = turb_coefficient * reynolds_number ** (-1/8)
-    return turb_intensity
+class FlowMetrics:
+    """A class to contain all flow metrics"""
+
+    def __init__(self):
+        # Initialize all metrics as FlowMetric objects
+        self.hydraulic_diameter = FlowMetric("Hydraulic Diameter", "D_h")
+        self.free_stream_velocity = FlowMetric("Free Stream Velocity", "U_inf")
+        self.kinematic_viscosity = FlowMetric("Kinematic Viscosity", "nu")
+        self.reynolds_number = FlowMetric("Reynolds Number", "Re")
+        self.turb_intensity = FlowMetric("Turbulence Intensity", "I")
+        self.turb_kinetic_energy = FlowMetric("Turbulence Kinetic Energy", "k")
+        self.turb_length_scale = FlowMetric("Turbulence Length Scale", "l_t")
+        self.turb_dissipation_rate = FlowMetric("Turbulence Dissipation Rate", "epsilon")
+        self.specific_dissipation = FlowMetric("Specific Dissipation Rate", "omega")
+        self.turb_viscosity = FlowMetric("Turbulent Viscosity", "mu_t")
+
+        # Execute methods in the correct order during initialization
+        self.collect_inputs()
+        self.perform_calculations()
+
+    def collect_inputs(self):
+        """Get input values for the key flow metrics"""
+        self.hydraulic_diameter.value = self.get_metric("Enter the hydraulic diameter (m): ")
+        self.free_stream_velocity.value = self.get_metric("Enter the free stream velocity (m/s): ")
+        print("Typical values for Kinematic viscosity (m²/s):\n  - Water: 0.000001\n  - Air: 0.0000148")
+        self.kinematic_viscosity.value = self.get_metric("Enter the kinematic viscosity (m²/s): ")
+
+    def perform_calculations(self):
+        """Perform all calculations in the correct order"""
+
+        # Reynolds Number
+        self.reynolds_number.value = self.calc_reynolds_number(self.hydraulic_diameter.value,
+                                                               self.free_stream_velocity.value,
+                                                               self.kinematic_viscosity.value)
+
+        # Turbulence Intensity
+        self.turb_intensity.value = self.calc_turb_intensity(self.reynolds_number.value)
+
+        # Turbulence Kinetic Energy
+        self.turb_kinetic_energy.value = self.calc_turb_kinetic_energy(self.free_stream_velocity.value,
+                                                                       self.turb_intensity.value)
+
+        # Turbulence Length Scale
+        self.turb_length_scale.value = self.calc_turb_length_scale(self.hydraulic_diameter.value)
+
+        # Turbulence Dissipation Rate (epsilon)
+        self.turb_dissipation_rate.value = self.calc_turb_dissipation_rate(self.turb_kinetic_energy.value,
+                                                                           self.turb_length_scale.value)
+
+        # Specific Dissipation Rate (omega)
+        self.specific_dissipation.value = self.calc_specific_turb_dissipation_rate(self.turb_kinetic_energy.value,
+                                                                                   self.turb_length_scale.value)
+
+        # Turbulent Viscosity (using epsilon method)
+        self.turb_viscosity.value = self.calc_turb_viscosity_epsilon(self.turb_kinetic_energy.value,
+                                                                     self.turb_dissipation_rate.value)
+
+    def __repr__(self):
+        """Define custom print method for easy visualization of results"""
+        print('Resulting flow metrics:')
+        return "\n".join(f"{attr} ({getattr(self, attr).symbol}): { float('%.*g' % (3, getattr(self, attr).value))}"
+                         for attr in vars(self) if isinstance(getattr(self, attr), FlowMetric))
+
+    # ------------------- Calculation Methods -------------------
+
+    def calc_reynolds_number(self, length: float, velocity: float, kinematic_viscosity: float):
+        return length * velocity / kinematic_viscosity
+
+    def calc_turb_intensity(self, reynolds_number: float):
+        turb_coefficient = 0.16
+        return turb_coefficient * reynolds_number ** (-1 / 8)
+
+    def calc_turb_kinetic_energy(self, velocity: float, turb_intensity: float):
+        return (3 / 2) * (velocity * turb_intensity) ** 2
+
+    def calc_turb_length_scale(self, hydraulic_diameter: float):
+        coefficient_for_pipe_flow = 0.07
+        return hydraulic_diameter * coefficient_for_pipe_flow
+
+    def calc_turb_dissipation_rate(self, turbulent_kinetic_energy: float, turbulent_length_scale: float):
+        model_function = 0.09
+        return model_function ** (3 / 4) * turbulent_kinetic_energy ** (3 / 2) / turbulent_length_scale
+
+    def calc_specific_turb_dissipation_rate(self, turbulent_kinetic_energy: float, turbulent_length_scale: float):
+        model_function = 0.09
+        return turbulent_kinetic_energy ** 0.5 / (model_function ** (1 / 4) * turbulent_length_scale)
+
+    def calc_turb_viscosity_epsilon(self, turb_kinetic_energy: float, turb_dissipation_rate: float):
+        model_function = 0.09
+        return model_function * turb_kinetic_energy ** 2 / turb_dissipation_rate
+
+    def get_metric(self, prompt: str):
+        while True:
+            try:
+                metric = float(input(prompt))
+                if metric <= 0:
+                    raise ValueError("Value must be positive")
+                return metric
+            except ValueError as e:
+                print(f"Invalid input: {e}")
 
 
-def calc_turb_kinetic_energy(velocity: float, turb_intensity: float):
-    turbulent_kinetic_energy = (3 / 2) * (velocity * turb_intensity) ** 2
-    return turbulent_kinetic_energy
+def create_flow_metrics():
+    flow_metrics = FlowMetrics()
+    print(flow_metrics)
+    return flow_metrics
 
-
-def calc_turb_length_scale(hydraulic_diameter: float):
-    coefficient_for_pipe_flow = 0.07
-    turbulent_length_scale = hydraulic_diameter * coefficient_for_pipe_flow
-    return turbulent_length_scale
-
-
-def calc_turb_dissipation_rate(turbulent_kinetic_energy: float, turbulent_length_scale: float):
-    constant = 0.09
-    epsilon = constant ** (3 / 4) * turbulent_kinetic_energy ** (3 / 2) / turbulent_length_scale
-    return epsilon
-
-
-def calc_specific_turb_dissipation_rate(turbulent_kinetic_energy: float, turbulent_length_scale: float):
-    constant = 0.09
-    omega = turbulent_kinetic_energy ** 0.5 / (constant ** (1 / 4) * turbulent_length_scale)
-    return omega
-
-
-def calc_turb_viscosity_epsilon(turb_kinetic_energy: float, turb_dissipation_rate: float):
-    constant = 0.09
-    turbulent_viscosity = constant * turb_kinetic_energy ** 2 / turb_dissipation_rate
-    return turbulent_viscosity
-
-
-def calc_turb_viscosity_omega(turb_kinetic_energy: float, specific_turb_dissipation_rate: float):
-    turbulent_viscosity = turb_kinetic_energy / specific_turb_dissipation_rate
-    return turbulent_viscosity
-
-
-def get_metric(prompt: str):
-    try:
-        metric = float(input(prompt))
-        if metric < 0:
-            raise ValueError("Value must be positive")
-        return metric
-    except ValueError as e:
-        print(f"Error: {e}")
-        exit()
-
-
-def get_flow_metrics():
-    hydraulic_diameter = get_metric("Enter the hydraulic diameter (m): ")
-    free_stream_velocity = get_metric("Enter the free stream velocity (m/s): ")
-    print("Kinematic viscosity (m²/s): ~1e-6 (water), ~1.48e-5 (air)")
-    kinematic_viscosity = get_metric("Enter the kinematic viscosity (m²/s): ")
-    return hydraulic_diameter, free_stream_velocity, kinematic_viscosity
-
-
-def main():
-    print('Beginning estimation of initial field and boundary values')
-    hydraulic_diameter, free_stream_velocity, kinematic_viscosity = get_flow_metrics()
-
-    reynolds_number = calc_reynolds_number(hydraulic_diameter, free_stream_velocity, kinematic_viscosity)
-    turb_intensity = calc_turb_intensity(reynolds_number)
-    turb_kinetic_energy = calc_turb_kinetic_energy(free_stream_velocity, turb_intensity)
-    turb_length_scale = calc_turb_length_scale(hydraulic_diameter)
-    turb_dissipation_rate = calc_turb_dissipation_rate(turb_kinetic_energy, turb_length_scale)
-    specific_turb_dissipation_rate = calc_specific_turb_dissipation_rate(turb_kinetic_energy, turb_length_scale)
-    turb_viscosity = calc_turb_viscosity_epsilon(turb_kinetic_energy, turb_dissipation_rate)
-
-    print(f'Hydraulic diameter (D) = {hydraulic_diameter}')
-    print(f'Free-stream velocity (U) = {free_stream_velocity}')
-    print(f'Kinematic viscosity (ν)= {kinematic_viscosity}')
-    print(f'Reynolds Number (Re) = {reynolds_number}')
-    print(f'Turbulence intensity (I) = {turb_intensity}')
-    print(f'Turbulence kinetic energy (k) = {turb_kinetic_energy}')
-    print(f'Turbulence length scale (L) = {turb_length_scale}')
-    print(f'Turbulence dissipation rate (ε / epsilon) = {turb_dissipation_rate}')
-    print(f'Specific turbulence dissipation rate (ω / omega) = {specific_turb_dissipation_rate}')
-    print(f'Turbulent viscosity for k-ε = {turb_viscosity}')
-
-    results = dict()
-    results['hydraulic_diameter'] = hydraulic_diameter
-    results['free_stream_velocity'] = free_stream_velocity
-    results['kinematic_viscosity'] = kinematic_viscosity
-    results['reynolds_number'] = reynolds_number
-    results['turb_intensity'] = turb_intensity
-    results['turb_kinetic_energy'] = turb_kinetic_energy
-    results['turb_length_scale'] = turb_length_scale
-    results['turb_dissipation_rate'] = turb_dissipation_rate
-    results['specific_turb_dissipation_rate'] = specific_turb_dissipation_rate
-    results['turb_viscosity'] = turb_viscosity
-
-    return results
 
 if __name__ == "__main__":
-    main()
+    create_flow_metrics()
 
 
 
