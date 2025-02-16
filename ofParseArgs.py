@@ -2,34 +2,44 @@ import argparse
 import subprocess
 
 
-def detect_and_parse_arguments(sys):
-    """Parse command line arguments with custom validation and allow unknown arguments."""
+# Custom formatter to adjust column widths
+class CustomHelpFormatter(argparse.HelpFormatter):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            *args, 
+            max_help_position=30,  # Width allocated for argument names
+            width=100              # Total terminal width
+            **kwargs
+        )
 
-    # Instantiate the parser with suppressed usage and custom help formatting
+def detect_and_parse_arguments(sys):
+    """Parse command line arguments with improved help formatting."""
     parser = argparse.ArgumentParser(
         description="Flow metrics calculation for CFD simulation",
-        formatter_class=argparse.RawTextHelpFormatter,
-        usage=argparse.SUPPRESS  # This removes the usage line
+        formatter_class=CustomHelpFormatter,  # Use the custom formatter
+        usage=argparse.SUPPRESS               # Suppress the "usage" line
     )
 
-    # Define arguments with empty metavar to hide uppercase placeholders
-    parser.add_argument("-hydraulic_diameter", type=float, help="Hydraulic diameter", metavar='')
-    parser.add_argument("-free_stream_velocity", type=float, help="Free stream velocity", metavar='')
-    parser.add_argument("-kinematic_viscosity", type=float, help="Kinematic viscosity", metavar='')
-    parser.add_argument("-reynolds_number", type=float, help="Reynolds number", metavar='')
-    parser.add_argument("-turb_intensity", type=float, help="Turbulence intensity", metavar='')
-    parser.add_argument("-turb_kinetic_energy", type=float, help="Turbulence kinetic energy", metavar='')
-    parser.add_argument("-turb_length_scale", type=float, help="Turbulence length scale", metavar='')
-    parser.add_argument("-turb_dissipation_rate", type=float, help="Turbulence dissipation rate", metavar='')
-    parser.add_argument("-specific_dissipation", type=float, help="Specific dissipation rate", metavar='')
-    parser.add_argument("-turb_viscosity", type=float, help="Turbulent viscosity", metavar='')
+    # Define arguments with suppressed metavar
+    args_list = [
+        ("-hydraulic_diameter", "Hydraulic diameter"),
+        ("-free_stream_velocity", "Free stream velocity"),
+        ("-kinematic_viscosity", "Kinematic viscosity"),
+        ("-reynolds_number", "Reynolds number"),
+        ("-turb_intensity", "Turbulence intensity"),
+        ("-turb_kinetic_energy", "Turbulence kinetic energy"),
+        ("-turb_length_scale", "Turbulence length scale"),
+        ("-turb_dissipation_rate", "Turbulence dissipation rate"),
+        ("-specific_dissipation", "Specific dissipation rate"),
+        ("-turb_viscosity", "Turbulent viscosity"),
+    ]
 
-    # Parse known arguments
+    for arg, help_text in args_list:
+        parser.add_argument(arg, type=float, help=help_text, metavar='')
+
     args, unknown_args = parser.parse_known_args()
-
     if unknown_args:
         print(f"Warning: Ignoring unknown arguments: {unknown_args}")
-
     return args
 
 
