@@ -50,22 +50,20 @@ def calc_turb_viscosity_omega(turb_kinetic_energy: float, specific_turb_dissipat
 
 def get_metric(prompt: str):
     try:
-        metric = float(input("Enter the hydraulic diameter (m): "))
-    except: 
-        raise TypeError("Input must be a number")
-    if x < 0:
-        raise ValueError("Number must be positive")
-    return metric
+        metric = float(input(prompt))
+        if metric < 0:
+            raise ValueError("Value must be positive")
+        return metric
+    except ValueError as e:
+        print(f"Error: {e}")
+        exit()
 
 
 def get_flow_metrics():
-    # Prompt user for inputs
     hydraulic_diameter = get_metric("Enter the hydraulic diameter (m): ")
-    float(input("Enter the hydraulic diameter (m): "))
     free_stream_velocity = get_metric("Enter the free stream velocity (m/s): ")
-    # Provide hints for kinematic viscosity
-    print("Kinematic viscosity (m^2/s) is approximately 0.000001 for water and 0.0000148 for air")
-    kinematic_viscosity = get_metric("Enter the kinematic viscosity (m^2/s): ")
+    print("Kinematic viscosity (m²/s): ~1e-6 (water), ~1.48e-5 (air)")
+    kinematic_viscosity = get_metric("Enter the kinematic viscosity (m²/s): ")
     return hydraulic_diameter, free_stream_velocity, kinematic_viscosity
 
 
