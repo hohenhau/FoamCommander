@@ -36,14 +36,14 @@ baffles  // Baffles to create
 
                 patchFields  // Optional override of patchfields (default is type "calculated")
                 {
-                    p
+                    p  // Jump is in units of pressure(Pa) over density(rho)
                     {
-                        type            fanPressure;
+                        type            fanPressureJump;
                         patchType       cyclic;
-                        direction       in;
-                        fanCurve        table ((2.24 -1e6) (2.25 0) (2.26 1e6));  // Steep slope at Q=2.25
-                        p0              uniform 0;  // Reference pressure
                         value           uniform 0;
+                        jump            uniform 0;
+                        jumpTable       constant 1.6;  // Options {constant, polynomial} | was polynomial 1((100 0));
+                        reverse         false;
                     }
                 }
             }
