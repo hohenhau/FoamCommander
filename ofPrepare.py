@@ -3,7 +3,7 @@
 import os
 import re
 import sys
-from ofEstimateMetrics import estimate_internal_fields
+from ofEstimateInternalFields import estimate_internal_fields
 from ofParseArgs import detect_and_parse_arguments
 
 # Global Variables
