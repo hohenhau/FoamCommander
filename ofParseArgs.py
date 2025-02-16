@@ -5,10 +5,12 @@ import subprocess
 def detect_and_parse_arguments(sys):
     """Parse command line arguments with custom validation and allow unknown arguments."""
 
-    # Instantiate the parser
-    parser = argparse.ArgumentParser(description="Flow metrics calculation for CFD simulation")
+    # Instantiate the parser with RawTextHelpFormatter to customize help message
+    parser = argparse.ArgumentParser(
+        description="Flow metrics calculation for CFD simulation",
+        formatter_class=argparse.RawTextHelpFormatter)
 
-    # Define the arguments you want to handle
+    # Define only lowercase arguments
     parser.add_argument("-hydraulic_diameter", type=float, help="Hydraulic diameter")
     parser.add_argument("-free_stream_velocity", type=float, help="Free stream velocity")
     parser.add_argument("-kinematic_viscosity", type=float, help="Kinematic viscosity")
