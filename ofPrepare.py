@@ -10,7 +10,7 @@ from ofParseArgs import detect_and_parse_arguments
 PY_FILE_PATH = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_BOUNDARY_DIR = os.path.join(PY_FILE_PATH, "templatesBoundary")
 TEMPLATE_SYSTEM_DIR = os.path.join(PY_FILE_PATH, "templatesSystem")
-CURRENT_DIR = os.getcwd() if len(sys.argv) == 1 else sys.argv[-1]
+CURRENT_DIR = os.getcwd() 
 TRI_SURFACE_DIR = os.path.join(CURRENT_DIR, "constant", "triSurface")
 ZERO_DIR = os.path.join(CURRENT_DIR, "0.gen")
 SYSTEM_DIR = os.path.join(CURRENT_DIR, "system")
