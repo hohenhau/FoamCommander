@@ -174,7 +174,7 @@ def build_zero_file(names: list, field: str, boundary_types: dict, boundary_vals
             boundary_block += f'        value           {boundary_vals[patch_type]};\n'
         boundary_block += '    }\n'
     # Define the value block
-    internal_field_block = f'internalField   uniform {float('%.*g' % (3, internal_val))};  // Adjust internal field as necessary'
+    internal_field_block = f'internalField   uniform {float('%.*g' % (3, internal_val))};  // Adjust internal field as necessary\n'
     # Define the patterns to match the entire lines containing the variables
     patterns_and_replacements = [(r'.*\$INTERNAL_FIELD\$.*\n', internal_field_block),
                                  (r'.*\$BOUNDARY_FIELDS\$.*\n', boundary_block)]
