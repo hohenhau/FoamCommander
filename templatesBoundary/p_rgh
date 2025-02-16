@@ -1,26 +1,33 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v1606+                                |
-|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|  \\    /   O peration     | Version:  User generated                        |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
+
 FoamFile
 {
-    version     2.0;
-    format      ascii;
+    format      binary;  // Options: binary (less space), ascii (human-readable)
     class       volScalarField;
     location    "0";
-    object      omega;
+    object      p_rgh;
 }
 
-// ω = Specific turbulence dissipation rate (used in k-ω turbulence models)
+// Pressure with consideration for gravity and buoyancy
+// Models: Gravity and buoyancy driven models
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 0 -1 0 0 0 0];
+dimensions      [1 -1 -2 0 0 0 0];
 
-internalField   uniform 0.35;
+internalField   uniform 0;
 
 boundaryField
 {
+    // Insert the required $BOUNDARY_FIELDS$ 
+    "(minX|maxX|minY|maxY|minZ|maxZ)"
+    {
+        type            zeroGradient;
+    }
+}

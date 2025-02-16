@@ -1,26 +1,33 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  2.0.1                                 |
-|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|  \\    /   O peration     | Version:  User generated                        |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
+
 FoamFile
 {
-    version     2.0;
-    format      ascii;
+    format      binary;  // Options: binary (less space), ascii (human-readable)
     class       volScalarField;
     location    "0";
-    object      nut;
+    object      omega;
 }
 
-// nu_t = turbulent kinematic viscosity (used in k-ε, k-ω, Spalart-Allmaras, and LES models)
+// Specific turbulence dissipation rate (ω)
+// Models: k-ω
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 2 -1 0 0 0 0];
+dimensions      [0 0 -1 0 0 0 0];
 
-internalField   uniform 0;
+internalField   uniform 0.35;
 
 boundaryField
 {
+    // Insert the required $BOUNDARY_FIELDS$ 
+    "(minX|maxX|minY|maxY|minZ|maxZ)"
+    {
+        type            zeroGradient;
+    }
+}

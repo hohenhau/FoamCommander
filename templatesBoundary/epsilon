@@ -1,28 +1,21 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:                                        |
-|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|  \\    /   O peration     | Version:  User generated                        |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 
 FoamFile
 {
-    version     2.0;
-    format      ascii;
+    format      binary;  // Options: binary (less space), ascii (human-readable)
     class       volScalarField;
     location    "0";
     object      epsilon;
 }
 
-/*
-EPSILON = Rate of dissipation of turbulent kinetic energy (used in k-ε models)
-recalculate for each new case using:  e = Cu * ((k^(3/2)) / l)
-Cu = Turbulent Constant = 0.09
-k = Turbulent Kinetic Energ
-l = Turbulent Length Scale and can be estimated using:  l = 0.038 * dh
-dh = pipe diameter
-*/
+// Rate of dissipation of turbulent kinetic energy
+// Models: k-ε
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -32,3 +25,9 @@ internalField   uniform 2.67;           // was 0.000765
 
 boundaryField
 {
+    // Insert the required $BOUNDARY_FIELDS$ 
+    "(minX|maxX|minY|maxY|minZ|maxZ)"
+    {
+        type            zeroGradient;
+    }
+}

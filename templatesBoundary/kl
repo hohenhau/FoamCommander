@@ -1,33 +1,33 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  2.0.1                                 |
-|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|  \\    /   O peration     | Version:  User generated                        |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 
 FoamFile
 {
-    version     2.0;
-    format      ascii;
+    format      binary;  // Options: binary (less space), ascii (human-readable)
     class       volScalarField;
     location    "0";
-    object      k;
+    object      kl;
 }
 
-/*
-k = Turbulent kinetic energy (used in k-ε, k-ω, and LES models)
-recalculate for each new case using k = (3 / 2) * ((U / I)^2)
-U = Freestream fluid velocity
-I = Turbulence Intensity and can be estimated using I = 0.16 * Re
-Re = Reynolds number based on Pipe Diameter
-*/
+// Turbulent Kinetic Energy per Unit Mass 
+// Models: low-Re-number, LES hybrid models
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 dimensions      [0 2 -2 0 0 0 0];
 
-internalField   uniform 0.0503;            //// was 0.00325
+internalField   uniform 0;
 
 boundaryField
 {
+    // Insert the required $BOUNDARY_FIELDS$ 
+    "(minX|maxX|minY|maxY|minZ|maxZ)"
+    {
+        type            zeroGradient;
+    }
+}

@@ -2,18 +2,20 @@
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
 |  \\    /   O peration     | Version:  User generated                        |
-|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 
 FoamFile
 {
-    format      binary; // can also be in ASCII but takes more space
+    format      binary;  // Options: binary (less space), ascii (human-readable)
     class       volVectorField;
-    arch        "LSB;label=32;scalar=64";
     location    "0";
-    object      U; // Velocity in metres per second
+    object      U;
 }
+
+// Flow Velocity (m/s)
+// Models: All
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

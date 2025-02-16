@@ -1,20 +1,21 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  2.0.1                                 |
-|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|  \\    /   O peration     | Version:  User generated                        |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 
 FoamFile
 {
-    version     2.0;
-    format      ascii;
+    format      binary;  // Options: binary (less space), ascii (human-readable)
     class       volScalarField;
+    location    "0";
     object      nuTilda;
 }
 
-// nu_tilda = Turbulent kinematic viscosity (used in k-ω and Spalart-Allmaras models)
+// Molecularly adjusted turbulent kinematic viscosity 
+// Models: Spalart-Allmaras
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -24,3 +25,9 @@ internalField   uniform 0;
 
 boundaryField
 {
+    // Insert the required $BOUNDARY_FIELDS$ 
+    "(minX|maxX|minY|maxY|minZ|maxZ)"
+    {
+        type            zeroGradient;
+    }
+}

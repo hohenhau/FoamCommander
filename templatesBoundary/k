@@ -1,28 +1,33 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:                                        |
-|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|  \\    /   O peration     | Version:  User generated                        |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 
 FoamFile
 {
-    version     2.0;
-    format      binary;
+    format      binary;  // Options: binary (less space), ascii (human-readable)
     class       volScalarField;
-    arch        "LSB;label=32;scalar=64";
     location    "0";
-    object      kl;
+    object      k;
 }
 
-// kl = Turbulent Kinetic Energy per Unit Mass (used low-Re-number models or LES hybrid models)
+// Turbulent kinetic energy 
+// Models: k-ε, k-ω, LES
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 dimensions      [0 2 -2 0 0 0 0];
 
-internalField   uniform 0;
+internalField   uniform 0.0503;            //// was 0.00325
 
 boundaryField
 {
+    // Insert the required $BOUNDARY_FIELDS$ 
+    "(minX|maxX|minY|maxY|minZ|maxZ)"
+    {
+        type            zeroGradient;
+    }
+}
