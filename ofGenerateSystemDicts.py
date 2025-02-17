@@ -10,7 +10,7 @@ CURRENT_DIR = os.getcwd() if len(sys.argv) == 1 else sys.argv[-1]
 SYSTEM_DIR = os.path.join(CURRENT_DIR, "system")
 
 def generate_system_dicts():
-    dict_names = ['blockMeshDict', 'controlDict', 'decomposeParDict']
+    dict_names = ['blockMeshDict', 'controlDict', 'decomposeParDict', 'rankfile']
 
     for dict_name in dict_names:
         template_path = os.path.join(TEMPLATE_SYSTEM_DIR, dict_name)
