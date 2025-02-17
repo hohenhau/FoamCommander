@@ -27,11 +27,11 @@ actions
     }
 
     {
-        name		cyclicAMI_B;        //name of new set  
+        name		cyclicAMI_B;        //name of new set
         type		faceSet;            //type of new set
         action		new;                //action on the set
         source		patchToFace;        //source of new set
-	patches		("cyclicAMI_B.*");  //patches in set (no commas) 
+	patches		("cyclicAMI_B.*");  //patches in set (no commas)
     }
 );
 
