@@ -25,12 +25,13 @@ def main():
             continue
         for file in files:
             file_path = os.path.join(root, file)
-            files_to_compress.append(file_path)
+            relative_path = os.path.relpath(file_path, current_dir)
+            files_to_compress.append(relative_path)
 
-    # 4. Compress the files
+    # 4. Compress the files while maintaining folder structure
     if files_to_compress:
         try:
-            subprocess.run(["7z", "a", zip_file_path] + files_to_compress, check=True)
+            subprocess.run(["7z", "a", zip_file_path] + files_to_compress, cwd=current_dir, check=True)
             print(f"Compressed files into {zip_file_path}")
         except subprocess.CalledProcessError as e:
             print(f"Failed to create archive: {e}")
@@ -39,4 +40,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
