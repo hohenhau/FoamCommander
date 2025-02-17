@@ -18,6 +18,7 @@ FoamFile
 
 // Definitions of the MRF zones
 // Names need to match those specified during meshing (e.g. snappyHexMeshDict)
+// Remember to set the relevant boundaries in 0/ to "movingWallVelocity"
 // Note: 1 RPM = 0.10472 rad /s
 
 MRF1
