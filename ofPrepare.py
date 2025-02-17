@@ -157,11 +157,13 @@ def build_zero_file(names: list, field: str, boundary_types: dict, boundary_vals
     patch_groups = {}
     for name in names:
         patch_type = get_patch_type_from_patch_name(name)
+        # It the patch type is not the same as the boundary type, get the type
+        if patch_type not in boundary_types:
+            boundary_types[patch_type] = get_boundary_type_from_patch_type(patch_type)
         # Overwrite internal cyclicAMI boundaries (i.e. baffleAMI)
         if 'AMI' in name:
             patch_type = 'cyclicAMI'
-        if patch_type not in boundary_types:
-            boundary_types[patch_type] = get_boundary_type_from_patch_type(patch_type)
+        # If this is the first patch of its type, start a group
         if patch_type not in patch_groups:
             patch_groups[patch_type] = []
         patch_groups[patch_type].append(name)
