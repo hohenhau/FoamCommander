@@ -15,8 +15,14 @@ TRI_SURFACE_DIR = os.path.join(CURRENT_DIR, "constant", "triSurface")
 ZERO_DIR = os.path.join(CURRENT_DIR, "0.gen")
 SYSTEM_DIR = os.path.join(CURRENT_DIR, "system")
 
-# Ensure directories exist
-os.makedirs(ZERO_DIR, exist_ok=True)
+
+def initialisation():
+    # Only run if there is a triSurface directory
+    if not os.path.isdir(TRI_SURFACE_DIR):
+        print(f"Error: The directory '{TRI_SURFACE_DIR}' does not exist.")
+        sys.exit(1)
+    # Ensure directories exist
+    os.makedirs(ZERO_DIR, exist_ok=True)
 
 
 def get_patch_type_from_patch_name(input_name: str):
@@ -249,6 +255,7 @@ def create_zero_boundaries(names, fm):
 
 def prepare_files():
     print(f"Processing directory: {CURRENT_DIR}")
+    initialisation()
     patch_names = load_and_process_stl_files()
     create_surface_features_dict(patch_names)
     create_snappy_hex_mesh_dict(patch_names)
