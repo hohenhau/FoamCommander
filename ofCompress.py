@@ -6,12 +6,12 @@ import os
 import subprocess
 
 def main():
-    Get the current directory
+    # Get the current directory
     current_dir = os.getcwd()
     dir_name = os.path.basename(current_dir)
     zip_file_path = os.path.join(current_dir, f"{dir_name}.7z")
 
-    Collect files and directories to compress
+    # Collect files and directories to compress
     files_to_compress = []
     for root, dirs, files in os.walk(current_dir):
         # Skip directories containing 'processor'
@@ -21,7 +21,7 @@ def main():
             file_path = os.path.join(root, file)
             files_to_compress.append(file_path)
 
-    Compress the files
+    # Compress the files
     if files_to_compress:
         try:
             subprocess.run(["7z", "a", zip_file_path] + files_to_compress, check=True)
