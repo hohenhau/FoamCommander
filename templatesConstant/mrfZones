@@ -28,5 +28,5 @@ MRF1
 
     origin          (0 0 0);  // Adjust to match your setup
     axis            (0 0 1);  // Adjust based on rotation axis
-    omega           200;      // Rotation speed in rad/s (adjust as needed) 
+    omega           10;      // Rotation speed in rad/s (adjust as needed) 
 }
