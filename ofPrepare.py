@@ -183,22 +183,13 @@ def build_zero_file(names: list, field: str, boundary_types: dict, boundary_vals
             boundary_block += f'        value           {boundary_vals[patch_type]};\n'
         boundary_block += '    }\n'
     # Define the value block
-    internal_field_block = f'internalField   uniform {float('%.*g' % (3, internal_val))};  // Adjust internal field as necessary\n'
+    internal_field_block = f'internalField   uniform {internal_val};  // Adjust internal field as necessary'
     # Define the patterns to match the entire lines containing the variables
     patterns_and_replacements = [(r'.*\$INTERNAL_FIELD\$.*\n', internal_field_block),
                                  (r'.*\$BOUNDARY_FIELDS\$.*\n', boundary_block)]
     # Perform the replacements
     perform_regex_replacements(patterns_and_replacements, template_path, output_path)
     print(f"snappyHexMeshDict.gen created at: {output_path}")
-
-
-
-
-    common_boundary_types = ['empty', 'symmetry', 'slip', 'cyclicAMI', 'cyclic']
-    additional_boundary_types = [('inlet', 'fixedValue'),
-                                 ('outlet', 'zeroGradient'),
-                                 ('wall', 'zeroGradient'),
-                                 ('baffle', 'cyclic')]
 
 
 def create_zero_boundaries(names, fm):
