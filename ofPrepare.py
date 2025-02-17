@@ -30,6 +30,7 @@ def get_patch_type_from_patch_name(input_name: str):
     common_types = ['inlet', 'inletOutlet', 'outlet', 'empty', 'symmetry', 'slip', 'cyclicAMI', 'cyclic']
     additional_types = [('mirror', 'symmetry'),
                         ('honeycomb', 'honeycomb'),
+                        ('cellSelector', 'cellSelector'),
                         ('baffle', 'baffle'),
                         ('porous', 'baffle'),
                         ('screen', 'baffle'),
@@ -128,7 +129,7 @@ def create_snappy_hex_mesh_dict(patch_names):
         patch_type = get_patch_type_from_patch_name(patch)
         if patch_type == 'baffle':
             surface_block += f'{" " * 12}{patch} {{level (0 0); faceZone {patch}Faces; }}\n'
-        elif patch_type == 'honeycomb':
+        elif patch_type in {'honeycomb', 'cellSelector'}:
             surface_block += (f'{" " * 12}{patch}\n'
                               f'{" " * 16}{{level (0 0);\n'
                               f'{" " * 16}faceZone {patch}Faces;\n'
@@ -170,8 +171,8 @@ def build_zero_file(names: list, field: str, boundary_types: dict, boundary_vals
     boundary_block = str()
     # Grouped patches in regex format using pipe separator
     for patch_type, patches in patch_groups.items():
-        # Do not add surfaces associated with honeycombs as boundaries
-        if patch_type == 'honeycomb':
+        # Do not add surfaces associated with honeycombs or cell selectors as boundaries
+        if patch_type in {'honeycomb', 'cellSelector'}:
             continue
         # Double up cyclic boundaries and baffles
         if patch_type in {'baffle', 'cyclic'}:
