@@ -9,7 +9,8 @@ def main():
     # Get the current directory
     current_dir = os.getcwd()
     dir_name = os.path.basename(current_dir)
-    zip_file_path = os.path.join(current_dir, f"{dir_name}.7z")
+    parent_dir = os.path.dirname(current_dir)
+    zip_file_path = os.path.join(parent_dir, f"{dir_name}.7z")
 
     # Collect files and directories to compress
     files_to_compress = []
