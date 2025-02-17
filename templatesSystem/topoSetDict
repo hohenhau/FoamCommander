@@ -27,16 +27,16 @@ actions
     }
 
     {
-        name		cyclicAMI_B;    //name of new set  
-        type		faceSet;        //type of new set
-        action		new;            //action on the set
-        source		patchToFace;    //source of new set
-	patches		("cyclicAMI_B.*");	//patches in set (no commas) 
+        name		cyclicAMI_B;        //name of new set  
+        type		faceSet;            //type of new set
+        action		new;                //action on the set
+        source		patchToFace;        //source of new set
+	patches		("cyclicAMI_B.*");  //patches in set (no commas) 
     }
 );
 
 
-/* ------------------------ OTHER OPTIONS ----------------------//
+/* ----------------------------- OTHER OPTIONS ----------------------------- //
 
 List of actions. Each action is a dictionary with e.g.
     // name of set
@@ -53,8 +53,7 @@ List of actions. Each action is a dictionary with e.g.
 The source entry varies according to the type of set:
 
 
-cellSet
-~~~~~~~
+// ---------------------------- cellSet OPTIONS ---------------------------- //
 
    // Select by explicitly providing cell labels
    source labelToCell;
@@ -176,9 +175,7 @@ cellSet
    }
 
 
-
-faceSet
-~~~~~~~
+// ---------------------------- faceSet OPTIONS ---------------------------- //
 
    // Copy elements from faceSet
    source faceToFace;
@@ -234,9 +231,7 @@ faceSet
    }
 
 
-
-pointSet
-~~~~~~~
+// --------------------------- pointSet OPTIONS ---------------------------- //
 
    // Copy elements from pointSet
    source pointToPoint;
@@ -294,10 +289,8 @@ pointSet
    }
 
 
-
-
-cellZoneSet // mirrors operations on a cellSet into a cellZone
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// -------------------------- cellZoneSet OPTIONS -------------------------- //
+// mirrors operations on a cellSet into a cellZone
 
    // Select based on cellSet
    source setToCellZone;
@@ -306,9 +299,7 @@ cellZoneSet // mirrors operations on a cellSet into a cellZone
    }
 
 
-
-faceZoneSet
-~~~~~~~~~~~
+// -------------------------- faceZoneSet OPTIONS -------------------------- //
 
    // Select based on faceSet without orientation
    source setToFaceZone;
