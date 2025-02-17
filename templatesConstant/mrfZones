@@ -17,16 +17,17 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 // Definitions of the MRF zones
+// Names need to match those specified during meshing (e.g. snappyHexMeshDict)
 // Note: 1 RPM = 0.10472 rad /s
 
 MRF1
 {
-    cellZone        cellSelectorCells;  // Ensure this matches your mesh definition
+    cellZone        cellSelectorCells;  // Needs to match mesh definition!
     active          yes;
 
     nonRotatingPatches (rotatingWall);  // Keeps the rotatingWall stationary in the lab frame
 
     origin          (0 0 0);  // Adjust to match your setup
     axis            (0 0 1);  // Adjust based on rotation axis
-    omega           10;      // Rotation speed in rad/s (adjust as needed) 
+    omega           10;       // Rotation speed in rad/s (adjust as needed) 
 }
