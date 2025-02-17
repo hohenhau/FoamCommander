@@ -19,7 +19,7 @@ SYSTEM_DIR = os.path.join(CURRENT_DIR, "system")
 def initialisation():
     # Only run if there is a triSurface directory
     if not os.path.isdir(TRI_SURFACE_DIR):
-        print(f"Error: The directory '{TRI_SURFACE_DIR}' does not exist.")
+        print(f"Error: The directory '{TRI_SURFACE_DIR}' does not exist, or is not accessible")
         sys.exit(1)
     # Ensure directories exist
     os.makedirs(ZERO_DIR, exist_ok=True)
