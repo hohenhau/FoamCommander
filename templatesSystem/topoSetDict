@@ -19,19 +19,19 @@ FoamFile
 actions
 (
     {
-	name		cyclicAMI_A;        //name of new set
-	type		faceSet;            //type of new set
-	action		new;                //action on the set
-	source		patchToFace;        //source of new set
-	patches		("cyclicAMI_A.*");  //patches in set (no commas)
+	name		cyclicAMI_A;        // Name of new set
+	type		faceSet;            // Type of new set
+	action		new;                // Action on the set
+	source		patchToFace;        // Source of new set
+	patches		("cyclicAMI_A.*");  // Patches in set (no commas)
     }
 
     {
-        name		cyclicAMI_B;        //name of new set
-        type		faceSet;            //type of new set
-        action		new;                //action on the set
-        source		patchToFace;        //source of new set
-	patches		("cyclicAMI_B.*");  //patches in set (no commas)
+        name		cyclicAMI_B;        // Name of new set
+        type		faceSet;            // Type of new set
+        action		new;                // Action on the set
+        source		patchToFace;        // Source of new set
+	patches		("cyclicAMI_B.*");  // Patches in set (no commas)
     }
 );
 
