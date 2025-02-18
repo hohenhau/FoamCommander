@@ -34,6 +34,7 @@ def get_patch_type_from_patch_name(input_patch_name: str):
     common_patch_types['mirror'] = 'symmetry'
     common_patch_types['min'] = 'empty'
     common_patch_types['max'] = 'empty'
+    common_patch_types['rotating'] = 'MRFnoSlip'
     common_patch_types['baffle'] = 'baffle'
     common_patch_types['porous'] = 'baffle'
     common_patch_types['screen'] = 'baffle'
@@ -228,8 +229,8 @@ def create_zero_boundaries(names, fm):
 
     field_configs = {
         'U': {'types': {'wall': 'fixedValue'},
-              'values': {'inlet': 'uniform (0 0 0)', 'wall': 'uniform (0 0 0)'},
-              'internal_field': 0},
+              'values': {'inlet': 'uniform (0 0 0)', 'wall': 'uniform (0 0 0)', 'movingWallVelocity': 'uniform (0 0 0)'},
+              'internal_field': '(0 0 0)'},
 
         'p': {'types': {'inlet': 'zeroGradient', 'outlet': 'fixedValue'},
               'values': {'outlet': 'uniform 0'},
@@ -283,6 +284,7 @@ def prepare_files():
     print(f"Processing directory: {CURRENT_DIR}")
     initialisation()
     patch_names = load_and_process_stl_files()
+    print(f'DEBUG: Patch_names = patch_names')
     create_surface_features_dict(patch_names)
     create_snappy_hex_mesh_dict(patch_names)
     arguments = detect_and_parse_arguments(sys)
