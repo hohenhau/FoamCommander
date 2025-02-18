@@ -98,13 +98,14 @@ def load_and_process_stl_files():
         print("No STL files found. Exiting...")
         sys.exit(1)  # Terminate program
     patches = list()
+    print('Found the following stl files:')
     for filename in stl_files:
         filepath = os.path.join(TRI_SURFACE_DIR, filename)
         new_file_name = f'{filename.split(".")[0]}.{filename.split(".")[1].lower()}'
         new_filepath = os.path.join(TRI_SURFACE_DIR, new_file_name)
         patch_name = re.split(r"\.", filename)[0]
         if patch_name not in patches:
-            print(f"Match: {patch_name}")
+            print(f"{patch_name}")
             patches.append(patch_name)
         # Read entire file content
         with open(filepath, 'r') as file:
