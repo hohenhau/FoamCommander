@@ -183,6 +183,7 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
     """Creates a file in the zero directory with grouped patch settings."""
     template_path = os.path.join(TEMPLATE_BOUNDARY_DIR, f"{field}")
     output_path = os.path.join(ZERO_DIR, field)
+    print(f'DEBUG: Names are {names}')
     # Group patches by type
     patch_groups = {}
     for name in names:
