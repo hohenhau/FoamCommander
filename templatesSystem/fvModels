@@ -52,7 +52,8 @@ multipleReferenceZoneA  // Definitions of the multiple reference frame (i.e. pro
     type        MRF;                // Note: 1 RPM = 0.10472 rad /s
     cellZone    cellSelectorCells;  // CAUTION: Ensure this matches your mesh definition
 
-    nonRotatingPatches (rotatingWall);  // Keeps the rotatingWall stationary in the lab frame
+    // CUATION: remember to update the boundaries in 0/U to "movingWallVelocity"
+    nonRotatingPatches (nonRotatingWall);  // Keeps the rotatingWall stationary in the lab frame
 
     origin          (0 0 0);  // Adjust to match your setup
     axis            (0 0 1);  // Adjust based on rotation axis
