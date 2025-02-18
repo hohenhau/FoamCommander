@@ -29,3 +29,12 @@ cp -r 0 processor*/*
 
 # Run the detected solver in parallel
 mpirun -np $NPROCS --rankfile system/rankfile $APP -solver $SOLVER -parallel 2>&1 | tee log
+
+# Reconstruct latest timestep
+reconstructPar -latestTime
+
+# Add dimensions to y+ and Courant number
+ofAddDimensions.py
+
+# Plot the residuals and save the plot
+ofPlotResiduals.py
