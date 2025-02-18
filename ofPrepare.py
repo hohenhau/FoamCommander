@@ -160,15 +160,15 @@ def create_change_dictionary_dict(patch_names):
             continue
         replacement_text += f'    {patch}\n'
         replacement_text += f'    {{\n'
-        replacement_text += f'    type            cyclic;\n'
-        replacement_text += f'    neighbourPatch  {patch}_slave;\n'
-        replacement_text += f'    //matchTolerance  0.001;\n'
+        replacement_text += f'        type              cyclic;\n'
+        replacement_text += f'        neighbourPatch    {patch}_slave;\n'
+        replacement_text += f'        //matchTolerance  0.001;\n'
         replacement_text += f'    }}\n'
         replacement_text += f'    {patch}_slave\n'
         replacement_text += f'    {{\n'
-        replacement_text += f'    type            cyclic;\n'
-        replacement_text += f'    neighbourPatch  {patch};\n'
-        replacement_text += f'    //matchTolerance  0.001;\n'
+        replacement_text += f'        type              cyclic;\n'
+        replacement_text += f'        neighbourPatch    {patch};\n'
+        replacement_text += f'        //matchTolerance  0.001;\n'
         replacement_text += f'    }}\n'
     # Define the patterns to match the entire lines containing the variables
     patterns_and_replacements = [(r'.*\$DICTIONARY_CHANGES\$.*\n', replacement_text)]
