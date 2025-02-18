@@ -16,7 +16,7 @@ surfaceFeatures
 decomposePar -copyZero
 
 # Renumber the mesh to help with the load balancing of the meshing
-renumberMesh -constant -noZero -overwrite
+# renumberMesh -constant -noZero -overwrite
 
 # Grab the number of processors from the "decomposeParDict" file
 NPROCS=$(foamDictionary -entry numberOfSubdomains -value system/decomposeParDict)
@@ -32,7 +32,7 @@ reconstructPar -constant
 rm -r processor*
 
 # Renumber the mesh to make it easier to handle in post-processing
-renumberMesh -constant -noZero -overwrite
+# renumberMesh -constant -noZero -overwrite
 
 # Run checkMesh and save the results to a new log
 checkMesh 2>&1 | tee log_checkMesh
