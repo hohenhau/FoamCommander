@@ -188,6 +188,7 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
     patch_groups = {}
     for name in names:
         patch_type = get_patch_type_from_patch_name(name)
+        print(f'DEBUG: Retrieved patch_type is {patch_type}')
         # Do not add surfaces associated with honeycombs or cell selectors as boundaries
         if patch_type in {'honeycomb', 'cellSelector'}:
             print(f'Not processing {name} as an external boundary or baffle')
