@@ -206,7 +206,7 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
             continue
         # Double up cyclic boundaries and baffles
         if patch_type in {'baffle', 'cyclic', 'cyclicAMI'}:
-            patches = [f"{patch}{ending}" for patch in patches for ending in [0, 1]]
+            patches = [f"{patch}{ending}" for patch in patches for ending in ['', '_slave']]
         # Join patches with '|' and wrap in parentheses
         patch_group = f'"{patches[0]}"' if len(patches) == 1 else f'"({"|".join(patches)})"'
         # Add the patch text to the text block
