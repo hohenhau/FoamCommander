@@ -203,7 +203,7 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
         # Do not add surfaces associated with honeycombs or cell selectors as boundaries
         if patch_type in {'cellSelector'}:
             print(f'Not processing {patch_type} as an external boundary or baffle')
-            return
+            continue
         # Double up cyclic boundaries and baffles
         if patch_type in {'baffle', 'cyclic', 'cyclicAMI'}:
             patches = [f"{patch}{ending}" for patch in patches for ending in [0, 1]]
