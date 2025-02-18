@@ -161,7 +161,7 @@ def create_snappy_hex_mesh_dict(patch_names):
         print(f'Matched {patch} with {patch_type}')
         if patch_type == 'baffle':   # Options for faceType are {internal, baffle, and boundary}
             surface_block += f'{" " * 12}{patch} {{level (0 0); faceZone {patch}Faces; faceType baffle;}}\n'
-            layer_block += f'{" " * 8}{patch}{{nSurfaceLayers 0;}}  // Stops layers from disrupting baffle surface'
+            layer_block += f'{" " * 8}{patch}{{nSurfaceLayers 0;}}  // Stops layers from disrupting baffle surface\n'
         elif patch_type == 'cellSelector':
             surface_block += (f'{" " * 12}{patch}\n'
                               f'{" " * 16}{{level (0 0);\n'
