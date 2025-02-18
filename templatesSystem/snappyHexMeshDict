@@ -107,14 +107,9 @@ addLayersControls
     relativeSizes true;    // Decide if layer size is absolut or relative to nearby cells
     layers
     {
-        walls
-        {
-                nSurfaceLayers 1;
-                //Local parameters:
-                //expansionRatio 1.2;
-                //finalLayerThickness 0.3;
-                //minThickness 0.1;
-        }
+        // example{nSurfaceLayers 2; expansionRatio 1.2; finalLayerThickness 0.3; minThickness 0.1;}
+        walls{nSurfaceLayers 2;}
+        // Insert the required $SURFACE_LAYERS$ (Ensure to set 0 for baffles!)
     }
 
     expansionRatio 1.20;        // Was 1.2   | Rate at which cell layers grow
