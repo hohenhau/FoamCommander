@@ -28,7 +28,7 @@ boundaryField
     // Insert the required $BOUNDARY_FIELDS$
     "(minX|maxX|minY|maxY|minZ|maxZ)"
     {
-        type    slip;
+        type            slip;
     }
 }
 
