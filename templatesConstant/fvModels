@@ -10,7 +10,7 @@ FoamFile
 {
     format      ascii;
     class       dictionary;
-    location    "system";
+    location    "constant";
     object      fvModels;
 }
 
@@ -47,19 +47,35 @@ porositySourceA // Definition of a porous (i.e. honeycomb) zone
     }
 }
 
-multipleReferenceZoneA  // Definitions of the multiple reference frame (i.e. propeller) zones
+porositySourceB // Definition of a porous (i.e. honeycomb) zone
 {
     active      no;
-    type        MRF;                 // Note: 1 RPM = 0.10472 rad /s
-    cellZone    cellSelectorCells;   // CAUTION: Ensure this matches your mesh definition
+    type        explicitPorositySource;
     libs        ("libfvModels.so");  // Library used for calculations
 
-    // CAUTION: remember to update the boundaries in 0/U to "movingWallVelocity"
-    nonRotatingPatches (nonRotatingWall);  // Keeps the rotatingWall stationary in the lab frame
+    explicitPorositySourceCoeffs
+    {
+        selectionMode   cellZone; // Options: {cellZone, points, box, cylinder, sphere}
+        cellZone        honeycombBCells; // Cell zone name (must match to snappyHexMesh)
+        type            DarcyForchheimer; // Options: {DarcyForchheimer, PowerLaw}
 
-    origin          (0 0 0);  // Adjust to match your setup
-    axis            (0 0 1);  // Adjust based on rotation axis
-    omega           10;       // Radians per second (1 RPM = 0.10472 rad/s)
+        // Very high viscous terms can restrict the flow to a single direction
+        d   (7e5 1e10 1e10);  // (x y z) Darcy (viscous) term - proportional to velocity
+        f   (  5    0    0);  // (x y z) Forchheimer (inertial) term - proportional to velocity^2
+
+        coordinateSystem
+        {
+            type    cartesian; // Define the type of coordinate system
+            origin  (0 0 0);  // Optional to set separate coordinate system
+            coordinateRotation
+            {
+                type    axesRotation; // Defines the rotation type (axesRotation is commonly used)
+                e1      (1 0 0); // Primary direction (first basis vector)
+                e2      (0 1 0); // Secondary direction (second basis vector)
+                // Third axis (e3) is automatically computed as e1 x e2
+            }
+        }
+    }
 }
 
 

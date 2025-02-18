@@ -1,0 +1,32 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  Generated with helper tools           |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      MRFProperties;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+multipleReferenceZoneA  // Definitions of the multiple reference frame (i.e. propeller) zones
+{
+    active      no;
+    cellZone    cellSelectorCells;   // CAUTION: Ensure this matches your mesh definition
+
+    // CAUTION: remember to update the boundaries in 0/U to "movingWallVelocity"
+    nonRotatingPatches (nonRotatingWall);  // Keeps the rotatingWall stationary in the lab frame
+
+    origin          (0 0 0);  // Adjust to match your setup
+    axis            (0 0 1);  // Adjust based on rotation axis
+    omega           10;       // Radians per second (1 RPM = 0.10472 rad/s)
+}
+
+// ************************************************************************* //
