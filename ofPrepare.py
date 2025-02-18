@@ -54,7 +54,7 @@ def get_patch_type_from_patch_name(input_patch_name: str):
     patch_type = 'wall'
     for dictionary in [common_patch_types, overlapping_patch_types]:
         for key, value in dictionary.items():
-            if key in input_patch_name_lower
+            if key in input_patch_name_lower:
                 patch_type = value
                 break
     print(f'Matched {input_patch_name} with {patch_type}')
