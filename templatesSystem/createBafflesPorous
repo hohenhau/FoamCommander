@@ -21,18 +21,18 @@ internalFacesOnly true;  // Ensures only internal faces are selected
 
 baffles  // Define baffles to be created
 {
-    porousBaffle  // Name of the baffle
+    porousBaffleA  // Name of the baffle
     {
         type        faceZone;      // Select faces & orientation
-        zoneName    porousBaffleFaces;  // Face zone name as defined in snappyHexMesh
+        zoneName    porousBaffleAFaces;  // Face zone name as defined in snappyHexMesh
 
         patches
         {
             master  // Master patch
             {
-                name            porousBaffle0;
+                name            porousBaffleA;
                 type            cyclic;
-                neighbourPatch  porousBaffle1;
+                neighbourPatch  porousBaffleA_slave;
                 transform       none;  // Option {rotational, none, transormational} 
 
                 patchFields  // Optional override of patch fields
@@ -52,9 +52,9 @@ baffles  // Define baffles to be created
             }
             slave  // Slave patch
             {
-                name            porousBaffle1;
+                name            porousBaffleA_slave;
                 type            cyclic;
-                neighbourPatch  porousBaffle0;
+                neighbourPatch  porousBaffleA;
                 transform       none;
                 patchFields     {${...master.patchFields}}
                 // CANNOT USE this copy method if there are mulitple patches

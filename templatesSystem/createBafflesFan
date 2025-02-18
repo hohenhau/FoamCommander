@@ -21,18 +21,18 @@ internalFacesOnly true;  // Only relevant if face selection can detect boundarie
 
 baffles  // Baffles to create
 {
-    cyclicFacesA  // First baffle to be created
+    cyclicFanFacesA  // First baffle to be created
     {
         type        faceZone;      // select faces & orientation
-        zoneName    fanBaffleFaces;  // name specified in snappyhexmesh
+        zoneName    fanBaffleAFaces;  // name specified in snappyhexmesh
 
         patches
         {
             master  // Master side patch
             {
-                name            fanBaffle0;
+                name            fanBaffleA;
                 type            cyclic;
-                neighbourPatch  fanBaffle1;
+                neighbourPatch  fanBaffleA_slave;
 
                 patchFields  // Optional override of patchfields (default is type "calculated")
                 {
@@ -50,9 +50,9 @@ baffles  // Baffles to create
 
             slave  // Slave side patch
             {
-                name            fanBaffle1;
+                name            fanBaffleA_slave;
                 type            cyclic;
-                neighbourPatch  fanBaffle0;
+                neighbourPatch  fanBaffleA;
                 patchFields {${...master.patchFields}}
                 // CANNOT USE this copy method if there are mulitple patches
             }
