@@ -1,0 +1,16 @@
+#/bin/bash
+
+# Copy the repository from GitHub to the current directory
+git clone https://github.com/hohenhau/openfoam_tools.git
+
+# Move the tools to the correct directory
+mv openfoam_tools /mnt/cfd/
+
+# Remove the old tools
+sudo rm -r /mnt/cfd/cfd_tools
+
+# Rename the new tools to the correct (old) name
+mv /mnt/cfd/openfoam_tools /mnt/cfd/cfd_tools
+
+# Change permission for the tools to be accessible by all
+sudo chmod -R ugo+rwx /mnt/cfd/cfd_tools/*
