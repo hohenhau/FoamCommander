@@ -57,7 +57,6 @@ def get_patch_type_from_patch_name(input_patch_name: str):
             if key in input_patch_name_lower:
                 patch_type = value
                 break
-    print(f'Matched {input_patch_name} with {patch_type}')
     return patch_type
 
 
@@ -86,7 +85,6 @@ def get_boundary_type_from_patch_name(input_patch_name: str):
             boundary_type = dictionary[input_patch_type.lower()]
     if 'ami' in input_patch_name:  # Useful for assigning AMI boundaries that are actually baffles (i.e. baffleAMI)
         boundary_type = 'cyclicAMI'
-    print(f'Matched {input_patch_name} with patch type {input_patch_type} and a {boundary_type} boundary')
     return boundary_type
 
 
@@ -159,6 +157,7 @@ def create_snappy_hex_mesh_dict(patch_names):
         stl_block += f'{" " * 8}{patch}.stl {{type triSurfaceMesh; name {patch}; file "{patch}.stl";}}\n'
         mesh_block += f'{" " * 12}{{file "{patch}.eMesh"; level 3;}}\n'
         patch_type = get_patch_type_from_patch_name(patch)
+        print(f'Matched {patch} with {patch_type}')
         if patch_type == 'baffle':   # Options for faceType are {internal, baffle, and boundary}
             surface_block += f'{" " * 12}{patch} {{level (0 0); faceZone {patch}Faces; faceType baffle;}}\n'
         elif patch_type == 'cellSelector':
