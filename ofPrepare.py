@@ -153,7 +153,7 @@ def create_snappy_hex_mesh_dict(patch_names):
     template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "snappyHexMeshDict")
     output_path = os.path.join(SYSTEM_DIR, "snappyHexMeshDict.gen")
     # Prepare replacement blocks
-    stl_block, mesh_block, surface_block, = str(), str(), str()
+    stl_block, mesh_block, surface_block, layer_block = str(), str(), str(), str()
     for patch in patch_names:
         stl_block += f'{" " * 8}{patch}.stl {{type triSurfaceMesh; name {patch}; file "{patch}.stl";}}\n'
         mesh_block += f'{" " * 12}{{file "{patch}.eMesh"; level 3;}}\n'
@@ -161,6 +161,7 @@ def create_snappy_hex_mesh_dict(patch_names):
         print(f'Matched {patch} with {patch_type}')
         if patch_type == 'baffle':   # Options for faceType are {internal, baffle, and boundary}
             surface_block += f'{" " * 12}{patch} {{level (0 0); faceZone {patch}Faces; faceType baffle;}}\n'
+            layer_block += f'{" " * 8}{patch}{{nSurfaceLayers 0;}}  // Stops layers from disrupting baffle surface'
         elif patch_type == 'cellSelector':
             surface_block += (f'{" " * 12}{patch}\n'
                               f'{" " * 16}{{level (0 0);\n'
@@ -176,7 +177,8 @@ def create_snappy_hex_mesh_dict(patch_names):
     # Define the patterns to match the entire lines containing the variables
     patterns_and_replacements = [(r'.*\$STL_FILES_AND_GEOMETRIES\$.*\n', stl_block),
                                  (r'.*\$MESH_FEATURES\$.*\n', mesh_block),
-                                 (r'.*\$REFINEMENT_SURFACES\$.*\n', surface_block)]
+                                 (r'.*\$REFINEMENT_SURFACES\$.*\n', surface_block),
+                                 (r'.*\$SURFACE_LAYERS\$.*\n', layer_block)]
     # Perform the replacements
     perform_regex_replacements(patterns_and_replacements, template_path, output_path)
     print(f"snappyHexMeshDict.gen created at: {output_path}")
@@ -231,7 +233,7 @@ def create_zero_boundaries(names, fm):
     field_configs = {
         'U': {'types': {'wall': 'fixedValue'},
               'values': {'inlet': 'uniform (0 0 0)', 'wall': 'uniform (0 0 0)', 'movingWallVelocity': 'uniform (0 0 0)'},
-              'internal_field': '(0 0 0)'},
+              'internal_field': 0},
 
         'p': {'types': {'inlet': 'zeroGradient', 'outlet': 'fixedValue'},
               'values': {'outlet': 'uniform 0'},
