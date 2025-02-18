@@ -50,13 +50,14 @@ def get_patch_type_from_patch_name(input_patch_name: str):
     common_patch_types = {key.lower(): value for key, value in common_patch_types.items()}
     overlapping_patch_types = {key.lower(): value for key, value in overlapping_patch_types.items()}
     # Match the patch name to a type (first try common, then overlapping types)
-    input_patch_name = input_patch_name.lower()
+    input_patch_name_lower = input_patch_name.lower()
     patch_type = 'wall'
     for dictionary in [common_patch_types, overlapping_patch_types]:
         for key, value in dictionary.items():
-            if key in input_patch_name:
+            if key in input_patch_name_lower
                 patch_type = value
                 break
+    print(f'Matched {input_patch_name} with {patch_type}')
     return patch_type
 
 
@@ -78,13 +79,14 @@ def get_boundary_type_from_patch_name(input_patch_name: str):
     common_boundary_types = {key.lower(): value for key, value in common_boundary_types.items()}
     overlapping_boundary_types = {key.lower(): value for key, value in overlapping_boundary_types.items()}
     # Retrieve the patch type from the name and set default boundary type
-    input_patch_type = get_patch_type_from_patch_name(input_patch_name).lower()
+    input_patch_type = get_patch_type_from_patch_name(input_patch_name)
     boundary_type = 'zeroGradient'
     for dictionary in [common_boundary_types, overlapping_boundary_types]:
-        if input_patch_type in dictionary:
-            boundary_type = dictionary[input_patch_type]
+        if input_patch_type.lower() in dictionary:
+            boundary_type = dictionary[input_patch_type.lower()]
     if 'ami' in input_patch_name:  # Useful for assigning AMI boundaries that are actually baffles (i.e. baffleAMI)
         boundary_type = 'cyclicAMI'
+    print(f'Matched {input_patch_name} with patch type {input_patch_type} and a {boundary_type} boundary')
     return boundary_type
 
 
@@ -186,10 +188,8 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
     output_path = os.path.join(ZERO_DIR, field)
     # Group patches by type
     patch_groups = {}
-    print(f'DEBUG: Patch_names = {names}')
     for name in names:
         patch_type = get_patch_type_from_patch_name(name)
-        print(f'DEBUG: Matching {name} with {patch_type}')
         # It the patch type is not specified, get the type
         if patch_type not in local_boundary_types:
             local_boundary_types[patch_type] = get_boundary_type_from_patch_name(name)
@@ -285,7 +285,6 @@ def prepare_files():
     print(f"Processing directory: {CURRENT_DIR}")
     initialisation()
     patch_names = load_and_process_stl_files()
-    print(f'DEBUG: Patch_names = {patch_names}')
     create_surface_features_dict(patch_names)
     create_snappy_hex_mesh_dict(patch_names)
     arguments = detect_and_parse_arguments(sys)
