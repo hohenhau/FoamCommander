@@ -46,7 +46,7 @@ def get_patch_type_from_patch_name(input_name: str):
 
 def get_boundary_type_from_patch_type(input_type: str):
     """Determine the boundary type based the patch type"""
-    common_boundary_types = ['empty', 'symmetry', 'slip', 'cyclicAMI', 'cyclic']
+    common_boundary_types = ['empty', 'symmetry', 'slip', 'noSlip', 'cyclicAMI', 'cyclic']
     additional_boundary_types = [('inlet', 'fixedValue'),
                                  ('outlet', 'zeroGradient'),
                                  ('wall', 'zeroGradient'),
@@ -199,8 +199,8 @@ def create_zero_boundaries(names, fm):
     """Build the zero files for the various fields and boundaries"""
     
     field_configs = {
-        "U": {"types": {"wall": "fixedValue"},
-              "values": {"inlet": "uniform (0 0 0)", "wall": "uniform (0 0 0)"},
+        "U": {"types": {"wall": "noSlip"},
+              "values": {"inlet": "uniform (0 0 0)"},
               "internal_field": 0},
               
         "p": {"types": {"inlet": "zeroGradient", "outlet": "fixedValue"},
