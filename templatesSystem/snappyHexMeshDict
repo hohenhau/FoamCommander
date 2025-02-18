@@ -68,11 +68,11 @@ castellatedMeshControls
 
     // Refinement parameters  ---------------------------------------------- //
 
-    maxLocalCells   100000000;          // Maximum cells per CPU core
-    maxGlobalCells 1000000000;          // Maximum cells aded before mesh deletion step
-    minRefinementCells  10;             // Was 0 Number of bad cells allowed in refinement stages (0 = none)
-    maxLoadUnbalance    0.10;           // Maximum processor load unbalance
-    nCellsBetweenLevels 3;              // Was 3 | Number of buffer layers between different levels
+    maxLocalCells       10000000;    // Maximum cells per CPU core
+    maxGlobalCells      100000000;   // Maximum cells aded before mesh deletion step
+    minRefinementCells  10;          // Was 0 Number of bad cells allowed in refinement stages (0 = none)
+    maxLoadUnbalance    0.10;        // Maximum processor load unbalance
+    nCellsBetweenLevels 3;           // Was 3 | Number of buffer layers between different levels
 
 
     locationInMesh (0 0 0);    // Set (X, Y, Z) coordinates to decide which side of mesh to keep
@@ -87,12 +87,12 @@ castellatedMeshControls
 
 snapControls
 {
-    nSmoothPatch 3;             // Was  3 | Patch smoothing iterations to find correspondence to surface
-    tolerance 0.7;              // Was  2 | Relative distance for points to be attracted by surface feature
-    nSolveIter 60;              // Was 30 | Number of mesh displacement relaxation iterations
-    nRelaxIter  5;              // Was  5 | Maximum number of snapping relaxation iterations
-    nFeatureSnapIter 10;        // Was 10 | Moprh iterations within main snapping to avoid sharp edges
-                                // WARNING: too many nFeatureSnapIter can collapse boundary layers
+    nSmoothPatch 3;        // Was  3 | Patch smoothing iterations to find correspondence to surface
+    tolerance 0.7;         // Was  2 | Relative distance for points to be attracted by surface feature
+    nSolveIter 60;         // Was 30 | Number of mesh displacement relaxation iterations
+    nRelaxIter  5;         // Was  5 | Maximum number of snapping relaxation iterations
+    nFeatureSnapIter 10;   // Was 10 | Moprh iterations within main snapping to avoid sharp edges
+                           // WARNING: too many nFeatureSnapIter can collapse boundary layers
 
     implicitFeatureSnap false;    // was false | detect features by sampling surface
     explicitFeatureSnap true;     // was true  | detect featured using castellatedMeshControls
@@ -110,7 +110,7 @@ addLayersControls
         walls
         {
                 nSurfaceLayers 1;
-                //Local parameters
+                //Local parameters:
                 //expansionRatio 1.2;
                 //finalLayerThickness 0.3;
                 //minThickness 0.1;
