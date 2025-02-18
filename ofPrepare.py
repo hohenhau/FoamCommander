@@ -105,7 +105,7 @@ def load_and_process_stl_files():
         new_filepath = os.path.join(TRI_SURFACE_DIR, new_file_name)
         patch_name = re.split(r"\.", filename)[0]
         if patch_name not in patches:
-            print(f"{patch_name}")
+            print(f"- {patch_name}")
             patches.append(patch_name)
         # Read entire file content
         with open(filepath, 'r') as file:
