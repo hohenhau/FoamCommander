@@ -104,8 +104,7 @@ snapControls
 
 addLayersControls
 {
-    relativeSizes true;    // decide if layer size is absolut or relative to nearby cells
-
+    relativeSizes true;    // Decide if layer size is absolut or relative to nearby cells
     layers
     {
         walls
@@ -120,8 +119,9 @@ addLayersControls
 
     expansionRatio 1.20;        // Was 1.2   | Rate at which cell layers grow
     finalLayerThickness 0.75;   // Was 1     | Thickness of layer in relation to neighbour cell
+    // firstLayerThickness 0.3     // Was 0.3   | Relative thickness of wall adjacent cells
     minThickness 0.00001;       // Was 0.001 | Minimum thickness of layer
-    nGrow 0;                    // Was 0     | Forces cells to grow away from the surface
+    nGrow 1;                    // Was 0     | Distance to keep to a neighbour patch with no layers (0 = no distance)
 
 
     // Advanced settings for the layer addition ---------------------------- //
@@ -129,6 +129,7 @@ addLayersControls
     // Static analysis of starting mesh
     featureAngle 170;           // was 130 | when not to extrude surface (0 = flat 90 = perpendicular faces
     maxFaceThicknessRatio 0.5;  // Was 0.5 | Stop layer growth on highly warped cells
+    mergePatchFacesAngle 45;    // Was 45  | If a cell has multiple faces on the same patch these get merged
 
     // Patch displacement
     nSmoothSurfaceNormals 2;    // was  1  | Smoothing iterations of surface normals
@@ -142,7 +143,7 @@ addLayersControls
     // Mesh shrinking
     slipFeatureAngle 30;        // was 30 | Angle above which mesh is allowed to slip at non-patch sides
     nRelaxIter 10;              // was  5 | Max. snapping relaxation iterations (good mesh shouldnt reach this)
-    nBufferCellsNoExtrude 0;    // Was  0 | Create buffer region for new layer terminations
+    nBufferCellsNoExtrude 0;    // Was  2 | Gradually step down number of layers (0 = all in one go)
     nLayerIter 60;              // was 50 | Overall max number of layer addition iterations
     nRelaxedIter 30;            // was 20 | number of iterations before relaxed settings are used
     nSmoothThickness 20;        // Was 10 | Smooth layer thickness over surface patches
