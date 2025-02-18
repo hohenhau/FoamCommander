@@ -199,51 +199,51 @@ def create_zero_boundaries(names, fm):
     """Build the zero files for the various fields and boundaries"""
     
     field_configs = {
-        "U": {"types": {"wall": "noSlip"},
-              "values": {"inlet": "uniform (0 0 0)"},
-              "internal_field": 0},
+        'U': {'types': {'wall': 'fixedValue'},
+              'values': {'inlet': 'uniform (0 0 0)', 'wall': 'uniform (0 0 0)'},
+              'internal_field': 0},
               
-        "p": {"types": {"inlet": "zeroGradient", "outlet": "fixedValue"},
-              "values": {"outlet": "uniform 0"},
-              "internal_field": 0},
+        'p': {'types': {'inlet': 'zeroGradient', 'outlet': 'fixedValue'},
+              'values': {'outlet': 'uniform 0'},
+              'internal_field': 0},
               
-        "k": {"types": {"wall": "kqRWallFunction"},
-              "values": {"inlet": "$internalField", "wall": "uniform 0"},
-              "internal_field": fm.turb_kinetic_energy.value},
+        'k': {'types': {'wall': 'kqRWallFunction'},
+              'values': {'inlet': '$internalField', 'wall': 'uniform 0'},
+              'internal_field': fm.turb_kinetic_energy.value},
               
-        "epsilon": {"types": {"wall": "epsilonWallFunction"},
-                   "values": {"inlet": "$internalField", "wall": "uniform 0"},
-                   "internal_field": fm.turb_dissipation_rate.value},
+        'epsilon': {'types': {'wall': 'epsilonWallFunction'},
+                   'values': {'inlet': '$internalField', 'wall': 'uniform 0'},
+                   'internal_field': fm.turb_dissipation_rate.value},
                    
-        "nut": {"types": {"inlet": "calculated", "outlet": "calculated", "wall": "nutUWallFunction"},
-                "values": {"inlet": "uniform 0", "outlet": "uniform 0", "wall": "uniform 0"},
-                "internal_field": fm.turb_viscosity.value},
+        'nut': {'types': {'inlet': 'calculated', 'outlet': 'calculated', 'wall': 'nutUWallFunction'},
+                'values': {'inlet': 'uniform 0', 'outlet': 'uniform 0', 'wall': 'uniform 0'},
+                'internal_field': fm.turb_viscosity.value},
                 
-        "nuTilda": {"types": {},
-                    "values": {"inlet": "uniform 0"},
-                    "internal_field": 0},
+        'nuTilda': {'types': {},
+                    'values': {'inlet': 'uniform 0'},
+                    'internal_field': 0},
                     
-        "omega": {"types": {"wall": "omegaWallFunction"},
-                 "values": {"inlet": "$internalField", "wall": "uniform 1e5"},  # value for wall needs to be high (1e5 or 1e6)
-                 "internal_field": fm.specific_dissipation.value},
+        'omega': {'types': {'wall': 'omegaWallFunction'},
+                 'values': {'inlet': '$internalField', 'wall': 'uniform 1e5'},  # value for wall needs to be high (1e5 or 1e6)
+                 'internal_field': fm.specific_dissipation.value},
                  
-        "kl": {"types": {"wall": "fixedValue"},
-               "values": {"inlet": "uniform 0", "wall": "uniform 0"},
-               "internal_field": 0},
+        'kl': {'types': {'wall': 'fixedValue'},
+               'values': {'inlet': 'uniform 0', 'wall': 'uniform 0'},
+               'internal_field': 0},
                
-        "kt": {"types": {"wall": "fixedValue"},
-               "values": {"inlet": "uniform 0", "wall": "uniform 0"},
-               "internal_field": 0},
+        'kt': {'types': {'wall': 'fixedValue'},
+               'values': {'inlet': 'uniform 0', 'wall': 'uniform 0'},
+               'internal_field': 0},
                
-        "p_rgh": {"types": {"inlet": "fixedFluxPressure", "outlet": "fixedFluxPressure",
-                           "wall": "fixedFluxPressure", "inletOutlet": "totalPressure"},
-                 "values": {"inlet": "uniform 0", "outlet": "uniform 0",
-                           "wall": "uniform 0", "inletOutlet": "uniform 0"},
-                 "internal_field": 0},
+        'p_rgh': {'types': {'inlet': 'fixedFluxPressure', 'outlet': 'fixedFluxPressure',
+                           'wall': 'fixedFluxPressure', 'inletOutlet': 'totalPressure'},
+                 'values': {'inlet': 'uniform 0', 'outlet': 'uniform 0',
+                           'wall': 'uniform 0', 'inletOutlet': 'uniform 0'},
+                 'internal_field': 0},
                  
-        "alphawatergen": {"types": {"inletOutlet": "inletOutlet"},
-                         "values": {"inlet": "uniform 1", "outlet": "uniform 0", "inletOutlet": "uniform 0"},
-                         "internal_field": 0}
+        'alphawatergen': {'types': {'inletOutlet': 'inletOutlet'},
+                         'values': {'inlet': 'uniform 1', 'outlet': 'uniform 0', 'inletOutlet': 'uniform 0'},
+                         'internal_field': 0}
     }
 
     for field_name, config in field_configs.items():
