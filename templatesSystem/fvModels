@@ -10,21 +10,21 @@ FoamFile
 {
     format      ascii;
     class       dictionary;
-    location    "constant";
-    object      fvOptions;
+    location    "system";
+    object      fvModels;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-porosityA
+porositySourceA. // Definition of a porous (i.e. honeycomb) zone
 {
-    type          explicitPorositySource;
-    active        yes;
+    active      no;
+    type        explicitPorositySource;
 
     explicitPorositySourceCoeffs
     {
         selectionMode   cellZone; // Options: {cellZone, points, box, cylinder, sphere}
-        cellZone        honeycombCells; // Cell zone name (must match to snappyHexMesh)
+        cellZone        honeycombACells; // Cell zone name (must match to snappyHexMesh)
         type            DarcyForchheimer; // Options: {DarcyForchheimer, PowerLaw}
 
         // Very high viscous terms can restrict the flow to a single direction
@@ -45,5 +45,19 @@ porosityA
         }
     }
 }
+
+multipleReferenceZoneA  // Definitions of the multiple reference frame (i.e. propeller) zones
+{
+    active      no;
+    type        MRF;                // Note: 1 RPM = 0.10472 rad /s
+    cellZone    cellSelectorCells;  // CAUTION: Ensure this matches your mesh definition
+
+    nonRotatingPatches (rotatingWall);  // Keeps the rotatingWall stationary in the lab frame
+
+    origin          (0 0 0);  // Adjust to match your setup
+    axis            (0 0 1);  // Adjust based on rotation axis
+    omega           10;       // Radians per second (1 RPM = 0.10472 rad/s)
+}
+
 
 // ************************************************************************* //
