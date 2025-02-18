@@ -21,7 +21,7 @@ multipleReferenceZoneA  // Definitions of the multiple reference frame (i.e. pro
     active      no;
     cellZone    cellSelectorCells;   // CAUTION: Ensure this matches your mesh definition
 
-    // CAUTION: remember to update the boundaries in 0/U to "movingWallVelocity"
+    // CAUTION: remember to update the boundaries in 0/U to "movingWallVelocity", "slip", or "MRFnoSlip"
     nonRotatingPatches (nonRotatingWall);  // Keeps the rotatingWall stationary in the lab frame
 
     origin          (0 0 0);  // Adjust to match your setup
