@@ -186,6 +186,7 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
     output_path = os.path.join(ZERO_DIR, field)
     # Group patches by type
     patch_groups = {}
+    print(f'DEBUG: Patch_names = {patch_names}')
     for name in names:
         patch_type = get_patch_type_from_patch_name(name)
         print(f'DEBUG: Matching {name} with {patch_type}')
