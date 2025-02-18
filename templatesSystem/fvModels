@@ -20,14 +20,13 @@ porositySourceA // Definition of a porous (i.e. honeycomb) zone
 {
     active      no;
     type        explicitPorositySource;
-    libs        ("libfvModels.so");
+    libs        ("libfvModels.so");  // Library used for calculations
 
     explicitPorositySourceCoeffs
     {
         selectionMode   cellZone; // Options: {cellZone, points, box, cylinder, sphere}
         cellZone        honeycombACells; // Cell zone name (must match to snappyHexMesh)
         type            DarcyForchheimer; // Options: {DarcyForchheimer, PowerLaw}
-        libs            ("libfvModels.so");
 
         // Very high viscous terms can restrict the flow to a single direction
         d   (7e5 1e10 1e10);  // (x y z) Darcy (viscous) term - proportional to velocity
@@ -51,8 +50,9 @@ porositySourceA // Definition of a porous (i.e. honeycomb) zone
 multipleReferenceZoneA  // Definitions of the multiple reference frame (i.e. propeller) zones
 {
     active      no;
-    type        MRF;                // Note: 1 RPM = 0.10472 rad /s
-    cellZone    cellSelectorCells;  // CAUTION: Ensure this matches your mesh definition
+    type        MRF;                 // Note: 1 RPM = 0.10472 rad /s
+    cellZone    cellSelectorCells;   // CAUTION: Ensure this matches your mesh definition
+    libs        ("libfvModels.so");  // Library used for calculations
 
     // CAUTION: remember to update the boundaries in 0/U to "movingWallVelocity"
     nonRotatingPatches (nonRotatingWall);  // Keeps the rotatingWall stationary in the lab frame
