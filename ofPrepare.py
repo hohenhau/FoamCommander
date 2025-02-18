@@ -147,6 +147,36 @@ def create_surface_features_dict(patch_names):
     print(f"surfaceFeaturesDict.gen created at: {output_path}")
 
 
+def create_change_dictionary_dict(patch_names):
+    """Creates the changeDictionaryDict.gen file."""
+    print("Creating surfaceFeaturesDict.gen...")
+    template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "changeDictionaryDict")  # Template file
+    output_path = os.path.join(SYSTEM_DIR, "changeDictionaryDict.gen")
+    replacement_pattern = r'.*\$DICTIONARY_CHANGES\$.*\n'  # Match any line containing $STL_FILES$
+    replacement_text = str()
+    for patch in patch_names:
+        patch_type = get_patch_type_from_patch_name(patch)
+        if patch_type not in {'baffle', 'cyclic', 'cyclicAMI'}:
+            continue
+        replacement_text += f'    {patch}\n'
+        replacement_text += f'    {{\n'
+        replacement_text += f'    type            cyclic;\n'
+        replacement_text += f'    neighbourPatch  {patch}_slave;\n'
+        replacement_text += f'    //matchTolerance  0.001;\n'
+        replacement_text += f'    }}\n'
+        replacement_text += f'    {patch}_slave\n'
+        replacement_text += f'    {{\n'
+        replacement_text += f'    type            cyclic;\n'
+        replacement_text += f'    neighbourPatch  {patch};\n'
+        replacement_text += f'    //matchTolerance  0.001;\n'
+        replacement_text += f'    }}\n'
+    # Define the patterns to match the entire lines containing the variables
+    patterns_and_replacements = [(r'.*\$DICTIONARY_CHANGES\$.*\n', replacement_text)]
+    # Perform the replacements
+    perform_regex_replacements(patterns_and_replacements, template_path, output_path)
+    print(f"snappyHexMeshDict.gen created at: {output_path}")
+
+
 def create_snappy_hex_mesh_dict(patch_names):
     """Creates the snappyHexMeshDict.gen file with proper comment line replacement."""
     print("Creating snappyHexMeshDict.gen...")
@@ -218,7 +248,7 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
             boundary_block += f'        value           {boundary_vals[patch_type]};\n'
         boundary_block += '    }\n'
     # Define the value block   float('%.*g' % (3, internal_val))
-    internal_field_block = f'internalField   uniform {float('%.*g' % (3, internal_val))};  // Adjust to simulation'
+    internal_field_block = f"internalField   uniform {float('%.*g' % (3, internal_val))};  // Adjust to simulation"
     # Define the patterns to match the entire lines containing the variables
     patterns_and_replacements = [(r'.*\$INTERNAL_FIELD\$.*\n', internal_field_block),
                                  (r'.*\$BOUNDARY_FIELDS\$.*\n', boundary_block)]
@@ -289,6 +319,7 @@ def prepare_files():
     patch_names = load_and_process_stl_files()
     create_surface_features_dict(patch_names)
     create_snappy_hex_mesh_dict(patch_names)
+    create_change_dictionary_dict(patch_names)
     arguments = detect_and_parse_arguments(sys)
     flow_metrics = estimate_internal_fields(arguments)
     create_zero_boundaries(patch_names, flow_metrics)
