@@ -160,32 +160,32 @@ def create_create_baffles_dict(patch_names):
         if patch_type not in {'baffle', 'cyclic', 'cyclicAMI'}:
             continue
         print(f'Creating baffle entry for {patch} in system/{template_name}')
-        replacement_text += f"""
-                            {patch}  // First baffle to be created
-                            {{
-                               type        faceZone;      // select faces & orientation
-                               zoneName    {patch}Faces;  // name specified in snappyhexmesh
-
-                               patches
-                               {{
-                                   master  // Master side patch
-                                   {{
-                                       type            cyclic;
-                                       name            {patch};
-                                       neighbourPatch  {patch}_slave;
-                                   }}
-
-                                   slave  // Slave side patch
-                                   {{
-                                       type            cyclic;
-                                       name            {patch}_slave;
-                                       neighbourPatch  {patch};
-                                   }}
-                               }}
-                            }}
-                            """
+        replacement_text += f'''
+            {patch}
+            {{
+                type        faceZone;
+                zoneName    {patch}Faces;
+    
+                patches
+                {{
+                    master
+                    {{
+                        type            cyclic;
+                        name            {patch};
+                        neighbourPatch  {patch}_slave;
+                    }}
+    
+                    slave
+                    {{
+                        type            cyclic;
+                        name            {patch}_slave;
+                        neighbourPatch  {patch};
+                    }}
+                }}
+            }}
+        '''
     # Define the patterns to match the entire lines containing the variables
-    patterns_and_replacements = [(r'.*\CYCLIC_BAFFLES\$.*\n', replacement_text)]
+    patterns_and_replacements = [(r'.*\$CYCLIC_BAFFLES\$.*\n', replacement_text)]
     # Perform the replacements
     perform_regex_replacements(patterns_and_replacements, template_path, output_path)
     print(f"snappyHexMeshDict.gen created at: {output_path}")
