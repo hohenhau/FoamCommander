@@ -21,24 +21,16 @@ actions
     {
         name    cyclicAMI_ASet;        // Name of the face set to create
         type    faceSet;               // Create a face set
-        action  new;                   // Create a new
-        source  cellToFace;            // Convert from cells to faces
-        sourceInfo
-        {
-            set     baffleAMI_AFaces;  // Name of your existing cellZone
-            option  all;               // Get all faces of the cells
-        }
+        action  new;                   // Start a new face set
+        source  zoneToFace;            // Convert from cells to faces
+        zone    baffleAMI_AFaces;      // Name of the faceZone
     }
     {
         name    cyclicAMI_BSet;        // Name of the face set to create
         type    faceSet;               // Create a face set
-        action  new;                   // Create a new
-        source  cellToFace;            // Convert from cells to faces
-        sourceInfo
-        {
-            set     baffleAMI_BFaces;  // Name of your existing cellZone
-            option  all;               // Get all faces of the cells
-        }
+        action  new;                   // Start a new face set
+        source  zoneToFace;            // Convert from cells to faces
+        zone    baffleAMI_BFaces;      // Name of the faceZone
     }
 );
 
