@@ -185,7 +185,7 @@ def create_create_baffles_dict(patch_names):
                             }}
                             """
     # Define the patterns to match the entire lines containing the variables
-    patterns_and_replacements = [(r'.*\$DICTIONARY_CHANGES\$.*\n', replacement_text)]
+    patterns_and_replacements = [(r'.*\CYCLIC_BAFFLES\$.*\n', replacement_text)]
     # Perform the replacements
     perform_regex_replacements(patterns_and_replacements, template_path, output_path)
     print(f"snappyHexMeshDict.gen created at: {output_path}")
