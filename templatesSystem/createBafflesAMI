@@ -19,6 +19,9 @@ FoamFile
 // Only relevant if your face selection type can pick up a boundary
 internalFacesOnly true;  // Ensures only internal faces are selected
 
+// NOTE: Options for transform are: 
+// {noOrdering, coincidentFullMatch, rotational, translational}
+
 baffles  // Define baffles to be created
 {
     cyclicAMI_ABoth  // Name of the baffle
@@ -32,13 +35,17 @@ baffles  // Define baffles to be created
             {
                 name            cyclicAMI_A;
                 type            cyclicAMI;
+                matchTolerance  0.0001;
+                transform       noOrdering;  // See top of file
                 neighbourPatch  cyclicAMI_A_slave;
             }
         
             slave  // Slave patch
             {
                 name            cyclicAMI_A_slave;
-                type            cyclic;
+                type            cyclicAMI;
+                matchTolerance  0.0001;
+                transform       noOrdering;  // See top of file
                 neighbourPatch  cyclicAMI_A;
             }
         }
@@ -55,14 +62,18 @@ baffles  // Define baffles to be created
             master  // Master patch
             {
                 name            cyclicAMI_B;
-                type            cyclic;
+                type            cyclicAMI;
+                matchTolerance  0.0001;
+                transform       noOrdering;  // See top of file
                 neighbourPatch  cyclicAMI_B_slave;
             }
         
             slave  // Slave patch
             {
                 name            cyclicAMI_B_slave;
-                type            cyclic;
+                type            cyclicAMI;
+                matchTolerance  0.0001;
+                transform       noOrdering;  // See top of file
                 neighbourPatch  cyclicAMI_B;
             }
         }
