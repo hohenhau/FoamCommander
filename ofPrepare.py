@@ -147,7 +147,7 @@ def create_surface_features_dict(patch_names):
     print(f"surfaceFeaturesDict.gen created at: {output_path}")
 
 
-def create_change_dictionary_dict(patch_names):
+def create_create_baffles_dict(patch_names):
     """Creates the createBafflesCyclics.gen file."""
     print("Creating createBafflesCyclics.gen...")
     template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "createBafflesCyclics")  # Template file
@@ -158,6 +158,7 @@ def create_change_dictionary_dict(patch_names):
         patch_type = get_patch_type_from_patch_name(patch)
         if patch_type not in {'baffle', 'cyclic', 'cyclicAMI'}:
             continue
+        print(f'Creating baffle entry for {patch} in {output_path}')
         replacement_text += f"""
                             {patch}  // First baffle to be created
                             {{
@@ -331,7 +332,7 @@ def prepare_files():
     patch_names = load_and_process_stl_files()
     create_surface_features_dict(patch_names)
     create_snappy_hex_mesh_dict(patch_names)
-    create_change_dictionary_dict(patch_names)
+    create_create_baffles_dict(patch_names)
     arguments = detect_and_parse_arguments(sys)
     flow_metrics = estimate_internal_fields(arguments)
     create_zero_boundaries(patch_names, flow_metrics)
