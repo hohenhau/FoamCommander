@@ -47,7 +47,7 @@ patches
             type             cyclicAMI;          // Type of new patch
             matchTolerance   0.0001;             // Bad mesh needs higher tolerance
             transform        translational;      // Type of connection
-            separationVector (0 0 0);            // Reverse distance between patches 
+            separationVector (0 0 0);            // Reverse distance between patches
             neighbourPatch   cyclicAMI_A;        // Name of connected patch
         }
     }
@@ -79,7 +79,7 @@ patches
             type             cyclicAMI;          // Type of new patch
             matchTolerance   0.0001;             // Bad mesh needs higher tolerance
             transform        translational;      // Type of connection
-            separationVector (0 0 0);            // Reverse distance between patches 
+            separationVector (0 0 0);            // Reverse distance between patches
             neighbourPatch   cyclicAMI_B;        // Name of connected patch
         }
     }
