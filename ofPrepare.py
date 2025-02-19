@@ -161,25 +161,25 @@ def create_create_baffles_dict(patch_names):
             continue
         print(f'Creating baffle entry for {patch} in system/{template_name}')
         replacement_text += (f'{" " * 4}{patch}\n'
+                             f'{" " * 4}{{\n'
+                             f'{" " * 8}type        faceZone;\n'
+                             f'{" " * 8}zoneName    {patch}Faces;\n'
+                             f'{" " * 8}patches\n'
                              f'{" " * 8}{{\n'
-                             f'{" " * 12}type        faceZone;\n'
-                             f'{" " * 12}zoneName    {patch}Faces;\n'
-                             f'{" " * 12}patches\n'
+                             f'{" " * 12}master\n'
                              f'{" " * 12}{{\n'
-                             f'{" " * 16}master\n'
-                             f'{" " * 16}{{\n'
-                             f'{" " * 20}type            cyclic;\n'
-                             f'{" " * 20}name            {patch};\n'
-                             f'{" " * 20}neighbourPatch  {patch}_slave;\n'
-                             f'{" " * 16}}}\n'
-                             f'{" " * 16}slave\n'
-                             f'{" " * 16}{{\n'
-                             f'{" " * 20}type            cyclic;\n'
-                             f'{" " * 20}name            {patch}_slave;\n'
-                             f'{" " * 20}neighbourPatch  {patch};\n'
-                             f'{" " * 16}}}\n'
+                             f'{" " * 16}type            cyclic;\n'
+                             f'{" " * 16}name            {patch};\n'
+                             f'{" " * 16}neighbourPatch  {patch}_slave;\n'
                              f'{" " * 12}}}\n'
-                             f'{" " * 8}}}\n')
+                             f'{" " * 12}slave\n'
+                             f'{" " * 12}{{\n'
+                             f'{" " * 16}type            cyclic;\n'
+                             f'{" " * 16}name            {patch}_slave;\n'
+                             f'{" " * 16}neighbourPatch  {patch};\n'
+                             f'{" " * 12}}}\n'
+                             f'{" " * 8}}}\n'
+                             f'{" " * 4}}}\n')
     # Define the patterns to match the entire lines containing the variables
     patterns_and_replacements = [(r'.*\$CYCLIC_BAFFLES\$.*\n', replacement_text)]
     # Perform the replacements
