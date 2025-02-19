@@ -24,7 +24,7 @@ internalFacesOnly true;  // Ensures only internal faces are selected
 
 baffles  // Define baffles to be created
 {
-    cyclicAMI_ABoth  // Name of the baffle
+    baffleAMI_AGroup  // Name of the baffle
     {
         type        faceZone;      // Select faces & orientation
         zoneName    baffleAMI_AFaces;  // Face zone name as defined in snappyHexMesh
@@ -33,29 +33,29 @@ baffles  // Define baffles to be created
         {
             master  // Master patch
             {
-                name            cyclicAMI_A;
+                name            baffleAMI_A;
                 type            cyclicAMI;
                 matchTolerance  0.0001;
                 transform       rotational;  // See top of file
                 rotationAxis    (0 0 1);
                 rotationCentre  (0 0 0);
-                neighbourPatch  cyclicAMI_A_slave;
+                neighbourPatch  baffleAMI_A_slave;
             }
 
             slave  // Slave patch
             {
-                name            cyclicAMI_A_slave;
+                name            baffleAMI_A_slave;
                 type            cyclicAMI;
                 matchTolerance  0.0001;
                 transform       rotational;  // See top of file
                 rotationAxis    (0 0 1);
                 rotationCentre  (0 0 0);
-                neighbourPatch  cyclicAMI_A;
+                neighbourPatch  baffleAMI_A;
             }
         }
     }
 
-    cyclicAMI_BBoth  // Name of the baffle
+    baffleAMI_BGroup  // Name of the baffle
     {
         type        faceZone;      // Select faces & orientation
         zoneName    baffleAMI_BFaces;  // Face zone name as defined in snappyHexMesh
@@ -64,24 +64,24 @@ baffles  // Define baffles to be created
         {
             master  // Master patch
             {
-                name            cyclicAMI_B;
+                name            baffleAMI_B;
                 type            cyclicAMI;
                 matchTolerance  0.0001;
                 transform       rotational;  // See top of file
                 rotationAxis    (0 0 1);
                 rotationCentre  (0 0 0);
-                neighbourPatch  cyclicAMI_B_slave;
+                neighbourPatch  baffleAMI_B_slave;
             }
 
             slave  // Slave patch
             {
-                name            cyclicAMI_B_slave;
+                name            baffleAMI_B_slave;
                 type            cyclicAMI;
                 matchTolerance  0.0001;
                 transform       rotational;  // See top of file
                 rotationAxis    (0 0 1);
                 rotationCentre  (0 0 0);
-                neighbourPatch  cyclicAMI_B;
+                neighbourPatch  baffleAMI_B;
             }
         }
     }
