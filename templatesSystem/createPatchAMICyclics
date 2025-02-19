@@ -23,7 +23,9 @@ patches
     {
         name cyclicAMI_A;                        // New name of master patch
         patches (cyclicAMI_A);                   // Name of stl patch
-        constructFrom patches;                   // Basis of construction
+        // constructFrom patches;                // Basis of construction
+        constructFrom faceZone;                  // Basis of construction
+        zone baffleAMI_AFaces;                   // Name of the faceZone to use
         patchInfo
         {
             type             cyclicAMI;          // Type of new patch
@@ -37,7 +39,9 @@ patches
     {
         name cyclicAMI_A_slave;                  // New name of slave patch
         patches (cyclicAMI_A_slave);             // Name of stl patch
-        constructFrom patches;                   // Basis of construction
+        // constructFrom patches;                // Basis of construction
+        constructFrom faceZone;                  // Basis of construction
+        zone baffleAMI_AFaces;                   // Name of the faceZone to use
         patchInfo
         {
             type             cyclicAMI;          // Type of new patch
@@ -45,6 +49,38 @@ patches
             transform        translational;      // Type of connection
             separationVector (0 0 0);            // Reverse distance between patches 
             neighbourPatch   cyclicAMI_A;        // Name of connected patch
+        }
+    }
+
+    {
+        name cyclicAMI_B;                        // New name of master patch
+        patches (cyclicAMI_B);                   // Name of stl patch
+        // constructFrom patches;                // Basis of construction
+        constructFrom faceZone;                  // Basis of construction
+        zone baffleAMI_BFaces;                   // Name of the faceZone to use
+        patchInfo
+        {
+            type             cyclicAMI;          // Type of new patch
+            matchTolerance   0.0001;             // Bad mesh needs higher tolerance
+            transform        translational;      // Type of connection
+            separationVector (0 0 0);            // Distance between patches
+            neighbourPatch   cyclicAMI_B_slave;  // Name of connected patch
+        }
+    }
+
+    {
+        name cyclicAMI_B_slave;                  // New name of slave patch
+        patches (cyclicAMI_B_slave);             // Name of stl patch
+        // constructFrom patches;                // Basis of construction
+        constructFrom faceZone;                  // Basis of construction
+        zone baffleAMI_BFaces;                   // Name of the faceZone to use
+        patchInfo
+        {
+            type             cyclicAMI;          // Type of new patch
+            matchTolerance   0.0001;             // Bad mesh needs higher tolerance
+            transform        translational;      // Type of connection
+            separationVector (0 0 0);            // Reverse distance between patches 
+            neighbourPatch   cyclicAMI_B;        // Name of connected patch
         }
     }
 );
