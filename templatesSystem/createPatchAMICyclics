@@ -22,9 +22,8 @@ patches
 (
     {
         name cyclicAMI_A;                        // New name of master patch
-        patches (cyclicAMI_A);                   // Name of stl patch
         constructFrom set;                       // Basis of construction
-        set baffleAMI_AFaces;                    // Name of the faceZone to use
+        set baffleAMI_ASet;                      // Name of the faceZone to use
         patchInfo
         {
             type             cyclicAMI;          // Type of new patch
@@ -37,9 +36,8 @@ patches
 
     {
         name cyclicAMI_A_slave;                  // New name of slave patch
-        patches (cyclicAMI_A_slave);             // Name of stl patch
         constructFrom set;                       // Basis of construction
-        set baffleAMI_AFaces;                    // Name of the faceZone to use
+        set baffleAMI_ASet;                      // Name of the faceZone to use
         patchInfo
         {
             type             cyclicAMI;          // Type of new patch
@@ -52,9 +50,8 @@ patches
 
     {
         name cyclicAMI_B;                        // New name of master patch
-        patches (cyclicAMI_B);                   // Name of stl patch
         constructFrom set;                       // Basis of construction
-        set baffleAMI_BFaces;                    // Name of the faceZone to use
+        set baffleAMI_BSet;                      // Name of the faceZone to use
         patchInfo
         {
             type             cyclicAMI;          // Type of new patch
@@ -67,9 +64,8 @@ patches
 
     {
         name cyclicAMI_B_slave;                  // New name of slave patch
-        patches (cyclicAMI_B_slave);             // Name of stl patch
         constructFrom set;                       // Basis of construction
-        set baffleAMI_BFaces;                    // Name of the faceZone to use
+        set baffleAMI_BSet;                      // Name of the faceZone to use
         patchInfo
         {
             type             cyclicAMI;          // Type of new patch
