@@ -1,0 +1,8 @@
+#/bin/bash
+
+# Delete fields that are rarely used
+rm 0/alphawatergen 0.gen/alphawatergen
+rm 0/kl 0.gen/kl
+rm 0/kt 0.gen/kt
+rm 0/nuTilda 0.gen/nuTilda
+rm 0/p_rgh 0.gen/p_rgh
