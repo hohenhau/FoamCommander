@@ -39,7 +39,7 @@ baffles  // Define baffles to be created
                 transform       noOrdering;  // See top of file
                 neighbourPatch  cyclicAMI_A_slave;
             }
-    
+
             slave  // Slave patch
             {
                 name            cyclicAMI_A_slave;
