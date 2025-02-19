@@ -278,7 +278,7 @@ def create_zero_boundaries(names, fm):
     omega_wf = 'epsilonWallFunction'
 
     field_configs = {
-        'U': {'types': {'wall': 'fixedValue'},
+        'U': {'types': {'wall': 'fixedValue', 'MRFnoSlip': 'MRFnoSlip', 'movingWallVelocity': 'movingWallVelocity'},
               'values': {'inlet': 'uniform (0 0 0)', 'wall': 'uniform (0 0 0)',
                          'movingWallVelocity': 'uniform (0 0 0)'},
               'internal_field': 0},
