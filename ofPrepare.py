@@ -68,6 +68,8 @@ def get_boundary_type_from_patch_name(input_patch_name: str):
     common_boundary_types['inlet'] = 'fixedValue'
     common_boundary_types['outlet'] = 'zeroGradient'
     common_boundary_types['wall'] = 'zeroGradient'
+    common_boundary_types['movingWallVelocity'] = 'zeroGradient'
+    common_boundary_types['MRFnoSlip'] = 'zeroGradient'
     common_boundary_types['baffle'] = 'cyclic'
     # Define types that have overlapping names with the common types
     overlapping_boundary_types = {'noSlip': 'noSlip',  # Overlaps with slip
@@ -270,6 +272,11 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
 def create_zero_boundaries(names, fm):
     """Build the zero files for the various fields and boundaries"""
 
+    kqr_wf = 'kqRWallFunction'
+    epsilon_wf = 'epsilonWallFunction'
+    nut_wf = 'nutUWallFunction'
+    omega_wf = 'epsilonWallFunction'
+
     field_configs = {
         'U': {'types': {'wall': 'fixedValue'},
               'values': {'inlet': 'uniform (0 0 0)', 'wall': 'uniform (0 0 0)',
@@ -280,15 +287,16 @@ def create_zero_boundaries(names, fm):
               'values': {'outlet': 'uniform 0'},
               'internal_field': 0},
 
-        'k': {'types': {'wall': 'kqRWallFunction'},
+        'k': {'types': {'wall': kqr_wf, 'movingWallVelocity': kqr_wf, 'MRFnoSlip': kqr_wf},
               'values': {'inlet': '$internalField', 'wall': 'uniform 0'},
               'internal_field': fm.turb_kinetic_energy.value},
 
-        'epsilon': {'types': {'wall': 'epsilonWallFunction'},
+        'epsilon': {'types': {'wall': epsilon_wf, 'movingWallVelocity': epsilon_wf, 'MRFnoSlip': epsilon_wf},
                     'values': {'inlet': '$internalField', 'wall': 'uniform 0'},
                     'internal_field': fm.turb_dissipation_rate.value},
 
-        'nut': {'types': {'inlet': 'calculated', 'outlet': 'calculated', 'wall': 'nutUWallFunction'},
+        'nut': {'types': {'inlet': 'calculated', 'outlet': 'calculated',
+                          'wall': nut_wf, 'movingWallVelocity': nut_wf, 'MRFnoSlip': nut_wf},
                 'values': {'inlet': 'uniform 0', 'outlet': 'uniform 0', 'wall': 'uniform 0'},
                 'internal_field': fm.turb_viscosity.value},
 
@@ -296,17 +304,18 @@ def create_zero_boundaries(names, fm):
                     'values': {'inlet': 'uniform 0'},
                     'internal_field': 0},
 
-        'omega': {'types': {'wall': 'omegaWallFunction'},
+        'omega': {'types': {'wall': omega_wf, 'movingWallVelocity': omega_wf, 'MRFnoSlip': omega_wf},
                   'values': {'inlet': '$internalField', 'wall': 'uniform 1e5'},
                   # value for wall needs to be high (1e5 or 1e6)
                   'internal_field': fm.specific_dissipation.value},
 
-        'kl': {'types': {'wall': 'fixedValue'},
+        'kl': {'types': {'wall': 'fixedValue', 'movingWallVelocity': 'fixedValue', 'MRFnoSlip': 'fixedValue'},
                'values': {'inlet': 'uniform 0', 'wall': 'uniform 0'},
                'internal_field': 0},
 
-        'kt': {'types': {'wall': 'fixedValue'},
-               'values': {'inlet': 'uniform 0', 'wall': 'uniform 0'},
+        'kt': {'types': {'wall': 'fixedValue', 'movingWallVelocity': 'fixedValue', 'MRFnoSlip': 'fixedValue'},
+               'values': {'inlet': 'uniform 0', 'wall': 'uniform 0',
+                          'movingWallVelocity': 'uniform 0', 'MRFnoSlip': 'uniform 0'},
                'internal_field': 0},
 
         'p_rgh': {'types': {'inlet': 'fixedFluxPressure', 'outlet': 'fixedFluxPressure',
