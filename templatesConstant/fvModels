@@ -20,8 +20,6 @@ porositySourceA // Definition of a porous (i.e. honeycomb) zone
 {
     active      no;
     type        explicitPorositySource;
-    libs        ("libfvModels.so");  // Library used for calculations
-
     explicitPorositySourceCoeffs
     {
         selectionMode       cellZone;         // Options: {cellZone, points, box, cylinder, sphere}
@@ -38,8 +36,6 @@ porositySourceB // Definition of a porous (i.e. honeycomb) zone
 {
     active      no;
     type        explicitPorositySource;
-    libs        ("libfvModels.so");  // Library used for calculations
-
     explicitPorositySourceCoeffs
     {
         selectionMode       cellZone;         // Options: {cellZone, points, box, cylinder, sphere}
