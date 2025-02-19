@@ -19,6 +19,11 @@ FoamFile
 // Only relevant if your face selection type can pick up a boundary
 internalFacesOnly true;  // Ensures only internal faces are selected
 
+// Define key baffle metrics (porosity is 0.63)
+D_SCREEN 20000000;  // Darcy coefficient
+I_SCREEN 280;       // Inertial coefficient
+L_SCREEN 0.003;     // Scaling of pressure drop
+
 baffles  // Define baffles to be created
 {
     porousBaffleA  // Name of the baffle
@@ -41,9 +46,9 @@ baffles  // Define baffles to be created
                     {
                         type            porousBafflePressure;
                         patchType       cyclic;
-                        D               20000000;  // Darcy coefficient (porosity = 0.63)
-                        I               280;       // Inertial coefficient
-                        length          0.003;     // Scaling of pressure drop
+                        D               $D_SCREEN;  // Darcy coefficient
+                        I               $I_SCREEN;  // Inertial coefficient
+                        length          $L_SCREEN;  // Scaling of pressure drop
                         uniformJump     false;
                         value           uniform 0;
                         jump            uniform 0;
@@ -56,12 +61,79 @@ baffles  // Define baffles to be created
                 type            cyclic;
                 neighbourPatch  porousBaffleA;
                 transform       none;
-                patchFields     {${...master.patchFields}}
-                // CANNOT USE this copy method if there are mulitple patches
 
+                patchFields  // Optional override of patch fields
+                {
+                    p // This section must be copied to 0 when starting simulation 
+                    {
+                        type            porousBafflePressure;
+                        patchType       cyclic;
+                        D               $D_SCREEN;  // Darcy coefficient
+                        I               $I_SCREEN;  // Inertial coefficient
+                        length          $L_SCREEN;  // Scaling of pressure drop
+                        uniformJump     false;
+                        value           uniform 0;
+                        jump            uniform 0;
+                    }
+                }
             }
         }
     }
+
+    
+    /*porousBaffleB  // Name of the baffle
+    {
+        type        faceZone;      // Select faces & orientation
+        zoneName    porousBaffleBFaces;  // Face zone name as defined in snappyHexMesh
+
+        patches
+        {
+            master  // Master patch
+            {
+                name            porousBaffleB;
+                type            cyclic;
+                neighbourPatch  porousBaffleB_slave;
+                transform       none;  // Option {rotational, none, transormational} 
+
+                patchFields  // Optional override of patch fields
+                {
+                    p // This section must be copied to 0 when starting simulation 
+                    {
+                        type            porousBafflePressure;
+                        patchType       cyclic;
+                        D               $D_SCREEN;  // Darcy coefficient
+                        I               $I_SCREEN;  // Inertial coefficient
+                        length          $L_SCREEN;  // Scaling of pressure drop
+                        uniformJump     false;
+                        value           uniform 0;
+                        jump            uniform 0;
+                    }
+                }
+            }
+            slave  // Slave patch
+            {
+                name            porousBaffleB_slave;
+                type            cyclic;
+                neighbourPatch  porousBaffleB;
+                transform       none;
+
+                patchFields  // Optional override of patch fields
+                {
+                    p // This section must be copied to 0 when starting simulation 
+                    {
+                        type            porousBafflePressure;
+                        patchType       cyclic;
+                        D               $D_SCREEN;  // Darcy coefficient
+                        I               $I_SCREEN;  // Inertial coefficient
+                        length          $L_SCREEN;  // Scaling of pressure drop
+                        uniformJump     false;
+                        value           uniform 0;
+                        jump            uniform 0;
+                    }
+                }
+            }
+        }
+    }*/
 }
 
 // ************************************************************************* //
