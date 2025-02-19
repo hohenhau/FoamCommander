@@ -20,7 +20,7 @@ FoamFile
 internalFacesOnly true;  // Ensures only internal faces are selected
 
 // NOTE: Options for transform are:
-// {noOrdering, coincidentFullMatch, rotational, translational}
+// {none, unspecified, rotational, translational}
 
 baffles  // Define baffles to be created
 {
@@ -36,7 +36,9 @@ baffles  // Define baffles to be created
                 name            cyclicAMI_A;
                 type            cyclicAMI;
                 matchTolerance  0.0001;
-                transform       noOrdering;  // See top of file
+                transform       rotational;  // See top of file
+                rotationAxis    (0 0 1);
+                rotationCentre  (0 0 0);
                 neighbourPatch  cyclicAMI_A_slave;
             }
 
@@ -45,7 +47,9 @@ baffles  // Define baffles to be created
                 name            cyclicAMI_A_slave;
                 type            cyclicAMI;
                 matchTolerance  0.0001;
-                transform       noOrdering;  // See top of file
+                transform       rotational;  // See top of file
+                rotationAxis    (0 0 1);
+                rotationCentre  (0 0 0);
                 neighbourPatch  cyclicAMI_A;
             }
         }
@@ -63,7 +67,9 @@ baffles  // Define baffles to be created
                 name            cyclicAMI_B;
                 type            cyclicAMI;
                 matchTolerance  0.0001;
-                transform       noOrdering;  // See top of file
+                transform       rotational;  // See top of file
+                rotationAxis    (0 0 1);
+                rotationCentre  (0 0 0);
                 neighbourPatch  cyclicAMI_B_slave;
             }
 
@@ -72,7 +78,9 @@ baffles  // Define baffles to be created
                 name            cyclicAMI_B_slave;
                 type            cyclicAMI;
                 matchTolerance  0.0001;
-                transform       noOrdering;  // See top of file
+                transform       rotational;  // See top of file
+                rotationAxis    (0 0 1);
+                rotationCentre  (0 0 0);
                 neighbourPatch  cyclicAMI_B;
             }
         }
