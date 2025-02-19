@@ -26,7 +26,7 @@ L_SCREEN 0.003;     // Scaling of pressure drop
 
 baffles  // Define baffles to be created
 {
-    porousBaffleA  // Name of the baffle
+    porousBaffleABoth  // Name of the baffle
     {
         type        faceZone;      // Select faces & orientation
         zoneName    porousBaffleAFaces;  // Face zone name as defined in snappyHexMesh
@@ -81,7 +81,7 @@ baffles  // Define baffles to be created
     }
 
     
-    /*porousBaffleB  // Name of the baffle
+    /*porousBaffleBBoth  // Name of the baffle
     {
         type        faceZone;      // Select faces & orientation
         zoneName    porousBaffleBFaces;  // Face zone name as defined in snappyHexMesh
