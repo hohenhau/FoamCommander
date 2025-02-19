@@ -27,9 +27,9 @@ solidBodyMotionFvMeshCoeffs
     solidBodyMotionFunction  rotatingMotion;
     rotatingMotionCoeffs
     {
-        origin        (0 0 0);
-        axis          (0 0 1);
-        omega         10;  // Radians per second (1 RPM = 0.10472 rad/s)
+        origin        (0 0 0);  // Adjust to match rotation location
+        axis          (0 0 1);  // Adjust based on rotation axis
+        omega         10;       // Radians per second (1 RPM = 0.10472 rad/s)
     }
 }
 
