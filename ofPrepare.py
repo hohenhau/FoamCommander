@@ -288,7 +288,8 @@ def create_zero_boundaries(names, fm):
               'internal_field': 0},
 
         'k': {'types': {'wall': kqr_wf, 'movingWallVelocity': kqr_wf, 'MRFnoSlip': kqr_wf},
-              'values': {'inlet': '$internalField', 'wall': 'uniform 0'},
+              'values': {'inlet': '$internalField', 'wall': 'uniform 0', 
+                         'MRFnoSlip': 'uniform 0', 'movingWallVelocity': 'uniform 0'},
               'internal_field': fm.turb_kinetic_energy.value},
 
         'epsilon': {'types': {'wall': epsilon_wf, 'movingWallVelocity': epsilon_wf, 'MRFnoSlip': epsilon_wf},
@@ -297,7 +298,8 @@ def create_zero_boundaries(names, fm):
 
         'nut': {'types': {'inlet': 'calculated', 'outlet': 'calculated',
                           'wall': nut_wf, 'movingWallVelocity': nut_wf, 'MRFnoSlip': nut_wf},
-                'values': {'inlet': 'uniform 0', 'outlet': 'uniform 0', 'wall': 'uniform 0'},
+                'values': {'inlet': 'uniform 0', 'outlet': 'uniform 0', 'wall': 'uniform 0', 
+                         'MRFnoSlip': 'uniform 0', 'movingWallVelocity': 'uniform 0'},
                 'internal_field': fm.turb_viscosity.value},
 
         'nuTilda': {'types': {},
@@ -305,12 +307,14 @@ def create_zero_boundaries(names, fm):
                     'internal_field': 0},
 
         'omega': {'types': {'wall': omega_wf, 'movingWallVelocity': omega_wf, 'MRFnoSlip': omega_wf},
-                  'values': {'inlet': '$internalField', 'wall': 'uniform 1e5'},
+                  'values': {'inlet': '$internalField', 'wall': 'uniform 1e5', 
+                         'MRFnoSlip': 'uniform 1e5', 'movingWallVelocity': 'uniform 1e5'},
                   # value for wall needs to be high (1e5 or 1e6)
                   'internal_field': fm.specific_dissipation.value},
 
         'kl': {'types': {'wall': 'fixedValue', 'movingWallVelocity': 'fixedValue', 'MRFnoSlip': 'fixedValue'},
-               'values': {'inlet': 'uniform 0', 'wall': 'uniform 0'},
+               'values': {'inlet': 'uniform 0', 'wall': 'uniform 0', 
+                         'MRFnoSlip': 'uniform 0', 'movingWallVelocity': 'uniform 0'},
                'internal_field': 0},
 
         'kt': {'types': {'wall': 'fixedValue', 'movingWallVelocity': 'fixedValue', 'MRFnoSlip': 'fixedValue'},
