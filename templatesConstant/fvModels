@@ -23,7 +23,7 @@ porositySourceA // Definition of a porous (i.e. honeycomb) zone
     explicitPorositySourceCoeffs
     {
         selectionMode       cellZone;         // Options: {cellZone, points, box, cylinder, sphere}
-        cellZone            honeycombBCells;  // Cell zone name (must match to snappyHexMesh)
+        cellZone            honeycombACells;  // Cell zone name (must match to snappyHexMesh)
         type                DarcyForchheimer; // Options: {DarcyForchheimer, PowerLaw}
         // Very high viscous terms can restrict the flow to a single direction
         d   (7e5 1e10 1e10);  // (x y z) Darcy (viscous) term - proportional to velocity
