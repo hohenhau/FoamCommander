@@ -93,7 +93,7 @@ baffles  // Define baffles to be created
                 name            porousBaffleB;
                 type            cyclic;
                 neighbourPatch  porousBaffleB_slave;
-                transform       none;  // Option {rotational, none, transormational} 
+                transform       none;  // Option {rotational, none, translational} 
 
                 patchFields  // Optional override of patch fields
                 {
