@@ -160,30 +160,26 @@ def create_create_baffles_dict(patch_names):
         if patch_type not in {'baffle', 'cyclic', 'cyclicAMI'}:
             continue
         print(f'Creating baffle entry for {patch} in system/{template_name}')
-        replacement_text += f'''
-            {patch}
-            {{
-                type        faceZone;
-                zoneName    {patch}Faces;
-
-                patches
-                {{
-                    master
-                    {{
-                        type            cyclic;
-                        name            {patch};
-                        neighbourPatch  {patch}_slave;
-                    }}
-
-                    slave
-                    {{
-                        type            cyclic;
-                        name            {patch}_slave;
-                        neighbourPatch  {patch};
-                    }}
-                }}
-            }}
-        '''
+        replacement_text += (f'{" " * 12}{patch}\n'
+                             f'{" " * 16}{{\n'
+                             f'{" " * 20}type        faceZone;\n'
+                             f'{" " * 20}zoneName    {patch}Faces;\n'
+                             f'{" " * 20}patches\n'
+                             f'{" " * 20}{{\n'
+                             f'{" " * 24}master\n'
+                             f'{" " * 24}{{\n'
+                             f'{" " * 28}type            cyclic;\n'
+                             f'{" " * 28}name            {patch};\n'
+                             f'{" " * 28}neighbourPatch  {patch}_slave;\n'
+                             f'{" " * 24}}}\n'
+                             f'{" " * 24}slave\n'
+                             f'{" " * 24}{{\n'
+                             f'{" " * 28}type            cyclic;\n'
+                             f'{" " * 28}name            {patch}_slave;\n'
+                             f'{" " * 28}neighbourPatch  {patch};\n'
+                             f'{" " * 24}}}\n'
+                             f'{" " * 20}}}\n'
+                             f'{" " * 16}}}\n')
     # Define the patterns to match the entire lines containing the variables
     patterns_and_replacements = [(r'.*\$CYCLIC_BAFFLES\$.*\n', replacement_text)]
     # Perform the replacements
