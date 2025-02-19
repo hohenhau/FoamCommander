@@ -160,7 +160,7 @@ def create_create_baffles_dict(patch_names):
         if patch_type not in {'baffle', 'cyclic', 'cyclicAMI'}:
             continue
         print(f'Creating baffle entry for {patch} in system/{template_name}')
-        replacement_text += (f'{" " * 4}{patch}\n'
+        replacement_text += (f'{" " * 4}{patch}Both\n'
                              f'{" " * 4}{{\n'
                              f'{" " * 8}type        faceZone;\n'
                              f'{" " * 8}zoneName    {patch}Faces;\n'
