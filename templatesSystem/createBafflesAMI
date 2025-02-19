@@ -37,9 +37,9 @@ baffles  // Define baffles to be created
         
             slave  // Slave patch
             {
-                name            porousBaffleA_slave;
+                name            cyclicAMI_A_slave;
                 type            cyclic;
-                neighbourPatch  porousBaffleA;
+                neighbourPatch  cyclicAMI_A;
             }
         }
     }
@@ -54,16 +54,16 @@ baffles  // Define baffles to be created
         {
             master  // Master patch
             {
-                name            porousBaffleB;
+                name            cyclicAMI_B;
                 type            cyclic;
-                neighbourPatch  porousBaffleB_slave;
+                neighbourPatch  cyclicAMI_B_slave;
             }
         
             slave  // Slave patch
             {
-                name            porousBaffleB_slave;
+                name            cyclicAMI_B_slave;
                 type            cyclic;
-                neighbourPatch  porousBaffleB;
+                neighbourPatch  cyclicAMI_B;
             }
         }
     }
