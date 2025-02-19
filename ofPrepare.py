@@ -293,7 +293,8 @@ def create_zero_boundaries(names, fm):
               'internal_field': fm.turb_kinetic_energy.value},
 
         'epsilon': {'types': {'wall': epsilon_wf, 'movingWallVelocity': epsilon_wf, 'MRFnoSlip': epsilon_wf},
-                    'values': {'inlet': '$internalField', 'wall': 'uniform 0'},
+                    'values': {'inlet': '$internalField', 'wall': 'uniform 0', 
+                         'MRFnoSlip': 'uniform 0', 'movingWallVelocity': 'uniform 0'},
                     'internal_field': fm.turb_dissipation_rate.value},
 
         'nut': {'types': {'inlet': 'calculated', 'outlet': 'calculated',
