@@ -165,7 +165,7 @@ def create_create_baffles_dict(patch_names):
             {{
                 type        faceZone;
                 zoneName    {patch}Faces;
-    
+
                 patches
                 {{
                     master
@@ -174,7 +174,7 @@ def create_create_baffles_dict(patch_names):
                         name            {patch};
                         neighbourPatch  {patch}_slave;
                     }}
-    
+
                     slave
                     {{
                         type            cyclic;
