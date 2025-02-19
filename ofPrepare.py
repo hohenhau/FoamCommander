@@ -85,7 +85,7 @@ def get_boundary_type_from_patch_name(input_patch_name: str):
     for dictionary in [common_boundary_types, overlapping_boundary_types]:
         if input_patch_type.lower() in dictionary:
             boundary_type = dictionary[input_patch_type.lower()]
-    if 'ami' in input_patch_name:  # Useful for assigning AMI boundaries that are actually baffles (i.e. baffleAMI)
+    if 'AMI' in input_patch_name:  # Useful for assigning AMI boundaries that are actually baffles (i.e. baffleAMI)
         boundary_type = 'cyclicAMI'
     return boundary_type
 
