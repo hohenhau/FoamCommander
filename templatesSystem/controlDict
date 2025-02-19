@@ -30,7 +30,7 @@ endTime         10; // End time of the simulation
 
 deltaT          1; // This has no impact on SIMPLE solver
 
-writeControl    timeStep; // Can be set to "adjustableRunTime"
+writeControl    adjustableRunTime; // Can be set to "timeStep"
 
 writeInterval   5; // Interval at which data is written to the disk
 
