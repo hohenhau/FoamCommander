@@ -58,7 +58,7 @@ baffles  // Baffles to create
             }
         }
     }
-    // cyclicFacesB  // Specify additional baffles here
+    // cyclicFanFacesB  // Specify additional baffles here
     // {
     // }
 }
