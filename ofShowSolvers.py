@@ -2,8 +2,6 @@
 
 import csv
 from io import StringIO
-from tabulate import tabulate
-
 
 # Your data as a string (in production, you'd read this from a file)
 data = """Solver,transient,compressible,turbulence,heat-transfer,buoyancy,combustion,multiphase,particles,dynamic mesh,multi-region,fvOptions 
@@ -31,34 +29,30 @@ simpleFoam,,,✔ ,,,,,,,,✔
 sprayFoam,✔ ,✔ ,✔ ,✔ ,✔ ,✔ ,,✔ ,,,✔ 
 XiFoam,✔ ,✔ ,✔ ,✔ ,,✔ ,,,,,✔"""
 
-
 def display_foam_solvers_table():
-    # Read the CSV data
     csv_reader = csv.reader(StringIO(data))
-    
-    # Convert to list of lists
     rows = list(csv_reader)
-    
-    # Separate headers and data
-    headers = rows[0]
-    table_data = rows[1:]
-    
-    # Clean up the data (remove extra spaces in checkmarks)
-    cleaned_data = []
-    for row in table_data:
-        cleaned_row = [cell.strip() for cell in row]
-        # Replace empty strings with '-' for better readability
-        cleaned_row = ['-' if cell == '' else cell for cell in cleaned_row]
-        cleaned_data.append(cleaned_row)
-    
-    # Format and display the table
-    print("\nOpenFOAM Solvers and Their Features:")
-    print(tabulate(cleaned_data, 
-                  headers=headers,
-                  tablefmt='grid',
-                  stralign='center',
-                  colalign=['left'] + ['center'] * (len(headers)-1)))
 
+    headers = [cell.strip() for cell in rows[0]]
+    table_data = []
+
+    for row in rows[1:]:
+        cleaned_row = [cell.strip() if cell.strip() else '-' for cell in row]
+        table_data.append(cleaned_row)
+
+    # Calculate column widths
+    col_widths = [max(len(str(row[i])) for row in [headers] + table_data) for i in range(len(headers))]
+
+    # Function to print a row with proper spacing
+    def print_row(row):
+        print(" | ".join(f"{cell:<{col_widths[i]}}" for i, cell in enumerate(row)))
+
+    # Print table
+    print("OpenFOAM Solvers and Their Features:")
+    print_row(headers)
+    print("-" * (sum(col_widths) + 3 * (len(headers) - 1)))
+    for row in table_data:
+        print_row(row)
 
 if __name__ == "__main__":
     display_foam_solvers_table()
