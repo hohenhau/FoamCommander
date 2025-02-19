@@ -148,28 +148,40 @@ def create_surface_features_dict(patch_names):
 
 
 def create_change_dictionary_dict(patch_names):
-    """Creates the changeDictionaryDict.gen file."""
-    print("Creating surfaceFeaturesDict.gen...")
-    template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "changeDictionaryDict")  # Template file
+    """Creates the createBafflesCyclics.gen file."""
+    print("Creating createBafflesCyclics.gen...")
+    template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "createBafflesCyclics")  # Template file
     output_path = os.path.join(SYSTEM_DIR, "changeDictionaryDict.gen")
-    replacement_pattern = r'.*\$DICTIONARY_CHANGES\$.*\n'  # Match any line containing $STL_FILES$
+    replacement_pattern = r'.*\$CYCLIC_BAFFLES\$.*\n'  # Match any line containing $STL_FILES$
     replacement_text = str()
     for patch in patch_names:
         patch_type = get_patch_type_from_patch_name(patch)
         if patch_type not in {'baffle', 'cyclic', 'cyclicAMI'}:
             continue
-        replacement_text += f'    {patch}\n'
-        replacement_text += f'    {{\n'
-        replacement_text += f'        type              cyclic;\n'
-        replacement_text += f'        neighbourPatch    {patch}_slave;\n'
-        replacement_text += f'        //matchTolerance  0.001;\n'
-        replacement_text += f'    }}\n'
-        replacement_text += f'    {patch}_slave\n'
-        replacement_text += f'    {{\n'
-        replacement_text += f'        type              cyclic;\n'
-        replacement_text += f'        neighbourPatch    {patch};\n'
-        replacement_text += f'        //matchTolerance  0.001;\n'
-        replacement_text += f'    }}\n'
+        replacement_text += f"""
+                            {patch}  // First baffle to be created
+                            {{
+                               type        faceZone;      // select faces & orientation
+                               zoneName    {patch}Faces;  // name specified in snappyhexmesh
+                            
+                               patches
+                               {{
+                                   master  // Master side patch
+                                   {{
+                                       type            cyclic;
+                                       name            {patch};
+                                       neighbourPatch  {patch}_slave;
+                                   }}
+                            
+                                   slave  // Slave side patch
+                                   {{
+                                       type            cyclic;
+                                       name            {patch}_slave;
+                                       neighbourPatch  {patch};
+                                   }}
+                               }}
+                            }}
+                            """
     # Define the patterns to match the entire lines containing the variables
     patterns_and_replacements = [(r'.*\$DICTIONARY_CHANGES\$.*\n', replacement_text)]
     # Perform the replacements
