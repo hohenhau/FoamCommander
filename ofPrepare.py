@@ -41,10 +41,10 @@ def get_patch_type_from_patch_name(input_patch_name: str):
     common_patch_types['cellSelector'] = 'cellSelector'
     common_patch_types['honeycomb'] = 'cellSelector'
     # Define types that have overlapping names with the common types
-    overlapping_patch_types = {'cyclicAMI': 'cyclicAMI',             # Overlaps with cyclic
-                               'noSlip': 'noSlip',                   # Overlaps with slip
-                               'symmetryPlane': 'symmetryPlane',     # Overlaps with symmetry
-                               'inletOutlet': 'inletOutlet',         # Overlaps with inlet & outlet
+    overlapping_patch_types = {'cyclicAMI': 'cyclicAMI',  # Overlaps with cyclic
+                               'noSlip': 'noSlip',  # Overlaps with slip
+                               'symmetryPlane': 'symmetryPlane',  # Overlaps with symmetry
+                               'inletOutlet': 'inletOutlet',  # Overlaps with inlet & outlet
                                'nonRotating': 'movingWallVelocity'}  # Overlaps with rotating
     # Convert all KEYS to lower case
     common_patch_types = {key.lower(): value for key, value in common_patch_types.items()}
@@ -70,10 +70,10 @@ def get_boundary_type_from_patch_name(input_patch_name: str):
     common_boundary_types['wall'] = 'zeroGradient'
     common_boundary_types['baffle'] = 'cyclic'
     # Define types that have overlapping names with the common types
-    overlapping_boundary_types = {'noSlip': 'noSlip',                # Overlaps with slip
+    overlapping_boundary_types = {'noSlip': 'noSlip',  # Overlaps with slip
                                   'symmetryPlane': 'symmetryPlane',  # Overlaps with symmetry
-                                  'inletOutlet': 'inletOutlet',      # Overlaps with inlet & outlet
-                                  'cyclicAMI': 'cyclicAMI'}          # Overlaps with cyclic
+                                  'inletOutlet': 'inletOutlet',  # Overlaps with inlet & outlet
+                                  'cyclicAMI': 'cyclicAMI'}  # Overlaps with cyclic
     # Convert all KEYS to lower case
     common_boundary_types = {key.lower(): value for key, value in common_boundary_types.items()}
     overlapping_boundary_types = {key.lower(): value for key, value in overlapping_boundary_types.items()}
@@ -150,21 +150,22 @@ def create_surface_features_dict(patch_names):
 def create_create_baffles_dict(patch_names):
     """Creates the createBafflesCyclics.gen file."""
     print("Creating createBafflesCyclics.gen...")
-    template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "createBafflesCyclics")  # Template file
-    output_path = os.path.join(SYSTEM_DIR, "changeDictionaryDict.gen")
+    template_name = 'createBafflesCyclics'
+    template_path = os.path.join(TEMPLATE_SYSTEM_DIR, template_name)  # Template file
+    output_path = os.path.join(SYSTEM_DIR, f'{template_name}.gen')
     replacement_pattern = r'.*\$CYCLIC_BAFFLES\$.*\n'  # Match any line containing $STL_FILES$
     replacement_text = str()
     for patch in patch_names:
         patch_type = get_patch_type_from_patch_name(patch)
         if patch_type not in {'baffle', 'cyclic', 'cyclicAMI'}:
             continue
-        print(f'Creating baffle entry for {patch} in {output_path}')
+        print(f'Creating baffle entry for {patch} in system/{template_name}')
         replacement_text += f"""
                             {patch}  // First baffle to be created
                             {{
                                type        faceZone;      // select faces & orientation
                                zoneName    {patch}Faces;  // name specified in snappyhexmesh
-                            
+
                                patches
                                {{
                                    master  // Master side patch
@@ -173,7 +174,7 @@ def create_create_baffles_dict(patch_names):
                                        name            {patch};
                                        neighbourPatch  {patch}_slave;
                                    }}
-                            
+
                                    slave  // Slave side patch
                                    {{
                                        type            cyclic;
@@ -202,7 +203,7 @@ def create_snappy_hex_mesh_dict(patch_names):
         mesh_block += f'{" " * 12}{{file "{patch}.eMesh"; level 3;}}\n'
         patch_type = get_patch_type_from_patch_name(patch)
         print(f'Matched {patch} with {patch_type}')
-        if patch_type == 'baffle':   # Options for faceType are {internal, baffle, and boundary}
+        if patch_type == 'baffle':  # Options for faceType are {internal, baffle, and boundary}
             surface_block += f'{" " * 12}{patch} {{level (0 0); faceZone {patch}Faces; faceType baffle;}}\n'
             layer_block += f'{" " * 8}{patch}{{nSurfaceLayers 0;}}  // Stops layers from disrupting baffle surface\n'
         elif patch_type == 'cellSelector':
@@ -275,7 +276,8 @@ def create_zero_boundaries(names, fm):
 
     field_configs = {
         'U': {'types': {'wall': 'fixedValue'},
-              'values': {'inlet': 'uniform (0 0 0)', 'wall': 'uniform (0 0 0)', 'movingWallVelocity': 'uniform (0 0 0)'},
+              'values': {'inlet': 'uniform (0 0 0)', 'wall': 'uniform (0 0 0)',
+                         'movingWallVelocity': 'uniform (0 0 0)'},
               'internal_field': 0},
 
         'p': {'types': {'inlet': 'zeroGradient', 'outlet': 'fixedValue'},
