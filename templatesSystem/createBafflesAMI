@@ -48,7 +48,7 @@ baffles  // Define baffles to be created
     cyclicAMI_BBoth  // Name of the baffle
     {
         type        faceZone;      // Select faces & orientation
-        zoneName    porousBaffleBFaces;  // Face zone name as defined in snappyHexMesh
+        zoneName    baffleAMI_BFaces;  // Face zone name as defined in snappyHexMesh
 
         patches
         {
