@@ -1,0 +1,72 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version: 12                                     |
+|   \\  /    A nd           | Web:      www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      createBafflesDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Only relevant if your face selection type can pick up a boundary
+internalFacesOnly true;  // Ensures only internal faces are selected
+
+baffles  // Define baffles to be created
+{
+    cyclicAMI_ABoth  // Name of the baffle
+    {
+        type        faceZone;      // Select faces & orientation
+        zoneName    baffleAMI_AFaces;  // Face zone name as defined in snappyHexMesh
+
+        patches
+        {
+            master  // Master patch
+            {
+                name            cyclicAMI_A;
+                type            cyclicAMI;
+                neighbourPatch  cyclicAMI_A_slave;
+            }
+        
+            slave  // Slave patch
+            {
+                name            porousBaffleA_slave;
+                type            cyclic;
+                neighbourPatch  porousBaffleA;
+            }
+        }
+    }
+
+    
+    cyclicAMI_BBoth  // Name of the baffle
+    {
+        type        faceZone;      // Select faces & orientation
+        zoneName    porousBaffleBFaces;  // Face zone name as defined in snappyHexMesh
+
+        patches
+        {
+            master  // Master patch
+            {
+                name            porousBaffleB;
+                type            cyclic;
+                neighbourPatch  porousBaffleB_slave;
+            }
+        
+            slave  // Slave patch
+            {
+                name            porousBaffleB_slave;
+                type            cyclic;
+                neighbourPatch  porousBaffleB;
+            }
+        }
+    }
+}
+
+// ************************************************************************* //
