@@ -34,7 +34,7 @@ boundaryField
     {
         type            slip;
     }
-    #include "constant/setConstraintTypes"
+    #include "setConstraintTypes"
 }
 
 // ************************************************************************* //

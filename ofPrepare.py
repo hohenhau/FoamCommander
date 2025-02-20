@@ -25,15 +25,13 @@ def initialisation():
         sys.exit(1)
     # Ensure directories exist
     os.makedirs(ZERO_DIR, exist_ok=True)
-
-
-def copy_files_from_templates():
+    
+    # Define some common boundary constraints
     set_constraint_types_path = os.path.join(TEMPLATE_CONSTANT_DIR, "setConstraintTypes")
-    set_constraint_types_target = os.path.join(CURRENT_DIR, "constant")
     # Copy the setConstraintTypes file from template to the target directory
     try:
-        shutil.copy(set_constraint_types_path, set_constraint_types_target)
-        print(f"Successfully copied 'setConstraintTypes' to {set_constraint_types_target}")
+        shutil.copy(set_constraint_types_path, ZERO_DIR)
+        print(f"Successfully copied 'setConstraintTypes' to {ZERO_DIR}")
     except Exception as e:
         print(f"Error copying 'setConstraintTypes': {e}")
         sys.exit(1)
@@ -368,7 +366,6 @@ def create_zero_boundaries(names, fm):
 def prepare_files():
     print(f"Processing directory: {CURRENT_DIR}")
     initialisation()
-    copy_files_from_templates()
     patch_names = load_and_process_stl_files()
     create_surface_features_dict(patch_names)
     create_snappy_hex_mesh_dict(patch_names)
