@@ -273,15 +273,15 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
         if patch_type in {'cellSelector'}:
             print(f'Not processing {patch_type} as an external boundary or baffle')
             continue
-        # Take care of the special rotating if statement
-        if patch_type in boundary_vals and '$timeScheme' in boundary_vals[patch_type]:
-            boundary_block += boundary_vals[patch_type]
-            continue
         # Double up cyclic boundaries and baffles
         if patch_type in {'baffle', 'cyclic'}:
             patches = [f"{patch}{ending}" for patch in patches for ending in ['', '_slave']]
         # Join patches with '|' and wrap in parentheses
         patch_group = f'"{patches[0]}"' if len(patches) == 1 else f'"({"|".join(patches)})"'
+        # Take care of the special rotating if statement
+        if patch_type in boundary_vals and '$timeScheme' in boundary_vals[patch_type]:
+            boundary_block += boundary_vals[patch_type]
+            continue
         # Add the patch text to the text block
         boundary_block += f'    {patch_group}\n    {{\n'
         boundary_block += f'        type            {local_boundary_types[patch_type]};\n'
