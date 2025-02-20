@@ -268,33 +268,33 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
         patch_group = f'"{patches[0]}"' if len(patches) == 1 else f'"({"|".join(patches)})"'
         # Add the patch text to the text block
         boundary_block += f'    {patch_group}\n    {{\n'
-        if patch_type == 'rotating':
-            boundary_block += (f'{" " * 4}{{\n'
-                               f'{" " * 8}timeScheme      ${{${{FOAM_CASE}} /system/fvSchemes!ddtSchemes/default}};\n'
-                               f'{" " * 8}#ifeq $timeScheme steadyState\n'
-                               f'{" " * 12}type            MRFnoSlip;\n'
-                               f'{" " * 8}#else\n'
-                               f'{" " * 12}type            movingWallVelocity;\n'
-                               f'{" " * 8}#endif\n'
-                               f'{" " * 12}value           uniform (0 0 0);\n')
-        else:
-            boundary_block += f'        type            {local_boundary_types[patch_type]};\n'
-        if patch_type in boundary_vals:
+        boundary_block += f'        type            {local_boundary_types[patch_type]};\n'
+        if patch_type in boundary_vals and '$timeScheme' in boundary_vals[patch_type]:
+            boundary_block += boundary_vals[patch_type]        
+        elif patch_type in boundary_vals:
             boundary_block += f'        value           {boundary_vals[patch_type]};\n'
-            boundary_block += '    }\n'
-            boundary_block += '    #include "constant/setConstraintTypes"\n'
-            # Define the value block   float('%.*g' % (3, internal_val))
-            internal_field_block = f"internalField   uniform {float('%.*g' % (3, internal_val))};  // Adjust to simulation"
-            # Define the patterns to match the entire lines containing the variables
-            patterns_and_replacements = [(r'.*\$INTERNAL_FIELD\$.*\n', internal_field_block),
-                                         (r'.*\$BOUNDARY_FIELDS\$.*\n', boundary_block)]
-            # Perform the replacements
-            perform_regex_replacements(patterns_and_replacements, template_path, output_path)
-            print(f"snappyHexMeshDict.gen created at: {output_path}")
+        boundary_block += '    }\n'
+        # Define the value block   float('%.*g' % (3, internal_val))
+        internal_field_block = f"internalField   uniform {float('%.*g' % (3, internal_val))};  // Adjust to simulation"
+        # Define the patterns to match the entire lines containing the variables
+        patterns_and_replacements = [(r'.*\$INTERNAL_FIELD\$.*\n', internal_field_block),
+                                     (r'.*\$BOUNDARY_FIELDS\$.*\n', boundary_block)]
+        # Perform the replacements
+        perform_regex_replacements(patterns_and_replacements, template_path, output_path)
+        print(f"snappyHexMeshDict.gen created at: {output_path}")
 
 
 def create_zero_boundaries(names, fm):
     """Build the zero files for the various fields and boundaries"""
+
+    rotating_u_value = (f'{" " * 4}{{\n'
+                        f'{" " * 8}timeScheme      ${{${{FOAM_CASE}} /system/fvSchemes!ddtSchemes/default}};\n'
+                        f'{" " * 8}#ifeq $timeScheme steadyState\n'
+                        f'{" " * 12}type            MRFnoSlip;\n'
+                        f'{" " * 8}#else\n'
+                        f'{" " * 12}type            movingWallVelocity;\n'
+                        f'{" " * 8}#endif\n'
+                        f'{" " * 12}value           uniform (0 0 0);\n')
 
     kqr_wf = 'kqRWallFunction'
     epsilon_wf = 'epsilonWallFunction'
@@ -303,27 +303,27 @@ def create_zero_boundaries(names, fm):
 
     field_configs = {
         'U': {'types': {'wall': 'fixedValue', 'MRFnoSlip': 'MRFnoSlip', 'movingWallVelocity': 'movingWallVelocity'},
-              'values': {'inlet': 'uniform (0 0 0)', 'wall': 'uniform (0 0 0)',
+              'values': {'inlet': 'uniform (0 0 0)', 'wall': 'uniform (0 0 0)', 'rotating': rotating_u_value,
                          'movingWallVelocity': 'uniform (0 0 0)'},
               'internal_field': 0},
 
         'p': {'types': {'inlet': 'zeroGradient', 'outlet': 'fixedValue'},
-              'values': {'outlet': 'uniform 0'},
+              'values': {'outlet': 'uniform 0', 'rotating': 'asdf'},
               'internal_field': 0},
 
         'k': {'types': {'wall': kqr_wf, 'movingWallVelocity': kqr_wf, 'MRFnoSlip': kqr_wf},
-              'values': {'inlet': '$internalField', 'wall': 'uniform 0',
+              'values': {'inlet': '$internalField', 'wall': 'uniform 0', 'rotating': 'uniform 0',
                          'MRFnoSlip': 'uniform 0', 'movingWallVelocity': 'uniform 0'},
               'internal_field': fm.turb_kinetic_energy.value},
 
         'epsilon': {'types': {'wall': epsilon_wf, 'movingWallVelocity': epsilon_wf, 'MRFnoSlip': epsilon_wf},
-                    'values': {'inlet': '$internalField', 'wall': 'uniform 0',
+                    'values': {'inlet': '$internalField', 'wall': 'uniform 0', 'rotating': 'uniform 0',
                                'MRFnoSlip': 'uniform 0', 'movingWallVelocity': 'uniform 0'},
                     'internal_field': fm.turb_dissipation_rate.value},
 
         'nut': {'types': {'inlet': 'calculated', 'outlet': 'calculated',
                           'wall': nut_wf, 'movingWallVelocity': nut_wf, 'MRFnoSlip': nut_wf},
-                'values': {'inlet': 'uniform 0', 'outlet': 'uniform 0', 'wall': 'uniform 0',
+                'values': {'inlet': 'uniform 0', 'outlet': 'uniform 0', 'wall': 'uniform 0', 'rotating': 'uniform 0',
                            'MRFnoSlip': 'uniform 0', 'movingWallVelocity': 'uniform 0'},
                 'internal_field': fm.turb_viscosity.value},
 
@@ -332,13 +332,13 @@ def create_zero_boundaries(names, fm):
                     'internal_field': 0},
 
         'omega': {'types': {'wall': omega_wf, 'movingWallVelocity': omega_wf, 'MRFnoSlip': omega_wf},
-                  'values': {'inlet': '$internalField', 'wall': 'uniform 1e5',
+                  'values': {'inlet': '$internalField', 'wall': 'uniform 1e5', 'rotating': '',
                              'MRFnoSlip': 'uniform 1e5', 'movingWallVelocity': 'uniform 1e5'},
                   # value for wall needs to be high (1e5 or 1e6)
                   'internal_field': fm.specific_dissipation.value},
 
         'kl': {'types': {'wall': 'fixedValue', 'movingWallVelocity': 'fixedValue', 'MRFnoSlip': 'fixedValue'},
-               'values': {'inlet': 'uniform 0', 'wall': 'uniform 0',
+               'values': {'inlet': 'uniform 0', 'wall': 'uniform 0', 'rotating': 'uniform 0',
                           'MRFnoSlip': 'uniform 0', 'movingWallVelocity': 'uniform 0'},
                'internal_field': 0},
 
