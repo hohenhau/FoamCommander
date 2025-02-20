@@ -43,13 +43,13 @@ functions
         enabled          true;                            // Make it active (optional)
     }
 
-    turbulenceFields
+    turbulenceFields  // Calcluate Turbulence length scale (L) & Turbulence Intensity (I)
     {
         type             turbulenceFields;                // Type of function (mandatory)
         libs             ("libfieldFunctionObjects.so");  // Library to be used (mandatory)
-        writeControl     writeTime;                       // Optional (inherited) entries
-        fields           (L I);                           // What triggers write (optional)
-        enabled          false;                           // Make it active (optional)
+        writeControl     writeTime;                       // What triggers write (optional)
+        fields           (L I);                           // Fields to include (optional)
+        enabled          true;                            // Make it active (optional)
     }
 
     forces
