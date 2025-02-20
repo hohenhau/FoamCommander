@@ -1,62 +1,68 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  www.openfoam.org
+    \\  /    A nd           | Version:  User generated
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      functions;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
 functions
 {
+    residuals
+    {
+        type             residuals;                         // Type of function (mandatory)
+        libs             ("libutilityFunctionObjects.so");  // Library to be used (mandatory)
+        writeControl     timeStep;                          // What triggers write (optional)
+        fields           (".*");                            // Fields to check (optional)
+        enabled          true;                              // Make it active (optional)
+    }
+
     CourantNo
     {
-        type             CourantNo;                       // Mandatory entries (unmodifiable)
-        libs             ("libfieldFunctionObjects.so");  // Mandatory entries (unmodifiable)
-        executeControl   writeTime;                       // Optional (inherited) entries
-        executeInterval  1;                               // Optional (inherited) entries
-        writeControl     writeTime;                       // Optional (inherited) entries
-        writeInterval    1;                               // Optional (inherited) entries
-        enabled          true;                            // Optional (inherited) entries
+        type             CourantNo;                       // Type of function (mandatory)
+        libs             ("libfieldFunctionObjects.so");  // Library to be used (mandatory)
+        writeControl     writeTime;                       // What triggers write (optional)
+        enabled          true;                            // Make it active (optional)
     }
 
     yPlus
     {
-        type             yPlus;                           // Mandatory entries (unmodifiable)
-        libs             ("libfieldFunctionObjects.so");  // Mandatory entries (unmodifiable)
-        executeInterval  1;                               // Optional (inherited) entries
-        writeControl     writeTime;                       // Optional (inherited) entries
-        writeInterval    1;                               // Optional (inherited) entries
-        enabled          true;                            // Optional (inherited) entries
+        type             yPlus;                           // Type of function (mandatory)
+        libs             ("libfieldFunctionObjects.so");  // Library to be used (mandatory)
+        writeControl     writeTime;                       // What triggers write (optional)
+        enabled          true;                            // Make it active (optional)
     }
 
     turbulenceFields
     {
-        type             turbulenceFields;                // Mandatory entries (unmodifiable)
-        libs             ("libfieldFunctionObjects.so");  // Mandatory entries (unmodifiable)
-        executeControl   writeTime;                       // Optional (inherited) entries
-        executeInterval  1;                               // Optional (inherited) entries
+        type             turbulenceFields;                // Type of function (mandatory)
+        libs             ("libfieldFunctionObjects.so");  // Library to be used (mandatory)
         writeControl     writeTime;                       // Optional (inherited) entries
-        writeInterval    1;                               // Optional (inherited) entries
-        fields           (L I);                           // Mandatory entries (runtime modifiable)
-        enabled          false;                           // Optional (inherited) entries
-    }
-
-    residuals
-    {
-        type             residuals;                         // Mandatory entries (unmodifiable)
-        libs             ("libutilityFunctionObjects.so");  // Mandatory entries (unmodifiable)
-        executeControl   writeTime;                         // Optional (inherited) entries
-        executeInterval  1;                                 // Optional (inherited) entries
-        writeControl     timeStep;                          // Optional (inherited) entries
-        writeInterval    1;                                 // Optional (inherited) entries
-        fields           (".*");                            // Mandatory entries (runtime modifiable)
-        enabled          true;                              // Optional (inherited) entries
+        fields           (L I);                           // What triggers write (optional)
+        enabled          false;                           // Make it active (optional)
     }
 
     forces
     {
-        type             forces;
-        libs             ("libforces.so");
-        writeControl     timeStep;
-        timeInterval     1;
-        log              yes;
-        patches          ("propeller.*");
-        rho              rhoInf;     // Indicates incompressible
-        log              true;
-        rhoInf           1;          // Redundant for incompressible
-        CofR             (0 0 0);    // Rotation around centre line of propeller
-        pitchAxis        (0 1 0);
+        type             forces;            // Type of function (mandatory)  
+        libs             ("libforces.so");  // Library to be used (mandatory)
+        writeControl     writeTime;         // What triggers write (optional)
+        log              true;              // Write to log? (optional)
+        patches          ("propeller.*");   // Patches to be included
+        rho              rhoInf;            // Indicates incompressible
+        rhoInf           1;                 // Redundant for incompressible
+        CofR             (0 0 0);           // Center of rotation
+        pitchAxis        (0 0 1);           // Often set to the rotational axis
+        enabled          false;             // Make it active (optional)
     }
 }
