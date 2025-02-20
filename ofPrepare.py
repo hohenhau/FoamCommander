@@ -304,11 +304,11 @@ def create_zero_boundaries(names, fm):
 
     rotating_u_value = (f'{" " * 8}timeScheme      ${{${{FOAM_CASE}} /system/fvSchemes!ddtSchemes/default}};\n'
                         f'{" " * 8}#ifeq $timeScheme steadyState\n'
-                        f'{" " * 12}type            MRFnoSlip;\n'
+                        f'{" " * 8}type            MRFnoSlip;\n'
                         f'{" " * 8}#else\n'
-                        f'{" " * 12}type            movingWallVelocity;\n'
+                        f'{" " * 8}type            movingWallVelocity;\n'
                         f'{" " * 8}#endif\n'
-                        f'{" " * 12}value           uniform (0 0 0);\n'
+                        f'{" " * 8}value           uniform (0 0 0);\n'
                         f'{" " * 4}}}\n')
 
     field_configs = {
