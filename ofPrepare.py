@@ -268,22 +268,23 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
         patch_groups[patch_type].append(name)
     boundary_block = str()
     # Grouped patches in regex format using pipe separator
-    for patch_type, patches in patch_groups.items():
+    for patch_type, patch_group in patch_groups.items():
         # Do not add surfaces associated with honeycombs or cell selectors as boundaries
         if patch_type in {'cellSelector'}:
             print(f'Not processing {patch_type} as an external boundary or baffle')
             continue
         # Double up cyclic boundaries and baffles
         if patch_type in {'baffle', 'cyclic'}:
-            patches = [f"{patch}{ending}" for patch in patches for ending in ['', '_slave']]
+            patch_group = [f"{patch}{ending}" for patch in patch_group for ending in ['', '_slave']]
         # Join patches with '|' and wrap in parentheses
-        patch_group = f'"{patches[0]}"' if len(patches) == 1 else f'"({"|".join(patches)})"'
+        group_name = f'"{patch_group[0]}"' if len(patch_group) == 1 else f'"({"|".join(patch_group)})"'
+        # Add the patch text to the text block
+        boundary_block += f'    {group_name}\n    {{\n'
         # Take care of the special rotating if statement
         if patch_type in boundary_vals and '$timeScheme' in boundary_vals[patch_type]:
             boundary_block += boundary_vals[patch_type]
             continue
-        # Add the patch text to the text block
-        boundary_block += f'    {patch_group}\n    {{\n'
+        # Add the patch type and value to the block
         boundary_block += f'        type            {local_boundary_types[patch_type]};\n'
         if patch_type in boundary_vals:
             boundary_block += f'        value           {boundary_vals[patch_type]};\n'
