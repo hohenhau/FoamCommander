@@ -1,10 +1,11 @@
 /*--------------------------------*- C++ -*----------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Version:  12
+   \\    /   O peration     | Website:  www.openfoam.org
+    \\  /    A nd           | Version:  User generated
      \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
+
 FoamFile
 {
     format      ascii;
@@ -12,6 +13,7 @@ FoamFile
     location    "system";
     object      createNonConformalCouplesDict;
 }
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 fields  no;  // Add boundary conditions for the added patch to the fields
