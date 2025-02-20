@@ -52,53 +52,5 @@ adjustTimeStep  yes; // Adjusts timestep based on Courant Number
 
 maxCo           0.999; // Set to below 1 for good stability
 
-functions
-{
-    CourantNo
-    {
-        type                    CourantNo;                              // Mandatory entries (unmodifiable)
-        libs                    ("libfieldFunctionObjects.so");         // Mandatory entries (unmodifiable)
-        executeControl          writeTime;                              // Optional (inherited) entries
-        executeInterval         1;                                      // Optional (inherited) entries
-        writeControl            writeTime;                              // Optional (inherited) entries
-        writeInterval           1;                                      // Optional (inherited) entries
-        enabled                 true;                                   // Optional (inherited) entries
-    }
-
-    yPlus
-    {
-        type                    yPlus;                                  // Mandatory entries (unmodifiable)
-        libs                    ("libfieldFunctionObjects.so");         // Mandatory entries (unmodifiable)
-        executeInterval         1;                                      // Optional (inherited) entries
-        writeControl            writeTime;                              // Optional (inherited) entries
-        writeInterval           1;                                      // Optional (inherited) entries
-        enabled                 true;                                   // Optional (inherited) entries
-    }
-
-    turbulenceFields
-    {
-        type                    turbulenceFields;                       // Mandatory entries (unmodifiable)
-        libs                    ("libfieldFunctionObjects.so");         // Mandatory entries (unmodifiable)
-        executeControl          writeTime;                              // Optional (inherited) entries
-        executeInterval         1;                                      // Optional (inherited) entries
-        writeControl            writeTime;                              // Optional (inherited) entries
-        writeInterval           1;                                      // Optional (inherited) entries
-        fields                  (L I);                                  // Mandatory entries (runtime modifiable)
-        enabled                 false;                                   // Optional (inherited) entries
-    }
-
-    residuals
-    {
-        type                    residuals;                              // Mandatory entries (unmodifiable)
-        libs                    ("libutilityFunctionObjects.so");       // Mandatory entries (unmodifiable)
-        executeControl          writeTime;                              // Optional (inherited) entries
-        executeInterval         1;                                      // Optional (inherited) entries
-        writeControl            timeStep;                               // Optional (inherited) entries
-        writeInterval           1;                                      // Optional (inherited) entries
-        fields                  (".*");                                 // Mandatory entries (runtime modifiable)
-        enabled                 true;                                   // Optional (inherited) entries
-    }
-}
-
-// ************************************************************************* //
+functions      {#include "functions"} // Include from functions file
 
