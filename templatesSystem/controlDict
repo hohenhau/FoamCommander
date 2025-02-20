@@ -1,9 +1,9 @@
 /*--------------------------------*- C++ -*----------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  User generated                        |
-|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
-|    \\/     M anipulation  |                                                 |
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  www.openfoam.org
+    \\  /    A nd           | Version:  User generated
+     \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 
 FoamFile
@@ -51,6 +51,3 @@ runTimeModifiable true; // Parameters can be modified during the simulation
 adjustTimeStep  yes; // Adjusts timestep based on Courant Number
 
 maxCo           0.999; // Set to below 1 for good stability
-
-functions      {#include "functions"} // Include from functions file
-
