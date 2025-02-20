@@ -16,66 +16,22 @@ FoamFile
 
 fields  no;  // Add boundary conditions for the added patch to the fields
 
-// The list of non-conformal couples to be created. Each entry in this section
-// creates a single non-conformal coupling. Check the following for more info:
-// OpenFOAM-12/etc/caseDicts/annotated/createNonConformalCouplesDict
-
-nonConformalCouples
+nonConformalCouples  // The list of non-conformal couples to be created
 {
-    /*
-    // Unique name used to generate the name of the coupled patches
-    <name>
+    baffleNCC_AGroup
     {
-        // Name of the two original patches between which to create the coupling
-        patches         (<patch1> <patch2>);
-
-        // Type of the transformation; "none", "rotational", or "translational"
-        transform       <transformType>;
-
-        // Additional transformation settings (if any)
-        ...
+        patches         (baffleNCC_A baffleNCC_A_slave);
+        transform       none;  // Options {none, rotational, & translational}
     }
-    */
-
-    // Example: Create a non-conformal cyclic coupling with no transformation
-    nonConformalCouple_none
+    baffleNCC_BGroup
     {
-        patches         (nonCouple1 nonCouple2);
-        transform       none;
-    }
-
-    // Example: Create a non-conformal cyclic coupling with a 30 degree
-    // rotational transformation
-    nonConformalCouple_30deg
-    {
-        patches         (nonCoupleBehind nonCoupleAhead);
-        transform       rotational;
-        rotationAxis    (-1 0 0);
-        rotationCentre  (0 0 0);
-        rotationAngle   30;
-    }
-
-    // Example: Create a non-conformal cyclic coupling with a 2 metre
-    // translational transformation
-    nonConformalCouple_2m
-    {
-        patches         (nonCoupleBack nonCoupleFront);
-        transform       translational;
-        separation      (0 2 0);
-    }
-
-    // Example: Create a non-conformal mapped-wall coupling between a fluid and
-    // a solid region
-    fluidSolid
-    {
-        regions         (fluid solid);
-        patches         (nonCoupleRotating nonCoupleStationary);
+        patches         (baffleNCC_B baffleNCC_B_slave);
+        transform       none;  // Options {none, rotational, & translational}
     }
 }
 
-// Note that in rare cases it may be appropriate to create multiple couplings
-// between the same two patches. That can be achieved with multiple entries
-// with the same patches specified. See the
-// modules/incompressibleFluid/impeller tutorial for an example of this.
+// Check the following for more info:
+// OpenFOAM-12/etc/caseDicts/annotated/createNonConformalCouplesDict and
+// https://cfd.direct/openfoam/free-software/using-non-conformal-coupling/
 
 // ************************************************************************* //
