@@ -24,10 +24,10 @@ multipleReferenceZoneA  // Definitions of the multiple reference frame (i.e. pro
     // CAUTION: remember to update the boundaries in 0/U to "movingWallVelocity", "slip", or "MRFnoSlip"
     nonRotatingPatches (nonRotatingWall);  // Keeps the rotatingWall stationary in the lab frame
 
-    origin          (0 0 0);  // Adjust to match rotation location
-    axis            (0 0 1);  // Adjust based on rotation axis
-    omega           10;       // Radians per second (1 RPM = 0.10472 rad/s)
-    // omega   200 [rpm];     // Alternative definition in RPM
+    origin    (0 0 0);     // Location of the rotation
+    axis      (0 0 1);     // Axis of revoultion
+    omega     200 [rpm];   // Revolutions per minute
+    // omega  10;          // Radians per second (1 RPM = 0.10472 rad/s)
 }
 
 // ************************************************************************* //
