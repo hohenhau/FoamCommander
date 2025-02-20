@@ -1,0 +1,133 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  www.openfoam.org
+    \\  /    A nd           | Version:  User generated
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;  // Template for transient PIMPLE algorithm
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers  // Numerical algorithms used to solve the field equations
+{
+    p
+    {
+        solver          GAMG;  // Standard algorithm for pressure
+        smoother        GaussSeidel; // Slow but robust solver for GAMG
+        tolerance       1e-6;  // Absolute tolerance of the residual
+        relTol          0.01;  // Relative tolerance compared to start of iteration
+    }
+
+    pFinal  // Changed settings for the final iteration
+    {
+        solver          GAMG;  // Standard algorithm for pressure
+        smoother        GaussSeidel; // Slow but robust solver for GAMG
+        tolerance       1e-08; // Absolute tolerance of the residual
+        relTol          1e-06; // Relative tolerance compared to start of iteration
+    }
+
+    "(U|k|epsilon|omega)"
+    {
+        solver          PBiCG; // Slightly slower but robust solver
+        preconditioner  DILU;  // Good for PBiCG & non-symmetric matrices
+        tolerance       1e-6;  // Absolute tolerance of the residual
+        relTol          0.01;  // Relative tolerance compared to start of iteration
+    }
+
+    "(U|k|omega)Final"  // Changed settings for the final iteration
+    {
+        solver          PBiCG; // Slightly slower but robust solver
+        preconditioner  DILU;  // Good for PBiCG & non-symmetric matrices
+        tolerance       1e-08; // Absolute tolerance of the residual
+        relTol          1e-06; // Relative tolerance compared to start of iteration
+    }
+}
+/* ------------------------ Solver Options & Notes ------------------------- *\
+solver - The algorithm to solve the linear system of equations (matrices) for a 
+field. Symmetric matrices (A = transpose(A)) are for diffusion-like terms, while 
+non-symmetric matrices are for turbulence & velocity. Common solver option are:
+   - GAMG = Geometric-Algebraic MultiGrid - usually used for Pressure
+   - smoothSolver = Smoothed solver - fast/fragile compared to PBiCG
+   - PBiCG = Preconditioned Bi-Conjugate Gradient - slow/robust 
+   - PCG = Preconditioned Conjugate Gradient (only for symmetric matrices)
+
+smoother - Technique (for GAMG and smoothSolver) to reduce local errors during 
+each iteration by smoothing the solution field. Common options are:
+   - DIC = Diagonal-based incomplete Cholesky - good for symmetric GAMG - fast & somewhat robust
+   - DICGaussSeidel = Combination of DIC GaussSeidel
+   - GaussSeidel = Classic Gauss-Seidel - good for non-symmetri smoothSolver - slower but more robust
+   - symGaussSeidel = Symmetric Gauss-Seidel (good for smoothSolver) - somewhat robust
+
+preconditioner - Matrix-based technique transforming the a system of equations into an 
+equivalent one that is better *conditioned* and easier to solve. Common options are:
+   - DILU = Diagonal-based incomplete LU - good for non-symmetric matrices - fast & robust
+   - FDIC = Fast Diagonal-based Incomplete Cholesky - good for symmetic PCG - faster than DIC
+
+tolerance - is the absolute residual below which a solution for a variable
+is considered converged for a single solver iteration
+
+relTol - The relative tolerance stops the solver if the residual drop is small 
+compared to the initial residual of that iteration. To ignore set "relTol 0;"
+\*---------------------------------------------------------------------------*/
+
+
+PIMPLE  // Combination of PISO and SIMPLE algorithms (for transient simulations)
+{
+    nOuterCorrectors  2;  // Number of outer loops (typically 1-2 are sufficient for PIMPLE)
+    nCorrectors       2;  // Number of inner loops (typically 1-2 are sufficient for PIMPLE)
+    nNonOrthogonalCorrectors  1;  // Additional corrections for non-orthogonal meshes
+    momentumPredictor yes;  // Predict velocity before pressure correction to improve convergence
+    residualControl  // Threshold below which the solution is considered converged
+    {
+        p                           1e-4;
+        "U.*"                       1e-4;
+        "(k.*|epsilon.*|omega.*)"   1e-4;
+    }
+}
+/* ------------------------ PIMPLE Options & Notes ------------------------- *\
+SIMPLE Algorithm - Semi-Implicit Method for Pressure-Linked Equations
+PISO Algortihm   - Pressure Implicit with Splitting of Operator
+PIMPLE Algorithm - Combination of PISO and SIMPLE algorithms
+
+nOuterCorrectors - Outer loops to couple *all* equations. A value of 1 replicates PISO. 
+Higher values enable iterative corrections for better convergence in strongly-coupled 
+(i.e. turbulent) systems but also increase computational cost. Increase beyond 2 if 
+the case involves strong coupling between equations or challenging turbulence models
+
+nCorrectors - Inner loops to couple *momentum-pressure* equations. It increases the 
+accuracy of pressure-velocity coupling by solving the pressure equation multiple times.
+
+residualControl - Only applicable to some solvers, including GAMG and PBICG
+\*---------------------------------------------------------------------------*/
+
+
+relaxationFactors // Control under-relaxation to stabilize iterative solvers
+{
+    fields  // Applied to variables like pressure
+    {
+        p  1.0;  // 1.0 is typical for pressure in transient simulations
+    }
+    equations  // Applied to entire equations
+    {
+        "U.*"  1.0;  // 1.0 is typical for transient simulations
+        "(k.*|epsilon.*|omega.*)"  1.0;  // 1.0 is typical for transient simulations
+    }
+}
+/* ---------------------- Relaxation Options & Notes ----------------------- *\
+Relaxation Factors can be between 0 and 1. 1 means the solution fully updates
+with each step, O means the simulation does not update at all (not practical), 
+and a value beteen 0 and 1 blends the previous and current simulation. Lower
+factors increase stability but reduce rate of convergence. Typical values are
+between 0.3 and 0.7 for steady state solutions, but transient solutions often 
+use a value of 1.0 for faster convergence. 
+\*---------------------------------------------------------------------------*/
+
+// ************************************************************************* //
