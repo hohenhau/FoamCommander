@@ -317,7 +317,7 @@ def create_zero_boundaries(names, fm):
               'internal_field': 0},
 
         'p': {'types': {'inlet': 'zeroGradient', 'outlet': 'fixedValue'},
-              'values': {'outlet': 'uniform 0', 'rotating': 'asdf'},
+              'values': {'outlet': 'uniform 0'},
               'internal_field': 0},
 
         'k': {'types': {'wall': 'kqRWallFunction'},
