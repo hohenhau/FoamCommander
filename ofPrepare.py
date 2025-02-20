@@ -3,12 +3,14 @@
 import os
 import re
 import sys
+import shutil
 from ofEstimateInternalFields import estimate_internal_fields
 from ofParseArgs import detect_and_parse_arguments
 
 # Global Variables
 PY_FILE_PATH = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_BOUNDARY_DIR = os.path.join(PY_FILE_PATH, "templatesBoundary")
+TEMPLATE_CONSTANT_DIR = os.path.join(PY_FILE_PATH, "templatesConstant")
 TEMPLATE_SYSTEM_DIR = os.path.join(PY_FILE_PATH, "templatesSystem")
 CURRENT_DIR = os.getcwd()
 TRI_SURFACE_DIR = os.path.join(CURRENT_DIR, "constant", "triSurface")
@@ -25,6 +27,17 @@ def initialisation():
     os.makedirs(ZERO_DIR, exist_ok=True)
 
 
+def copy_files_from_templates():
+    set_constraint_types_path = os.path.join(TEMPLATE_CONSTANT_DIR, "setConstraintTypes")
+    set_constraint_types_target = os.path.join(CURRENT_DIR, "constant")
+    # Copy the setConstraintTypes file from template to the target directory
+    try:
+        shutil.copy(set_constraint_types_path, set_constraint_types_target)
+        print(f"Successfully copied 'setConstraintTypes' to {set_constraint_types_target}")
+    except Exception as e:
+        print(f"Error copying 'setConstraintTypes': {e}")
+        sys.exit(1)
+        
 def get_patch_type_from_patch_name(input_patch_name: str):
     """Determine the boundary type based the patch name. Needed for: 0/fields (e.g. 0/U)"""
     # Define the common and additional boundary types (baffle and cellSelector are custom)
@@ -257,6 +270,7 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
         if patch_type in boundary_vals:
             boundary_block += f'        value           {boundary_vals[patch_type]};\n'
         boundary_block += '    }\n'
+    boundary_block += '    #include "constant/setConstraintTypes"'
     # Define the value block   float('%.*g' % (3, internal_val))
     internal_field_block = f"internalField   uniform {float('%.*g' % (3, internal_val))};  // Adjust to simulation"
     # Define the patterns to match the entire lines containing the variables
@@ -339,6 +353,7 @@ def create_zero_boundaries(names, fm):
 def prepare_files():
     print(f"Processing directory: {CURRENT_DIR}")
     initialisation()
+    copy_files_from_templates()
     patch_names = load_and_process_stl_files()
     create_surface_features_dict(patch_names)
     create_snappy_hex_mesh_dict(patch_names)
