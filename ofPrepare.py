@@ -243,6 +243,18 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
     """Creates a file in the zero directory with grouped patch settings."""
     template_path = os.path.join(TEMPLATE_BOUNDARY_DIR, f"{field}")
     output_path = os.path.join(ZERO_DIR, field)
+
+    # Ensure there is an entry for walls
+    if 'wall' not in local_boundary_types:
+        local_boundary_types['wall'] = get_boundary_type_from_patch_name('wall')
+
+    # Copy wall entry to pseudo walls
+    for pseudo_wall in ['MRFnoSlip', 'movingWallVelocity', 'rotating']:
+        if pseudo_wall not in local_boundary_types:
+            local_boundary_types[pseudo_wall] = local_boundary_types['wall']
+            if pseudo_wall not in boundary_vals and 'wall' in boundary_vals:
+                boundary_vals[pseudo_wall] = boundary_vals['wall']
+
     # Group patches by type
     patch_groups = {}
     for name in names:
@@ -261,6 +273,10 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
         if patch_type in {'cellSelector'}:
             print(f'Not processing {patch_type} as an external boundary or baffle')
             continue
+        # Take care of the special rotating if statement
+        if patch_type in boundary_vals and '$timeScheme' in boundary_vals[patch_type]:
+            boundary_block += boundary_vals[patch_type]
+            continue
         # Double up cyclic boundaries and baffles
         if patch_type in {'baffle', 'cyclic'}:
             patches = [f"{patch}{ending}" for patch in patches for ending in ['', '_slave']]
@@ -269,9 +285,7 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
         # Add the patch text to the text block
         boundary_block += f'    {patch_group}\n    {{\n'
         boundary_block += f'        type            {local_boundary_types[patch_type]};\n'
-        if patch_type in boundary_vals and '$timeScheme' in boundary_vals[patch_type]:
-            boundary_block += boundary_vals[patch_type]        
-        elif patch_type in boundary_vals:
+        if patch_type in boundary_vals:
             boundary_block += f'        value           {boundary_vals[patch_type]};\n'
         boundary_block += '    }\n'
         # Define the value block   float('%.*g' % (3, internal_val))
@@ -296,11 +310,6 @@ def create_zero_boundaries(names, fm):
                         f'{" " * 8}#endif\n'
                         f'{" " * 12}value           uniform (0 0 0);\n')
 
-    kqr_wf = 'kqRWallFunction'
-    epsilon_wf = 'epsilonWallFunction'
-    nut_wf = 'nutUWallFunction'
-    omega_wf = 'epsilonWallFunction'
-
     field_configs = {
         'U': {'types': {'wall': 'fixedValue', 'MRFnoSlip': 'MRFnoSlip', 'movingWallVelocity': 'movingWallVelocity'},
               'values': {'inlet': 'uniform (0 0 0)', 'wall': 'uniform (0 0 0)', 'rotating': rotating_u_value,
@@ -311,40 +320,33 @@ def create_zero_boundaries(names, fm):
               'values': {'outlet': 'uniform 0', 'rotating': 'asdf'},
               'internal_field': 0},
 
-        'k': {'types': {'wall': kqr_wf, 'movingWallVelocity': kqr_wf, 'MRFnoSlip': kqr_wf},
-              'values': {'inlet': '$internalField', 'wall': 'uniform 0', 'rotating': 'uniform 0',
-                         'MRFnoSlip': 'uniform 0', 'movingWallVelocity': 'uniform 0'},
+        'k': {'types': {'wall': 'kqRWallFunction'},
+              'values': {'inlet': '$internalField', 'wall': 'uniform 0'},
               'internal_field': fm.turb_kinetic_energy.value},
 
-        'epsilon': {'types': {'wall': epsilon_wf, 'movingWallVelocity': epsilon_wf, 'MRFnoSlip': epsilon_wf},
-                    'values': {'inlet': '$internalField', 'wall': 'uniform 0', 'rotating': 'uniform 0',
-                               'MRFnoSlip': 'uniform 0', 'movingWallVelocity': 'uniform 0'},
+        'epsilon': {'types': {'wall': 'epsilonWallFunction'},
+                    'values': {'inlet': '$internalField', 'wall': 'uniform 0'},
                     'internal_field': fm.turb_dissipation_rate.value},
 
-        'nut': {'types': {'inlet': 'calculated', 'outlet': 'calculated',
-                          'wall': nut_wf, 'movingWallVelocity': nut_wf, 'MRFnoSlip': nut_wf},
-                'values': {'inlet': 'uniform 0', 'outlet': 'uniform 0', 'wall': 'uniform 0', 'rotating': 'uniform 0',
-                           'MRFnoSlip': 'uniform 0', 'movingWallVelocity': 'uniform 0'},
+        'nut': {'types': {'inlet': 'calculated', 'outlet': 'calculated', 'wall': 'nutUWallFunction'},
+                'values': {'inlet': 'uniform 0', 'outlet': 'uniform 0', 'wall': 'uniform 0'},
                 'internal_field': fm.turb_viscosity.value},
 
         'nuTilda': {'types': {},
                     'values': {'inlet': 'uniform 0'},
                     'internal_field': 0},
 
-        'omega': {'types': {'wall': omega_wf, 'movingWallVelocity': omega_wf, 'MRFnoSlip': omega_wf},
-                  'values': {'inlet': '$internalField', 'wall': 'uniform 1e5', 'rotating': '',
-                             'MRFnoSlip': 'uniform 1e5', 'movingWallVelocity': 'uniform 1e5'},
+        'omega': {'types': {'wall': 'epsilonWallFunction'},
+                  'values': {'inlet': '$internalField', 'wall': 'uniform 1e5'},
                   # value for wall needs to be high (1e5 or 1e6)
                   'internal_field': fm.specific_dissipation.value},
 
-        'kl': {'types': {'wall': 'fixedValue', 'movingWallVelocity': 'fixedValue', 'MRFnoSlip': 'fixedValue'},
-               'values': {'inlet': 'uniform 0', 'wall': 'uniform 0', 'rotating': 'uniform 0',
-                          'MRFnoSlip': 'uniform 0', 'movingWallVelocity': 'uniform 0'},
+        'kl': {'types': {'wall': 'fixedValue'},
+               'values': {'inlet': 'uniform 0', 'wall': 'uniform 0'},
                'internal_field': 0},
 
-        'kt': {'types': {'wall': 'fixedValue', 'movingWallVelocity': 'fixedValue', 'MRFnoSlip': 'fixedValue'},
-               'values': {'inlet': 'uniform 0', 'wall': 'uniform 0',
-                          'movingWallVelocity': 'uniform 0', 'MRFnoSlip': 'uniform 0'},
+        'kt': {'types': {'wall': 'fixedValue'},
+               'values': {'inlet': 'uniform 0', 'wall': 'uniform 0'},
                'internal_field': 0},
 
         'p_rgh': {'types': {'inlet': 'fixedFluxPressure', 'outlet': 'fixedFluxPressure',
