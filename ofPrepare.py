@@ -41,8 +41,7 @@ def get_patch_type_from_patch_name(input_patch_name: str):
     common_patch_types['cellSelector'] = 'cellSelector'
     common_patch_types['honeycomb'] = 'cellSelector'
     # Define types that have overlapping names with the common types
-    overlapping_patch_types = {'cyclicAMI': 'cyclicAMI',  # Overlaps with cyclic
-                               'noSlip': 'noSlip',  # Overlaps with slip
+    overlapping_patch_types = {'noSlip': 'noSlip',  # Overlaps with slip
                                'symmetryPlane': 'symmetryPlane',  # Overlaps with symmetry
                                'inletOutlet': 'inletOutlet',  # Overlaps with inlet & outlet
                                'nonRotating': 'movingWallVelocity'}  # Overlaps with rotating
@@ -74,8 +73,7 @@ def get_boundary_type_from_patch_name(input_patch_name: str):
     # Define types that have overlapping names with the common types
     overlapping_boundary_types = {'noSlip': 'noSlip',  # Overlaps with slip
                                   'symmetryPlane': 'symmetryPlane',  # Overlaps with symmetry
-                                  'inletOutlet': 'inletOutlet',  # Overlaps with inlet & outlet
-                                  'cyclicAMI': 'cyclicAMI'}  # Overlaps with cyclic
+                                  'inletOutlet': 'inletOutlet'}  # Overlaps with inlet & outlet
     # Convert all KEYS to lower case
     common_boundary_types = {key.lower(): value for key, value in common_boundary_types.items()}
     overlapping_boundary_types = {key.lower(): value for key, value in overlapping_boundary_types.items()}
@@ -85,8 +83,8 @@ def get_boundary_type_from_patch_name(input_patch_name: str):
     for dictionary in [common_boundary_types, overlapping_boundary_types]:
         if input_patch_type.lower() in dictionary:
             boundary_type = dictionary[input_patch_type.lower()]
-    if 'AMI' in input_patch_name:  # Useful for assigning AMI boundaries that are actually baffles (i.e. baffleAMI)
-        boundary_type = 'cyclicAMI'
+    if 'NCC' in input_patch_name:  # Useful for assigning Non-conformal Coupling surfaces
+        boundary_type = 'cyclic'
     return boundary_type
 
 
@@ -159,7 +157,7 @@ def create_create_baffles_dict(patch_names):
     replacement_text = str()
     for patch in patch_names:
         patch_type = get_patch_type_from_patch_name(patch)
-        if patch_type not in {'baffle', 'cyclic', 'cyclicAMI'}:
+        if patch_type not in {'baffle', 'cyclic'}:
             continue
         print(f'Creating baffle entry for {patch} in system/{template_name}')
         replacement_text += (f'{" " * 4}{patch}Both\n'
@@ -210,7 +208,7 @@ def create_snappy_hex_mesh_dict(patch_names):
                               f'{" " * 16}faceZone {patch}Faces;\n'
                               f'{" " * 16}cellZone {patch}Cells;\n'
                               f'{" " * 16}cellZoneInside inside;}}\n')
-        elif patch_type in {'wall', 'patch', 'symmetry', 'symmetryPlane', 'empty', 'cyclic', 'cyclicAMI', 'wedge'}:
+        elif patch_type in {'wall', 'patch', 'symmetry', 'symmetryPlane', 'empty', 'cyclic', 'wedge'}:
             surface_block += f'{" " * 12}{patch} {{level (0 0); patchInfo {{type {patch_type};}} }}\n'
         elif patch_type in {'inlet', 'outlet', 'inletOutlet'}:
             surface_block += f'{" " * 12}{patch} {{level (0 0); patchInfo {{type patch;}} }}\n'
@@ -249,7 +247,7 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
             print(f'Not processing {patch_type} as an external boundary or baffle')
             continue
         # Double up cyclic boundaries and baffles
-        if patch_type in {'baffle', 'cyclic', 'cyclicAMI'}:
+        if patch_type in {'baffle', 'cyclic'}:
             patches = [f"{patch}{ending}" for patch in patches for ending in ['', '_slave']]
         # Join patches with '|' and wrap in parentheses
         patch_group = f'"{patches[0]}"' if len(patches) == 1 else f'"({"|".join(patches)})"'
@@ -352,3 +350,4 @@ def prepare_files():
 
 if __name__ == "__main__":
     prepare_files()
+    
