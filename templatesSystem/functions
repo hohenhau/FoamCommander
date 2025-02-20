@@ -23,7 +23,7 @@ functions
         type             residuals;                         // Type of function (mandatory)
         libs             ("libutilityFunctionObjects.so");  // Library to be used (mandatory)
         writeControl     timeStep;                          // What triggers write (optional)
-        fields           (".*");                            // Fields to check (optional)
+        fields           (".*");                            // Fields to calculate (optional)
         enabled          false;                             // Make it active (optional)
     }
 
@@ -48,7 +48,7 @@ functions
         type             turbulenceFields;                // Type of function (mandatory)
         libs             ("libfieldFunctionObjects.so");  // Library to be used (mandatory)
         writeControl     writeTime;                       // What triggers write (optional)
-        fields           (L I);                           // Fields to include (optional)
+        fields           (L I);                           // Fields to calculate (optional)
         enabled          true;                            // Make it active (optional)
     }
 
