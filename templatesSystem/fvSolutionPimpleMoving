@@ -11,43 +11,56 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      fvSolution;  // Template for transient PIMPLE algorithm
+    object      fvSolution;  // Template PIMPLE algorithm with a moving mesh
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 solvers  // Numerical algorithms used to solve the field equations
 {
+    MeshPhi  // Additional solver required for moving mesh
+    {
+        solver          smoothSolver;      // Fast but less robust solver
+        smoother        symGaussSeidel;    // Good choice for smoothSolver
+        tolerance       1e-2;  // Absolute tolerance of the residual
+        relTol          0;     // Relative tolerance compared to start of iteration
+    }
+
     p
     {
         solver          GAMG;  // Standard algorithm for pressure
-        smoother        GaussSeidel; // Slow but robust solver for GAMG
+        smoother        DICGaussSeidel;  // Balance of speed and robustness
         tolerance       1e-6;  // Absolute tolerance of the residual
         relTol          0.01;  // Relative tolerance compared to start of iteration
+        cacheAgglomeration no; // Avoids caching GAMG agglomeration for moving meshes
+        maxIter         50;    // Maximum solver iterations
     }
 
     pFinal  // Changed settings for the final iteration
     {
-        solver          GAMG;  // Standard algorithm for pressure
-        smoother        GaussSeidel; // Slow but robust solver for GAMG
-        tolerance       1e-08; // Absolute tolerance of the residual
-        relTol          1e-06; // Relative tolerance compared to start of iteration
+        $p;                    // Copy settings from p
+        relTol          0;     // Relative tolerance compared to start of iteration
+    }
+
+    "pcorr.*"  // Changed settings for intermediate pressure corrections
+    {
+        $p;                    // Copy settings from p
+        tolerance       1e-2;  // Absolute tolerance of the residual
+        relTol          0;     // Relative tolerance compared to start of iteration
     }
 
     "(U|k|epsilon|omega)"
     {
-        solver          PBiCG; // Slightly slower but robust solver
-        preconditioner  DILU;  // Good for PBiCG & non-symmetric matrices
+        solver          smoothSolver;      // Fast but less robust solver
+        smoother        symGaussSeidel;    // Good choice for smoothSolver
         tolerance       1e-6;  // Absolute tolerance of the residual
-        relTol          0.01;  // Relative tolerance compared to start of iteration
+        relTol          0.1;   // Relative tolerance compared to start of iteration
     }
 
     "(U|k|omega)Final"  // Changed settings for the final iteration
     {
-        solver          PBiCG; // Slightly slower but robust solver
-        preconditioner  DILU;  // Good for PBiCG & non-symmetric matrices
-        tolerance       1e-08; // Absolute tolerance of the residual
-        relTol          1e-06; // Relative tolerance compared to start of iteration
+        $U;                    // Copy settings from p
+        relTol          0;     // Relative tolerance compared to start of iteration
     }
 }
 /* ------------------------ Solver Options & Notes ------------------------- *\
@@ -62,7 +75,7 @@ non-symmetric matrices are for turbulence & velocity. Common solver option are:
 smoother - Technique (for GAMG and smoothSolver) to reduce local errors during 
 each iteration by smoothing the solution field. Common options are:
    - DIC = Diagonal-based incomplete Cholesky - good for symmetric GAMG - fast & somewhat robust
-   - DICGaussSeidel = Combination of DIC GaussSeidel
+   - DICGaussSeidel = Combination of DIC and GaussSeidel
    - GaussSeidel = Classic Gauss-Seidel - good for non-symmetri smoothSolver - slower but more robust
    - symGaussSeidel = Symmetric Gauss-Seidel (good for smoothSolver) - somewhat robust
 
@@ -82,15 +95,10 @@ compared to the initial residual of that iteration. To ignore set "relTol 0;"
 PIMPLE  // Combination of PISO and SIMPLE algorithms (for transient simulations)
 {
     nOuterCorrectors  2;  // Number of outer loops (typically 1-2 are sufficient for PIMPLE)
-    nCorrectors       2;  // Number of inner loops (typically 1-2 are sufficient for PIMPLE)
+    nCorrectors       1;  // Number of inner loops (typically 1-2 are sufficient for PIMPLE)
     nNonOrthogonalCorrectors  1;  // Additional corrections for non-orthogonal meshes
-    momentumPredictor yes;  // Predict velocity before pressure correction to improve convergence
-    residualControl  // Threshold below which the solution is considered converged
-    {
-        p                           1e-4;
-        "U.*"                       1e-4;
-        "(k.*|epsilon.*|omega.*)"   1e-4;
-    }
+    correctPhi  yes;      // correct the flux through the faces after a mesh motion update
+    correctMeshPhi  yes;  // ensure that mesh-motion-induced flux is correctly accounted for
 }
 /* ------------------------ PIMPLE Options & Notes ------------------------- *\
 SIMPLE Algorithm - Semi-Implicit Method for Pressure-Linked Equations
@@ -111,15 +119,7 @@ residualControl - Only applicable to some solvers, including GAMG and PBICG
 
 relaxationFactors // Control under-relaxation to stabilize iterative solvers
 {
-    fields  // Applied to variables like pressure
-    {
-        p  1.0;  // 1.0 is typical for pressure in transient simulations
-    }
-    equations  // Applied to entire equations
-    {
-        "U.*"  1.0;  // 1.0 is typical for transient simulations
-        "(k.*|epsilon.*|omega.*)"  1.0;  // 1.0 is typical for transient simulations
-    }
+    "(U|k|epsilon|omega).*"   1;
 }
 /* ---------------------- Relaxation Options & Notes ----------------------- *\
 Relaxation Factors can be between 0 and 1. 1 means the solution fully updates
@@ -129,5 +129,18 @@ factors increase stability but reduce rate of convergence. Typical values are
 between 0.3 and 0.7 for steady state solutions, but transient solutions often 
 use a value of 1.0 for faster convergence. 
 \*---------------------------------------------------------------------------*/
+
+
+cache  // Cache specific field to improve performance
+{
+    grad(U);  // cache velocity gradient evaluation
+}
+/* ------------------------ Caching Options & Notes ------------------------ *\
+It is generally advisable to cache the velocity gradient evaluation for RANS 
+turbulence models (k-ω, k-ε, SST, etc.), Large simulations (e.g., fine mesh, 
+rotating machinery, etc.), and the PIMPLE algorithm with multiple correctors 
+(e.g., nOuterCorrectors > 1, nCorrectors > 1)
+\*---------------------------------------------------------------------------*/
+
 
 // ************************************************************************* //
