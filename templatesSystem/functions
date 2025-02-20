@@ -24,7 +24,7 @@ functions
         libs             ("libutilityFunctionObjects.so");  // Library to be used (mandatory)
         writeControl     timeStep;                          // What triggers write (optional)
         fields           (".*");                            // Fields to check (optional)
-        enabled          true;                              // Make it active (optional)
+        enabled          false;                             // Make it active (optional)
     }
 
     CourantNo
