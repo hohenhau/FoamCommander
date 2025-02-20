@@ -42,7 +42,7 @@ solvers  // Numerical algorithms used to solve the field equations
         relTol          0.01;  // Relative tolerance compared to start of iteration
     }
 
-    "(U|k|omega)Final"  // Changed settings for the final iteration
+    "(U|k|epsilon|omega)Final"  // Changed settings for the final iteration
     {
         solver          PBiCG; // Slightly slower but robust solver
         preconditioner  DILU;  // Good for PBiCG & non-symmetric matrices
