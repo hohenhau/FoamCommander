@@ -130,4 +130,16 @@ between 0.3 and 0.7 for steady state solutions, but transient solutions often
 use a value of 1.0 for faster convergence. 
 \*---------------------------------------------------------------------------*/
 
+
+cache  // Cache specific field to improve performance
+{
+    grad(U);  // cache velocity gradient evaluation
+}
+/* ------------------------ Caching Options & Notes ------------------------ *\
+It is generally advisable to cache the velocity gradient evaluation for RANS 
+turbulence models (k-ω, k-ε, SST, etc.), Large simulations (e.g., fine mesh, 
+rotating machinery, etc.), and the PIMPLE algorithm with multiple correctors 
+(e.g., nOuterCorrectors > 1, nCorrectors > 1)
+\*---------------------------------------------------------------------------*/
+
 // ************************************************************************* //
