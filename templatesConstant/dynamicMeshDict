@@ -16,22 +16,18 @@ FoamFile
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dynamicFvMesh   solidBodyMotionFvMesh;
-
-motionSolverLibs ( "libfvMotionSolvers.so" );
-
-solidBodyMotionFvMeshCoeffs
+dynamicMeshA
 {
-    cellZone        cellSelectorCells;  // Match this to mesh specifications
+    type            motionSolver;
+    libs            ("libfvMotionSolvers.so");
+    motionSolver    solidBody;
+    cellZone        cellSelectorCells;  // Match to snappyHexMesh
 
     solidBodyMotionFunction  rotatingMotion;
-    rotatingMotionCoeffs
-    {
-        origin        (0 0 0);  // Adjust to match rotation location
-        axis          (0 0 1);  // Adjust based on rotation axis
-        omega         10;       // Radians per second (1 RPM = 0.10472 rad/s)
-    }
+    origin    (0 0 0);     // Location of the rotation
+    axis      (0 0 1);     // Axis of revoultion
+    omega     200 [rpm];   // Revolutions per minute
+    // omega  10;          // Radians per second (1 RPM = 0.10472 rad/s)
 }
-
 
 // ************************************************************************* //
