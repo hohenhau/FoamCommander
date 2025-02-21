@@ -16,70 +16,67 @@ FoamFile
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-functions
+residuals
 {
-    residuals
-    {
-        type             residuals;                         // Type of function (mandatory)
-        libs             ("libutilityFunctionObjects.so");  // Library to be used (mandatory)
-        writeControl     timeStep;                          // What triggers write (optional)
-        fields           (".*");                            // Fields to calculate (optional)
-        enabled          false;                             // Make it active (optional)
-    }
-
-    CourantNo
-    {
-        type             CourantNo;                       // Type of function (mandatory)
-        libs             ("libfieldFunctionObjects.so");  // Library to be used (mandatory)
-        writeControl     writeTime;                       // What triggers write (optional)
-        enabled          true;                            // Make it active (optional)
-    }
-
-    yPlus
-    {
-        type             yPlus;                           // Type of function (mandatory)
-        libs             ("libfieldFunctionObjects.so");  // Library to be used (mandatory)
-        writeControl     writeTime;                       // What triggers write (optional)
-        enabled          true;                            // Make it active (optional)
-    }
-
-    turbulenceFields  // Calcluate Turbulence length scale (L) & Turbulence Intensity (I)
-    {
-        type             turbulenceFields;                // Type of function (mandatory)
-        libs             ("libfieldFunctionObjects.so");  // Library to be used (mandatory)
-        writeControl     writeTime;                       // What triggers write (optional)
-        fields           (L I);                           // Fields to calculate (optional)
-        enabled          true;                            // Make it active (optional)
-    }
-
-    forces
-    {
-        type             forces;            // Type of function (mandatory)  
-        libs             ("libforces.so");  // Library to be used (mandatory)
-        writeControl     writeTime;         // What triggers write (optional)
-        log              true;              // Write to log? (optional)
-        patches          ("propeller.*");   // Patches to be included
-        rho              rhoInf;            // Indicates incompressible
-        rhoInf           1;                 // Redundant for incompressible
-        CofR             (0 0 0);           // Center of rotation
-        pitchAxis        (0 0 1);           // Often set to the rotational axis
-        enabled          false;             // Make it active (optional)
-    }
-
-    /*fileUpdate1
-    {
-        type              timeActivatedFileUpdate;
-        libs              ("libutilityFunctionObjects.so");
-        writeControl      timeStep;
-        writeInterval     1;
-        fileToUpdate      "$FOAM_CASE/system/fvSchemes";
-        enabled           false
-        timeVsFile
-        (
-            // start with first order
-            (-1 "$FOAM_CASE/system/fvSchemes_1")
-            // after 100 iterations use second order
-            (100 "$FOAM_CASE/system/fvSchemes_2")  
-        );
-    }*/
+    type             residuals;                         // Type of function (mandatory)
+    libs             ("libutilityFunctionObjects.so");  // Library to be used (mandatory)
+    writeControl     timeStep;                          // What triggers write (optional)
+    fields           (".*");                            // Fields to calculate (optional)
+    enabled          false;                             // Make it active (optional)
 }
+
+CourantNo
+{
+    type             CourantNo;                       // Type of function (mandatory)
+    libs             ("libfieldFunctionObjects.so");  // Library to be used (mandatory)
+    writeControl     writeTime;                       // What triggers write (optional)
+    enabled          true;                            // Make it active (optional)
+}
+
+yPlus
+{
+    type             yPlus;                           // Type of function (mandatory)
+    libs             ("libfieldFunctionObjects.so");  // Library to be used (mandatory)
+    writeControl     writeTime;                       // What triggers write (optional)
+    enabled          true;                            // Make it active (optional)
+}
+
+turbulenceFields  // Calcluate Turbulence length scale (L) & Turbulence Intensity (I)
+{
+    type             turbulenceFields;                // Type of function (mandatory)
+    libs             ("libfieldFunctionObjects.so");  // Library to be used (mandatory)
+    writeControl     writeTime;                       // What triggers write (optional)
+    fields           (L I);                           // Fields to calculate (optional)
+    enabled          true;                            // Make it active (optional)
+}
+
+forces
+{
+    type             forces;            // Type of function (mandatory)  
+    libs             ("libforces.so");  // Library to be used (mandatory)
+    writeControl     writeTime;         // What triggers write (optional)
+    log              true;              // Write to log? (optional)
+    patches          ("propeller.*");   // Patches to be included
+    rho              rhoInf;            // Indicates incompressible
+    rhoInf           1;                 // Redundant for incompressible
+    CofR             (0 0 0);           // Center of rotation
+    pitchAxis        (0 0 1);           // Often set to the rotational axis
+    enabled          false;             // Make it active (optional)
+}
+
+/*fileUpdate1
+{
+    type              timeActivatedFileUpdate;
+    libs              ("libutilityFunctionObjects.so");
+    writeControl      timeStep;
+    writeInterval     1;
+    fileToUpdate      "$FOAM_CASE/system/fvSchemes";
+    enabled           false
+    timeVsFile
+    (
+        // start with first order
+        (-1 "$FOAM_CASE/system/fvSchemes_1")
+        // after 100 iterations use second order
+        (100 "$FOAM_CASE/system/fvSchemes_2")  
+    );
+}*/
