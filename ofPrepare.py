@@ -304,8 +304,8 @@ def create_zero_boundaries(names, fm):
                         f'{" " * 8}type            MRFnoSlip;\n'
                         f'{" " * 8}#else\n'
                         f'{" " * 8}type            movingWallVelocity;\n'
-                        f'{" " * 8}#endif\n'
                         f'{" " * 8}value           uniform (0 0 0);\n'
+                        f'{" " * 8}#endif\n'
                         f'{" " * 4}}}\n')
 
     field_configs = {
