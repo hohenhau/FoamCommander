@@ -279,7 +279,7 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
         # Add the patch text to the text block
         boundary_block += f'    {group_name}\n    {{\n'
         # Take care of the special rotating if statement
-        if patch_type in boundary_vals and '$timeScheme' in boundary_vals[patch_type]:
+        if patch_type in boundary_vals and '#ifeq' in boundary_vals[patch_type]:
             boundary_block += boundary_vals[patch_type]
             continue
         # Add the patch type and value to the block
