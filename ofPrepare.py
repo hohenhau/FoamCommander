@@ -25,16 +25,6 @@ def initialisation():
         sys.exit(1)
     # Ensure directories exist
     os.makedirs(ZERO_DIR, exist_ok=True)
-    
-    # Define some common boundary constraints
-    set_constraint_types_path = os.path.join(TEMPLATE_CONSTANT_DIR, "setConstraintTypes")
-    # Copy the setConstraintTypes file from template to the target directory
-    try:
-        shutil.copy(set_constraint_types_path, ZERO_DIR)
-        print(f"Successfully copied 'setConstraintTypes' to {ZERO_DIR}")
-    except Exception as e:
-        print(f"Error copying 'setConstraintTypes': {e}")
-        sys.exit(1)
 
 
 def get_patch_type_from_patch_name(input_patch_name: str):
