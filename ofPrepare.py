@@ -268,8 +268,8 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
         group_name = f'"{patch_group[0]}"' if len(patch_group) == 1 else f'"({"|".join(patch_group)})"'
         # Add the patch text to the text block
         boundary_block += f'    {group_name}\n    {{\n'
-        # Take care of the special rotating if statement
-        if patch_type in boundary_vals and '#ifeq' in boundary_vals[patch_type]:
+        # Take care of special if-statement based types and values
+        if '#ifeq' in local_boundary_types[patch_type]:
             boundary_block += boundary_vals[patch_type]
             continue
         # Add the patch type and value to the block
@@ -290,7 +290,7 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
 def create_zero_boundaries(names, fm):
     """Build the zero files for the various fields and boundaries"""
 
-    rotating_u_value = (f'{" " * 8}#include "../system/fvSchemes"\n'
+    rotating_u_types = (f'{" " * 8}#include "../system/fvSchemes"\n'
                         f'{" " * 8}#ifeq $ddtSchemes.default steadyState\n'
                         f'{" " * 12}type        MRFnoSlip;\n'
                         f'{" " * 8}#else\n'
@@ -300,9 +300,8 @@ def create_zero_boundaries(names, fm):
                         f'{" " * 4}}}\n')
 
     field_configs = {
-        'U': {'types': {'wall': 'fixedValue', 'MRFnoSlip': 'MRFnoSlip', 'movingWallVelocity': 'movingWallVelocity'},
-              'values': {'inlet': 'uniform (0 0 0)', 'wall': 'uniform (0 0 0)', 'rotating': rotating_u_value,
-                         'movingWallVelocity': 'uniform (0 0 0)'},
+        'U': {'types': {'wall': 'fixedValue', 'MRFnoSlip': 'MRFnoSlip', 'movingWallVelocity': 'movingWallVelocity', 'rotating': rotating_u_types},
+              'values': {'inlet': 'uniform (0 0 0)', 'wall': 'uniform (0 0 0)'},
               'internal_field': 0},
 
         'p': {'types': {'inlet': 'zeroGradient', 'outlet': 'fixedValue'},
