@@ -270,7 +270,7 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
         boundary_block += f'    {group_name}\n    {{\n'
         # Take care of special if-statement based types and values
         if '#ifeq' in local_boundary_types[patch_type]:
-            boundary_block += boundary_vals[patch_type]
+            boundary_block += local_boundary_types[patch_type]
             continue
         # Add the patch type and value to the block
         boundary_block += f'        type            {local_boundary_types[patch_type]};\n'
