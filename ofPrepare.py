@@ -290,11 +290,12 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
 def create_zero_boundaries(names, fm):
     """Build the zero files for the various fields and boundaries"""
 
-    rotating_u_value = (f'{" " * 8}#ifeq $ddtScheme steadyState\n'
-                        f'{" " * 8}type            MRFnoSlip;\n'
+    rotating_u_value = (f'{" " * 8}#include "../system/fvSchemes"\n'
+                        f'{" " * 8}#ifeq $ddtSchemes.default steadyState\n'
+                        f'{" " * 12}type        MRFnoSlip;\n'
                         f'{" " * 8}#else\n'
-                        f'{" " * 8}type            movingWallVelocity;\n'
-                        f'{" " * 8}value           uniform (0 0 0);\n'
+                        f'{" " * 12}type        movingWallVelocity;\n'
+                        f'{" " * 12}value       uniform (0 0 0);\n'
                         f'{" " * 8}#endif\n'
                         f'{" " * 4}}}\n')
 
