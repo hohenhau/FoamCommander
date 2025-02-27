@@ -36,33 +36,42 @@ def display_foam_solvers_table():
     headers = [cell.strip() for cell in rows[0]]
     table_data = [ [cell.strip() if cell.strip() else '-' for cell in row] for row in rows[1:] ]
 
-    # Split headers into vertical letters (except for the first one)
-    vertical_headers = [[c if i == 0 else "\n".join(h) for i, h in enumerate(headers)]]
+    # Prepare vertical headers (except for the first one, which stays horizontal)
+    vertical_headers = []
+    max_header_height = max(len(header) for header in headers[1:])
 
-    # Calculate column widths (solver can be long, others just 1 char wide vertically)
+    for i, header in enumerate(headers):
+        if i == 0:
+            vertical_headers.append(header.ljust(max_header_height))  # Solver stays horizontal
+        else:
+            vertical_headers.append("\n".join(header.ljust(max_header_height)))
+
+    # Calculate column widths (Solver can be long, others just 1 character wide)
     col_widths = [max(len(row[0]) for row in rows)] + [1] * (len(headers) - 1)
 
-    # Function to print a row (solver is horizontal, others are vertical)
-    def print_row(row):
-        print(f"{row[0]:<{col_widths[0]}}", end=" | ")
-        print(" | ".join(f"{cell:^1}" for cell in row[1:]))
-
-    # Print table header (vertical)
+    # Print header row (Solver horizontal, others vertical)
     print("OpenFOAM Solvers and Their Features:\n")
 
-    # First print the "Solver" header
+    # Print "Solver" header
     print(f"{'Solver':<{col_widths[0]}}", end=" | ")
 
-    # Now print each letter of the vertical headers in order
-    for line in zip(*[h.split("\n") for h in vertical_headers[0][1:]]):
-        print(" | ".join(f"{c:^1}" for c in line))
+    # Now print the vertical headers (one letter per line for each column)
+    for line_number in range(max_header_height):
+        if line_number > 0:
+            print(" " * col_widths[0], end=" | ")
+
+        for header in vertical_headers[1:]:
+            print(f"{header[line_number]:^1}", end=" | ")
+
+        print()
 
     # Divider line
     print("-" * (col_widths[0] + 3 + 4 * (len(headers) - 1)))
 
-    # Print data rows
+    # Print data rows (solver horizontal, rest normal)
     for row in table_data:
-        print_row(row)
+        print(f"{row[0]:<{col_widths[0]}}", end=" | ")
+        print(" | ".join(f"{cell:^1}" for cell in row[1:]))
 
 if __name__ == "__main__":
     display_foam_solvers_table()
