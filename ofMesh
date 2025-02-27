@@ -1,0 +1,29 @@
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# Copy propeller surfaces from resources directory
+cp $FOAM_TUTORIALS/resources/geometry/propeller*.obj.gz constant/geometry/
+
+# Remove previous time steps
+ofDeleteTimesteps.py
+
+# Remove previous mesh artifacts
+ofDeleteMesh.py
+
+# Generate the background computational mesh from blockMeshDict
+runApplication blockMesh
+
+# Extract feature edges from the surface geometry for better meshing
+runApplication surfaceFeatures
+
+# Decompose the domain for parallel execution based on decomposeParDict
+runApplication decomposePar -noFields
+
+# Run snappyHexMesh in parallel
+runParallel snappyHexMesh -overwrite
+
+# Remove meshing directories
+rm -r processor*
+
+# Run checkMesh and save the results to a new log
+checkMesh 2>&1 | tee log.checkMesh
