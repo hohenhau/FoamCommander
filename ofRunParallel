@@ -15,6 +15,9 @@ ofOverrideProcessorConstant.py
 # Run the application and override the log
 runParallel -o $(getApplication)
 
+# Reconstruct the latest time and override the log
+runApplication -o reconstructPar -latestTime
+
 # Add dimensions to y+ and Courant number
 ofAddDimensions.py
 
