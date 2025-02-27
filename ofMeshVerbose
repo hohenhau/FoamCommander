@@ -22,8 +22,8 @@ decomposePar -force -copyZero 2>&1 | tee log.decomposePar
 # Grab the number of processors from the "decomposeParDict" file
 NPROCS=$(foamDictionary -entry numberOfSubdomains -value system/decomposeParDict)
 
-# Run snappyHexMesh in parallel, logging the output to 'log_mesh'
-mpirun -np $NPROCS --rankfile system/rankfile snappyHexMesh -parallel -overwrite 2>&1 | tee log.mesh
+# Run snappyHexMesh in parallel, logging the output to 'log.snappyHexMesh'
+mpirun -np $NPROCS --rankfile system/rankfile snappyHexMesh -parallel -overwrite 2>&1 | tee log.snappyHexMesh
 
 # Reconstruct the decomposed mesh back into a single mesh (useful for post-processing)
 reconstructPar -constant 2>&1 | tee log.reconstructPar
