@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Include standad function from /openfoam12/bin/tools/RunFunctions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# Decompose the case and overwrite the log
+# -o = overwrites the existing log
+# -force = removes existing processor folders
+# -constant = include the 'constant/' dir in the times list
+runApplication -o decomposePar -force -constant
+
+# Override the 'constant' dir processor directories
+ofOverrideProcessorConstant.py
+
+# Add dimensions to y+ and Courant number
+ofAddDimensions.py
+
+# Plot the residuals and save the plot
+ofPlotResiduals.py
