@@ -95,8 +95,8 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('log_file', 
                        nargs='?', 
-                       default='log',
-                       help='Path to the OpenFOAM log file (default: log)')
+                       default='log.foamRun',
+                       help='Path to the OpenFOAM log file (default: log.foamRun)')
     # Parse arguments and run
     args = parser.parse_args()
     plot_residuals(args.log_file)
