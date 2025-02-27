@@ -7,7 +7,7 @@
 # -o = overwrites the existing log
 # -force = removes existing processor folders
 # -constant = include the 'constant/' dir in the times list
-runApplication -o decomposePar -force -constant
+runApplication -o decomposePar -force
 
 # Override the 'constant' dir processor directories
 ofOverrideProcessorConstant.py
