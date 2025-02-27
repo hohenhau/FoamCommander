@@ -5,7 +5,7 @@
 cp $FOAM_TUTORIALS/resources/geometry/propeller*.obj.gz constant/geometry/
 
 # Remove previous time steps
-ofDeleteTimesteps.py
+ofDeleteTimeSteps.py
 
 # Remove previous mesh artifacts
 ofDeleteMesh.py
