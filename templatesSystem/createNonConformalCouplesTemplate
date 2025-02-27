@@ -20,16 +20,12 @@ fields  no;  // Add boundary conditions for the added patch to the fields
 
 nonConformalCouples  // The list of non-conformal couples to be created
 {
-    baffleNCC_AGroup
+    // Insert the required $NCC_DEFINITIONS$
+    /* ExampleGroup
     {
-        patches         (baffleNCC_A baffleNCC_A_slave);
+        patches         (examplePatch examplePatch_slave);
         transform       none;  // Options {none, rotational, & translational}
-    }
-    baffleNCC_BGroup
-    {
-        patches         (baffleNCC_B baffleNCC_B_slave);
-        transform       none;  // Options {none, rotational, & translational}
-    }
+    }*/
 }
 
 // Check the following for more info:
