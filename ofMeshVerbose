@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Remove previous processor directories (from parallel runs)
-rm -r processor* ??? ?0
+# Remove previous time steps
+ofDeleteTimesteps.py
+
+# Remove previous mesh artifacts
+ofDeleteMesh.py
 
 # Generate the background computational mesh from blockMeshDict
 blockMesh
@@ -13,20 +16,17 @@ rm -r dynamicCode
 surfaceFeatures
 
 # Decompose the domain for parallel execution based on decomposeParDict
-decomposePar -copyZero
-
-# Renumber the mesh to help with the load balancing of the meshing
-# renumberMesh -constant -noZero -overwrite
+# -force = removes existing processor folders
+decomposePar -force -copyZero 2>&1 | tee log.decomposePar
 
 # Grab the number of processors from the "decomposeParDict" file
 NPROCS=$(foamDictionary -entry numberOfSubdomains -value system/decomposeParDict)
 
 # Run snappyHexMesh in parallel, logging the output to 'log_mesh'
-mpirun -np $NPROCS --rankfile system/rankfile snappyHexMesh -parallel -overwrite 2>&1 | tee log_mesh
-# foamJob -parallel -np $NPROCS snappyHexMesh -overwrite 2>&1 | tee log_mesh
+mpirun -np $NPROCS --rankfile system/rankfile snappyHexMesh -parallel -overwrite 2>&1 | tee log.mesh
 
 # Reconstruct the decomposed mesh back into a single mesh (useful for post-processing)
-reconstructPar -constant
+reconstructPar -constant 2>&1 | tee log.reconstructPar
 
 # Remove meshing directories
 rm -r processor*
@@ -35,4 +35,4 @@ rm -r processor*
 # renumberMesh -constant -noZero -overwrite
 
 # Run checkMesh and save the results to a new log
-checkMesh 2>&1 | tee log_checkMesh
+checkMesh 2>&1 | tee log.checkMesh
