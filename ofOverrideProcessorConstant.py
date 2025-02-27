@@ -76,7 +76,7 @@ def main():
         else:
             print(f"Missing polyMesh or fvMesh in {proc_dir}/{latest_time}")
     
-    print("Completed Override!")
+    print("Completed Override!\n")
 
 if __name__ == "__main__":
     main()
