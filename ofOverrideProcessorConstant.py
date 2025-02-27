@@ -26,7 +26,7 @@ def get_latest_time(proc_dir='processor0'):
     return latest_time
 
 def main():
-    print("Overriding 'constant/' directory in processor folders")
+    print("\nOverriding 'constant/' directory in processor folders")
     
     # Make sure processor0 exists
     if not os.path.isdir("processor0"):
@@ -76,7 +76,7 @@ def main():
         else:
             print(f"Missing polyMesh or fvMesh in {proc_dir}/{latest_time}")
     
-    print("Done!")
+    print("Completed Override!")
 
 if __name__ == "__main__":
     main()
