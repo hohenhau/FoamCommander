@@ -3,7 +3,6 @@
 import os
 import re
 import sys
-import shutil
 from ofEstimateInternalFields import estimate_internal_fields
 from ofParseArgs import detect_and_parse_arguments
 
@@ -29,7 +28,7 @@ def initialisation():
 
 def get_patch_type_from_patch_name(input_patch_name: str):
     """Determine the boundary type based the patch name. Needed for: 0/fields (e.g. 0/U)"""
-    # Define the common and additional boundary types (baffle and cellSelector are custom)
+    # Define the common and additional boundary types
     common_patches = ['inlet', 'outlet', 'cyclic', 'empty', 'movingWallVelocity', 'MRFnoSlip', 'slip', 'symmetry']
     common_patch_types = {boundary: boundary for boundary in common_patches}
     common_patch_types['atmosphere'] = 'inletOutlet'
@@ -37,16 +36,16 @@ def get_patch_type_from_patch_name(input_patch_name: str):
     common_patch_types['min'] = 'empty'
     common_patch_types['max'] = 'empty'
     common_patch_types['baffle'] = 'baffle'
-    common_patch_types['porous'] = 'baffle'
-    common_patch_types['screen'] = 'baffle'
-    common_patch_types['cellSelector'] = 'cellSelector'
-    common_patch_types['honeycomb'] = 'cellSelector'
+    common_patch_types['internal'] = 'internal'
+    common_patch_types['porous'] = 'internal'
+    common_patch_types['screen'] = 'internal'
     common_patch_types['rotating'] = 'rotating'
+    common_patch_types['stationary'] = 'movingWallVelocity'
+    common_patch_types['NCC'] = 'NCC'
     # Define types that have overlapping names with the common types
     overlapping_patch_types = {'noSlip': 'noSlip',  # Overlaps with slip
                                'symmetryPlane': 'symmetryPlane',  # Overlaps with symmetry
-                               'inletOutlet': 'inletOutlet',  # Overlaps with inlet & outlet
-                               'nonRotating': 'movingWallVelocity'}  # Overlaps with rotating
+                               'inletOutlet': 'inletOutlet'}  # Overlaps with inlet & outlet
     # Convert all KEYS to lower case
     common_patch_types = {key.lower(): value for key, value in common_patch_types.items()}
     overlapping_patch_types = {key.lower(): value for key, value in overlapping_patch_types.items()}
@@ -68,10 +67,12 @@ def get_boundary_type_from_patch_name(input_patch_name: str):
     common_boundary_types = {boundary: boundary for boundary in common_boundaries}
     common_boundary_types['inlet'] = 'fixedValue'
     common_boundary_types['outlet'] = 'zeroGradient'
+    common_boundary_types['NCC'] = 'zeroGradient'
     common_boundary_types['wall'] = 'zeroGradient'
     common_boundary_types['movingWallVelocity'] = 'zeroGradient'
     common_boundary_types['MRFnoSlip'] = 'zeroGradient'
-    common_boundary_types['baffle'] = 'cyclic'
+    common_boundary_types['baffle'] = 'zeroGradient'
+    common_boundary_types['internal'] = 'cyclic'
     common_boundary_types['rotating'] = 'rotating'
     # Define types that have overlapping names with the common types
     overlapping_boundary_types = {'noSlip': 'noSlip',  # Overlaps with slip
@@ -86,8 +87,6 @@ def get_boundary_type_from_patch_name(input_patch_name: str):
     for dictionary in [common_boundary_types, overlapping_boundary_types]:
         if input_patch_type.lower() in dictionary:
             boundary_type = dictionary[input_patch_type.lower()]
-    if 'NCC' in input_patch_name:  # Useful for assigning Non-conformal Coupling surfaces
-        boundary_type = 'cyclic'
     return boundary_type
 
 
@@ -137,7 +136,7 @@ def perform_regex_replacements(patterns_and_replacements: list, template_path: s
         output_file.write(content)
 
 
-def create_surface_features_dict(patch_names):
+def generate_surface_features_dict(patch_names):
     """Creates the surfaceFeaturesDict.gen file."""
     print("Creating surfaceFeaturesDict.gen...")
     template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "surfaceFeaturesDict")  # Template file
@@ -150,73 +149,101 @@ def create_surface_features_dict(patch_names):
     print(f"surfaceFeaturesDict.gen created at: {output_path}")
 
 
-def create_create_baffles_dict(patch_names):
-    """Creates the createBafflesCyclics.gen file."""
-    print("Creating createBafflesCyclics.gen...")
-    template_name = 'createBafflesCyclics'
+def generate_create_baffles_dict(patch_names, baffle_type='cyclic'):
+    """Creates the createBafflesDict.gen file."""
+    template_name = 'createBafflesTemplate'
+    output_name = f'createBafflesDict{baffle_type.capitalize()}.gen'
     template_path = os.path.join(TEMPLATE_SYSTEM_DIR, template_name)  # Template file
-    output_path = os.path.join(SYSTEM_DIR, f'{template_name}.gen')
-    replacement_pattern = r'.*\$CYCLIC_BAFFLES\$.*\n'  # Match any line containing $STL_FILES$
+    output_path = os.path.join(SYSTEM_DIR, output_name)
+    print(f"Creating system/{output_name}...")
     replacement_text = str()
-    for patch in patch_names:
-        patch_type = get_patch_type_from_patch_name(patch)
-        if patch_type not in {'baffle', 'cyclic'}:
+    for patch_name in patch_names:
+        patch_type = get_patch_type_from_patch_name(patch_name)
+        if patch_type not in {'baffle', 'internal', 'cyclic', 'NCC'}:
             continue
-        print(f'Creating baffle entry for {patch} in system/{template_name}')
-        replacement_text += (f'{" " * 4}{patch}Group\n'
+        print(f'Creating baffle entry for {patch_name} in system/{output_name}')
+        replacement_text += (f'{" " * 4}{patch_name}Group\n'
                              f'{" " * 4}{{\n'
                              f'{" " * 8}type        faceZone;\n'
-                             f'{" " * 8}zoneName    {patch}Faces;\n'
+                             f'{" " * 8}zoneName    {patch_name}Faces;\n'
                              f'{" " * 8}patches\n'
                              f'{" " * 8}{{\n'
                              f'{" " * 12}master\n'
                              f'{" " * 12}{{\n'
-                             f'{" " * 16}type            cyclic;\n'
-                             f'{" " * 16}name            {patch};\n'
-                             f'{" " * 16}neighbourPatch  {patch}_slave;\n'
+                             f'{" " * 16}type            {baffle_type};\n'
+                             f'{" " * 16}name            {patch_name};\n'
+                             f'{" " * 16}neighbourPatch  {patch_name}_slave;\n'
                              f'{" " * 12}}}\n'
                              f'{" " * 12}slave\n'
                              f'{" " * 12}{{\n'
-                             f'{" " * 16}type            cyclic;\n'
-                             f'{" " * 16}name            {patch}_slave;\n'
-                             f'{" " * 16}neighbourPatch  {patch};\n'
+                             f'{" " * 16}type            {baffle_type};\n'
+                             f'{" " * 16}name            {patch_name}_slave;\n'
+                             f'{" " * 16}neighbourPatch  {patch_name};\n'
                              f'{" " * 12}}}\n'
                              f'{" " * 8}}}\n'
                              f'{" " * 4}}}\n')
     # Define the patterns to match the entire lines containing the variables
-    patterns_and_replacements = [(r'.*\$CYCLIC_BAFFLES\$.*\n', replacement_text)]
+    patterns_and_replacements = [(r'.*\$BAFFLE_DEFINITIONS\$.*\n', replacement_text)]
     # Perform the replacements
     perform_regex_replacements(patterns_and_replacements, template_path, output_path)
-    print(f"snappyHexMeshDict.gen created at: {output_path}")
+    print(f"{output_name} created at: {output_path}")
 
 
-def create_snappy_hex_mesh_dict(patch_names):
+def generate_create_ncc_dict(patch_names):
+    """Creates the createNonConformalCouplesDict.gen file."""
+    template_name = 'createNonConformalCouplesTemplate'
+    output_name = 'createNonConformalCouplesDict.gen'
+    template_path = os.path.join(TEMPLATE_SYSTEM_DIR, template_name)  # Template file
+    output_path = os.path.join(SYSTEM_DIR, output_name)
+    print(f"Creating system/{output_name}...")
+    replacement_text = str()
+    for patch_name in patch_names:
+        if 'NCC' not in patch_name.upper():
+            continue
+        print(f'Creating baffle entry for {patch_name} in system/{output_name}')
+        replacement_text += (f'{" " * 4}{patch_name}_Group\n'
+                             f'{" " * 4}{{\n'
+                             f'{" " * 8}patches         ({patch_name} {patch_name}_slave);\n'
+                             f'{" " * 8}transform       none;  // Options {{none, rotational, & translational}}\n'
+                             f'{" " * 4}}}\n')
+    # Define the patterns to match the entire lines containing the variables
+    patterns_and_replacements = [(r'.*\$NCC_DEFINITIONS\$.*\n', replacement_text)]
+    # Perform the replacements
+    perform_regex_replacements(patterns_and_replacements, template_path, output_path)
+    print(f"{output_name} created at: {output_path}")
+
+
+def generate_snappy_hex_mesh_dict(patch_names):
     """Creates the snappyHexMeshDict.gen file with proper comment line replacement."""
     print("Creating snappyHexMeshDict.gen...")
     template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "snappyHexMeshDict")
     output_path = os.path.join(SYSTEM_DIR, "snappyHexMeshDict.gen")
     # Prepare replacement blocks
     stl_block, mesh_block, surface_block, layer_block = str(), str(), str(), str()
-    for patch in patch_names:
-        stl_block += f'{" " * 8}{patch}.stl {{type triSurfaceMesh; name {patch}; file "{patch}.stl";}}\n'
-        mesh_block += f'{" " * 12}{{file "{patch}.eMesh"; level 3;}}\n'
-        patch_type = get_patch_type_from_patch_name(patch)
-        print(f'Matched {patch} with {patch_type}')
-        if patch_type == 'baffle':  # Options for faceType are {internal, baffle, and boundary}
-            surface_block += f'{" " * 12}{patch} {{level (0 0); faceZone {patch}Faces; faceType internal;}}\n'
-            layer_block += f'{" " * 8}{patch}{{nSurfaceLayers 0;}}  // Stops layers from disrupting baffle surface\n'
-        elif patch_type == 'cellSelector':
-            surface_block += (f'{" " * 12}{patch}\n'
+    for name in patch_names:
+        stl_block += f'{" " * 8}{name}.stl {{type triSurfaceMesh; name {name}; file "{name}.stl";}}\n'
+        mesh_block += f'{" " * 12}{{file "{name}.eMesh"; level 3;}}\n'
+
+        # Check if the patch is actually a zone and process it as such (includes NCC zones!)
+        if 'zone' in name.lower() or 'region' in name.lower() or 'honeycomb' in name.lower():
+            surface_block += (f'{" " * 12}{name}\n'
                               f'{" " * 16}{{level (0 0);\n'
-                              f'{" " * 16}faceZone {patch}Faces;\n'
-                              f'{" " * 16}cellZone {patch}Cells;\n'
+                              f'{" " * 16}faceZone {name}Faces;\n'
+                              f'{" " * 16}cellZone {name}Cells;\n'
                               f'{" " * 16}cellZoneInside inside;}}\n')
+            continue
+
+        patch_type = get_patch_type_from_patch_name(name)
+        print(f'Matched {name} with {patch_type}')
+        if patch_type in {'baffle', 'internal'}:  # faceType options are {internal, baffle, and boundary}
+            surface_block += f'{" " * 12}{name} {{level (0 0); faceZone {name}Faces; faceType {patch_type};}}\n'
+            layer_block += f'{" " * 8}{name}{{nSurfaceLayers 0;}}  // Stops layers from disrupting baffle surface\n'
         elif patch_type in {'wall', 'patch', 'symmetry', 'symmetryPlane', 'empty', 'cyclic', 'wedge'}:
-            surface_block += f'{" " * 12}{patch} {{level (0 0); patchInfo {{type {patch_type};}} }}\n'
-        elif patch_type in {'inlet', 'outlet', 'inletOutlet'}:
-            surface_block += f'{" " * 12}{patch} {{level (0 0); patchInfo {{type patch;}} }}\n'
+            surface_block += f'{" " * 12}{name} {{level (0 0); patchInfo {{type {patch_type};}} }}\n'
+        elif patch_type in {'inlet', 'outlet', 'inletOutlet', 'NCC'}:
+            surface_block += f'{" " * 12}{name} {{level (0 0); patchInfo {{type patch;}} }}\n'
         else:
-            surface_block += f'{" " * 12}{patch} {{level (0 0); patchInfo {{type wall;}} }}\n'
+            surface_block += f'{" " * 12}{name} {{level (0 0); patchInfo {{type wall;}} }}\n'
     # Define the patterns to match the entire lines containing the variables
     patterns_and_replacements = [(r'.*\$STL_FILES_AND_GEOMETRIES\$.*\n', stl_block),
                                  (r'.*\$MESH_FEATURES\$.*\n', mesh_block),
@@ -227,7 +254,7 @@ def create_snappy_hex_mesh_dict(patch_names):
     print(f"snappyHexMeshDict.gen created at: {output_path}")
 
 
-def build_zero_file(names: list, field: str, local_boundary_types: dict, boundary_vals: dict, internal_val=0):
+def generate_zero_file(names: list, field: str, local_boundary_types: dict, boundary_vals: dict, internal_val=0):
     """Creates a file in the zero directory with grouped patch settings."""
     template_path = os.path.join(TEMPLATE_BOUNDARY_DIR, f"{field}")
     output_path = os.path.join(ZERO_DIR, field)
@@ -243,24 +270,24 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
             if pseudo_wall not in boundary_vals and 'wall' in boundary_vals:
                 boundary_vals[pseudo_wall] = boundary_vals['wall']
 
+    # Filter out any "patches" that are actually regions, but are not an NCC region
+    excluded = ('zone', 'region', 'honeycomb')
+    names = [i for i in names if 'ncc' in i.lower() or not any(word in i.lower() for word in excluded)]
+
     # Group patches by type
     patch_groups = {}
-    for name in names:
-        patch_type = get_patch_type_from_patch_name(name)
+    for patch_name in names:
+        patch_type = get_patch_type_from_patch_name(patch_name)
         # It the patch type is not specified, get the type
         if patch_type not in local_boundary_types:
-            local_boundary_types[patch_type] = get_boundary_type_from_patch_name(name)
+            local_boundary_types[patch_type] = get_boundary_type_from_patch_name(patch_name)
         # If this is the first patch of its type, start a group
         if patch_type not in patch_groups:
             patch_groups[patch_type] = []
-        patch_groups[patch_type].append(name)
+        patch_groups[patch_type].append(patch_name)
     boundary_block = str()
     # Grouped patches in regex format using pipe separator
     for patch_type, patch_group in patch_groups.items():
-        # Do not add surfaces associated with honeycombs or cell selectors as boundaries
-        if patch_type in {'cellSelector'}:
-            print(f'Not processing {patch_type} as an external boundary or baffle')
-            continue
         # Double up cyclic boundaries and baffles
         if patch_type in {'baffle', 'cyclic'}:
             patch_group = [f"{patch}{ending}" for patch in patch_group for ending in ['', '_slave']]
@@ -287,7 +314,7 @@ def build_zero_file(names: list, field: str, local_boundary_types: dict, boundar
         print(f"snappyHexMeshDict.gen created at: {output_path}")
 
 
-def create_zero_boundaries(names, fm):
+def generate_all_zero_file(names, fm):
     """Build the zero files for the various fields and boundaries"""
 
     rotating_u_types = (f'{" " * 8}#include "../system/fvSchemes"\n'
@@ -300,24 +327,28 @@ def create_zero_boundaries(names, fm):
                         f'{" " * 4}}}\n')
 
     field_configs = {
-        'U': {'types': {'wall': 'fixedValue', 'MRFnoSlip': 'MRFnoSlip', 'movingWallVelocity': 'movingWallVelocity', 'rotating': rotating_u_types},
-              'values': {'inlet': 'uniform (0 0 0)', 'wall': 'uniform (0 0 0)', 'movingWallVelocity': 'uniform (0 0 0)'},
+        'U': {'types': {'wall': 'fixedValue', 'MRFnoSlip': 'MRFnoSlip', 'movingWallVelocity': 'movingWallVelocity',
+                        'NCC': 'movingWallSlipVelocity', 'rotating': rotating_u_types},
+              'values': {'inlet': 'uniform (0 0 0)', 'wall': 'uniform (0 0 0)',
+                         'movingWallVelocity': 'uniform (0 0 0)', 'NCC': 'uniform (0 0 0)'},
               'internal_field': 0},
 
         'p': {'types': {'inlet': 'zeroGradient', 'outlet': 'fixedValue'},
-              'values': {'outlet': 'uniform 0'},
+              'values': {'outlet': '$internalField'},
               'internal_field': 0},
 
-        'k': {'types': {'wall': 'kqRWallFunction'},
-              'values': {'inlet': '$internalField', 'wall': 'uniform 0'},
-              'internal_field': fm.turb_kinetic_energy.value},
-
         'epsilon': {'types': {'wall': 'epsilonWallFunction'},
-                    'values': {'inlet': '$internalField', 'wall': 'uniform 0'},
+                    'values': {'inlet': '$internalField', 'wall': '$internalField'},
                     'internal_field': fm.turb_dissipation_rate.value},
 
-        'nut': {'types': {'inlet': 'calculated', 'outlet': 'calculated', 'wall': 'nutUWallFunction'},
-                'values': {'inlet': 'uniform 0', 'outlet': 'uniform 0', 'wall': 'uniform 0'},
+        'k': {'types': {'wall': 'kqRWallFunction'},
+              'values': {'inlet': '$internalField', 'wall': '$internalField'},
+              'internal_field': fm.turb_kinetic_energy.value},
+
+        'nut': {'types': {'inlet': 'calculated', 'outlet': 'calculated', 'NCC': 'calculated',
+                          'wall': 'nutUWallFunction'},
+                'values': {'inlet': '$internalField', 'outlet': '$internalField', 'NCC': '$internalField',
+                           'wall': '$internalField'},
                 'internal_field': fm.turb_viscosity.value},
 
         'nuTilda': {'types': {},
@@ -349,21 +380,21 @@ def create_zero_boundaries(names, fm):
     }
 
     for field_name, config in field_configs.items():
-        build_zero_file(names, field_name, config["types"], config["values"], config["internal_field"])
+        generate_zero_file(names, field_name, config["types"], config["values"], config["internal_field"])
 
 
 def prepare_files():
     print(f"Processing directory: {CURRENT_DIR}")
     initialisation()
     patch_names = load_and_process_stl_files()
-    create_surface_features_dict(patch_names)
-    create_snappy_hex_mesh_dict(patch_names)
-    create_create_baffles_dict(patch_names)
+    generate_surface_features_dict(patch_names)
+    generate_snappy_hex_mesh_dict(patch_names)
+    generate_create_baffles_dict(patch_names)
+    generate_create_ncc_dict(patch_names)
     arguments = detect_and_parse_arguments(sys)
     flow_metrics = estimate_internal_fields(arguments)
-    create_zero_boundaries(patch_names, flow_metrics)
+    generate_all_zero_file(patch_names, flow_metrics)
 
 
 if __name__ == "__main__":
     prepare_files()
-
