@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Remove all processor directories (from a previous parallel run)
-rm -r processor*
-
 # Grab the number of processors from decomposeParDict
 NPROCS=$(foamDictionary -entry numberOfSubdomains -value system/decomposeParDict)
 
@@ -16,13 +13,14 @@ SOLVER=$(foamDictionary -entry solver -value system/controlDict)
 echo Running $APP with the $SOLVER solver on $NPROCS processors
 
 # Decompose the domain for parallel computing
-decomposePar 2>&1 | tee log.decomposePar
+# -o = overwrites the existing log
+decomposePar -force 2>&1 | tee log.decomposePar
 
 # Move 0 files for processor folders
 cp -r 0 processor*/*
 
-# Renumber the mesh for better convergence (not usable with cyclics!)
-# renumberMesh -overwrite -constant
+# Override the 'constant' dir processor directories
+ofOverrideProcessorConstant.py
 
 # Monitor the run using pyFoam
 # pyFoamPlotRunner.py
