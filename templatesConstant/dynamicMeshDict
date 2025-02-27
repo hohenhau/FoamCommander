@@ -16,18 +16,19 @@ FoamFile
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dynamicMeshA
+// For multiple rotating regions look into multiSolidBodyMotionSolver
+mover  // Must be called mover! Cannot be renamed!
 {
     type            motionSolver;
     libs            ("libfvMotionSolvers.so");
     motionSolver    solidBody;
-    cellZone        cellSelectorCells;  // Match to snappyHexMesh
+    cellZone        baffleNCCCells;  // Match to snappyHexMesh
 
     solidBodyMotionFunction  rotatingMotion;
-    origin    (0 0 0);     // Location of the rotation
-    axis      (0 0 1);     // Axis of revoultion
-    omega     200 [rpm];   // Revolutions per minute
-    // omega  10;          // Radians per second (1 RPM = 0.10472 rad/s)
+    origin      (0 0 0);     // Location of the rotation
+    axis        (0 0 1);     // Axis of revoultion
+    omega       200 [rpm];   // Revolutions per minute
+    // omega    10;          // Radians per second (1 RPM = 0.10472 rad/s)
 }
 
 // ************************************************************************* //
