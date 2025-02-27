@@ -57,7 +57,7 @@ solvers  // Numerical algorithms used to solve the field equations
         relTol          0.1;   // Relative tolerance compared to start of iteration
     }
 
-    "(U|k|omega)Final"  // Changed settings for the final iteration
+    "(U|k|epsilon|omega)Final"  // Changed settings for the final iteration
     {
         $U;                    // Copy settings from p
         relTol          0;     // Relative tolerance compared to start of iteration
