@@ -21,7 +21,7 @@ internalFacesOnly true;  // Only relevant if face selection can detect boundarie
 
 baffles  // Baffles to create
 {
-    // Insert the required $CYCLIC_BAFFLES$
+    // Insert the required $BAFFLE_DEFINITIONS$
 }
 
 // ************************************************************************* //
