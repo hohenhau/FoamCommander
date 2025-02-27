@@ -12,6 +12,9 @@ SOLVER=$(foamDictionary -entry solver -value system/controlDict)
 # Print solver and processors to terminal
 echo Running $APP with the $SOLVER solver on $NPROCS processors
 
+# Remove previous time steps
+ofDeleteTimeSteps.py
+
 # Decompose the domain for parallel computing
 # -o = overwrites the existing log
 decomposePar -force 2>&1 | tee log.decomposePar
