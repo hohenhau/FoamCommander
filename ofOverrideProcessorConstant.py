@@ -3,29 +3,42 @@ import os
 import re
 import glob
 import shutil
+import sys
 
 def is_time_dir(dirname):
     """Check if directory name is a time value (number or floating point)"""
     return re.match(r'^[0-9]+(\.[0-9]+)?$', dirname) is not None
 
+def get_latest_time(proc_dir='processor0'):
+    """Get the latest time directory from a reference processor directory"""
+    # Find all time directories
+    time_dirs = [d for d in os.listdir(proc_dir) if os.path.isdir(os.path.join(proc_dir, d)) and is_time_dir(d)]
+    
+    # Sort time directories numerically
+    time_dirs.sort(key=float)
+    
+    if not time_dirs:
+        print(f"No time directories found in {proc_dir} directory. Aborting override.")
+        sys.exit(1)
+    
+    latest_time = time_dirs[-1]
+    print(f"Latest time in {proc_dir} is {latest_time}")
+    return latest_time
+
 def main():
+    print("Overriding 'constant/' directory in processor folders")
+    
+    # Make sure processor0 exists
+    if not os.path.isdir("processor0"):
+        print("Error: processor0 directory not found. Make sure you're in the correct directory.")
+        sys.exit(1)
+    
+    # Get the latest time from processor0
+    latest_time = get_latest_time()
+    
     # Loop through all processor directories
     for proc_dir in glob.glob("processor*"):
-        # Find all time directories
-        time_dirs = [d for d in os.listdir(proc_dir) if os.path.isdir(os.path.join(proc_dir, d)) and is_time_dir(d)]
-        
-        # Sort time directories numerically
-        time_dirs.sort(key=float)
-        
-        if not time_dirs:
-            print(f"No time directories found in {proc_dir}")
-            continue
-        
-        # Get the latest time directory
-        latest_time = time_dirs[-1]
-        print(f"Latest time in {proc_dir} is {latest_time}")
-        
-        # Check if both polyMesh and fvMesh directories exist
+        # Check if both polyMesh and fvMesh directories exist in the latest time
         poly_mesh_path = os.path.join(proc_dir, latest_time, "polyMesh")
         fv_mesh_path = os.path.join(proc_dir, latest_time, "fvMesh")
         
@@ -43,7 +56,9 @@ def main():
                 src = os.path.join(poly_mesh_path, item)
                 dst = os.path.join(const_poly_path, item)
                 if os.path.isdir(src):
-                    shutil.copytree(src, dst, dirs_exist_ok=True)
+                    if os.path.exists(dst):
+                        shutil.rmtree(dst)
+                    shutil.copytree(src, dst)
                 else:
                     shutil.copy2(src, dst)
             
@@ -53,7 +68,9 @@ def main():
                 src = os.path.join(fv_mesh_path, item)
                 dst = os.path.join(const_fv_path, item)
                 if os.path.isdir(src):
-                    shutil.copytree(src, dst, dirs_exist_ok=True)
+                    if os.path.exists(dst):
+                        shutil.rmtree(dst)
+                    shutil.copytree(src, dst)
                 else:
                     shutil.copy2(src, dst)
         else:
