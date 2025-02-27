@@ -12,6 +12,9 @@ runApplication -o decomposePar -force
 # Override the 'constant' dir processor directories
 ofOverrideProcessorConstant.py
 
+# Run the application and override the log
+runParallel -o $(getApplication)
+
 # Add dimensions to y+ and Courant number
 ofAddDimensions.py
 
