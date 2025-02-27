@@ -16,7 +16,7 @@ SOLVER=$(foamDictionary -entry solver -value system/controlDict)
 echo Running $APP with the $SOLVER solver on $NPROCS processors
 
 # Decompose the domain for parallel computing
-decomposePar
+decomposePar 2>&1 | tee log.decomposePar
 
 # Move 0 files for processor folders
 cp -r 0 processor*/*
@@ -28,10 +28,10 @@ cp -r 0 processor*/*
 # pyFoamPlotRunner.py
 
 # Run the detected solver in parallel
-mpirun -np $NPROCS --rankfile system/rankfile $APP -solver $SOLVER -parallel 2>&1 | tee log
+mpirun -np $NPROCS --rankfile system/rankfile $APP -solver $SOLVER -parallel 2>&1 | tee log.$APP
 
 # Reconstruct latest timestep
-reconstructPar -latestTime
+reconstructPar -latestTime 2>&1 | tee log.reconstructPar
 
 # Add dimensions to y+ and Courant number
 ofAddDimensions.py
