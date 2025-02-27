@@ -3,6 +3,9 @@
 # Include standad function from /openfoam12/bin/tools/RunFunctions
 . $WM_PROJECT_DIR/bin/tools/RunFunctions
 
+# Remove previous time steps
+ofDeleteTimeSteps.py
+
 # Decompose the case and overwrite the log
 # -o = overwrites the existing log
 # -force = removes existing processor folders
