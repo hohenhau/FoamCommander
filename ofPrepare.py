@@ -100,7 +100,7 @@ def load_and_process_stl_files():
         print("No STL files found. Exiting...")
         sys.exit(1)  # Terminate program
     patches = list()
-    print('Found the following stl files:')
+    print('\n Loading and processing the following .stl files:')
     for filename in stl_files:
         filepath = os.path.join(TRI_SURFACE_DIR, filename)
         new_file_name = f'{filename.split(".")[0]}.{filename.split(".")[1].lower()}'
@@ -138,7 +138,7 @@ def perform_regex_replacements(patterns_and_replacements: list, template_path: s
 
 def generate_surface_features_dict(patch_names):
     """Creates the surfaceFeaturesDict.gen file."""
-    print("Creating surfaceFeaturesDict.gen...")
+    print("\nCreating surfaceFeaturesDict.gen...")
     template_path = os.path.join(TEMPLATE_SYSTEM_DIR, "surfaceFeaturesDict")  # Template file
     output_path = os.path.join(SYSTEM_DIR, "surfaceFeaturesDict.gen")
     replacement_pattern = r'.*\$STL_FILES\$.*\n'  # Match any line containing $STL_FILES$
@@ -384,7 +384,7 @@ def generate_all_zero_file(names, fm):
 
 
 def prepare_files():
-    print(f"Processing directory: {CURRENT_DIR}")
+    print(f"\nPreparing case in directory: {CURRENT_DIR}")
     initialisation()
     patch_names = load_and_process_stl_files()
     generate_surface_features_dict(patch_names)
