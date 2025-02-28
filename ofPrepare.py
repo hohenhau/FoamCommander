@@ -371,7 +371,8 @@ def generate_all_zero_file(patch_names, fm):
                           'values': {'inlet': 'uniform 1', 'outlet': 'uniform 0', 'inletOutlet': 'uniform 0'},
                           'internal_field': 0}
     }
-
+    
+    print('\nGenerating fields in 0/')
     for field_name, field_dict in field_dicts.items():
         generate_zero_file(patch_names, field_name, field_dict)
 
