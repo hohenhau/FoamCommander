@@ -75,7 +75,7 @@ class FlowMetrics:
 
     def __repr__(self):
         """Custom print method for easy visualization of results"""
-        print('Resulting flow metrics:')
+        print('\nResulting flow metrics:')
         return "\n".join(
             f"{attr} ({getattr(self, attr).symbol}): {float('%.*g' % (3, getattr(self, attr).value))}"
             for attr in vars(self) if isinstance(getattr(self, attr), FlowMetric)
