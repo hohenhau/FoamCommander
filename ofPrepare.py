@@ -271,10 +271,10 @@ def perform_regex_replacements(patterns_and_replacements: list, template_path: s
 
 def generate_dict(patch_names, template_name, template_dir, output_name, output_dir, replace_function):
     """Create various dict.gen files"""
-    template_path = os.path.join(template_dir, template_name)  # Template file
-    output_path = os.path.join(output_dir, output_name)
     output_name = f'{output_name}.gen'
     print(f"\nCreating system/{output_name}...")
+    template_path = os.path.join(template_dir, template_name)  # Template file
+    output_path = os.path.join(output_dir, output_name)
     patterns_and_replacements = replace_function(patch_names)
     perform_regex_replacements(patterns_and_replacements, template_path, output_path)
     print(f"{output_name} created at: {output_path}")
