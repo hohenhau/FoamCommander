@@ -230,7 +230,9 @@ def replace_zero_boundaries(patch_names, boundary_types, boundary_values, intern
         if patch_type not in patch_groups:
             patch_groups[patch_type] = []
         patch_groups[patch_type].append(patch_name)
-
+    print('DEBUG ------------------')
+    print(f'PATCH GROUPS = {patch_groups}')
+    print('DEBUG ------------------')
     boundary_block = str()
     for patch_type, patch_group in patch_groups.items():
         # Double up cyclic boundaries, baffles, and NCCs
