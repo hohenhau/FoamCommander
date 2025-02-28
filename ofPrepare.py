@@ -130,6 +130,9 @@ def replace_snappy_hex_mesh_dict(patch_names):
     for name in patch_names:
         stl_block += f'{" " * 8}{name}.stl {{type triSurfaceMesh; name {name}; file "{name}.stl";}}\n'
         mesh_block += f'{" " * 12}{{file "{name}.eMesh"; level 3;}}\n'
+        patch_type = get_patch_type_from_patch_name(name)
+        print(f'Matched {name} with {patch_type}')
+
         # Check if the patch is actually a zone and process it as such (includes NCC zones!)
         if 'zone' in name.lower() or 'region' in name.lower() or 'honeycomb' in name.lower():
             surface_block += (f'{" " * 12}{name}\n'
@@ -137,18 +140,19 @@ def replace_snappy_hex_mesh_dict(patch_names):
                               f'{" " * 16}faceZone {name}Faces;\n'
                               f'{" " * 16}cellZone {name}Cells;\n'
                               f'{" " * 16}cellZoneInside inside;}}\n')
-            continue
-        patch_type = get_patch_type_from_patch_name(name)
-        print(f'Matched {name} with {patch_type}')
-        if patch_type in {'baffle', 'internal'}:  # faceType options are {internal, baffle, and boundary}
+        elif patch_type in {'baffle', 'internal'}:  # faceType options are {internal, baffle, and boundary}
             surface_block += f'{" " * 12}{name} {{level (0 0); faceZone {name}Faces; faceType {patch_type};}}\n'
-            layer_block += f'{" " * 8}{name}{{nSurfaceLayers 0;}}  // Stops layers from disrupting baffle surface\n'
         elif patch_type in {'wall', 'patch', 'symmetry', 'symmetryPlane', 'empty', 'cyclic', 'wedge'}:
             surface_block += f'{" " * 12}{name} {{level (0 0); patchInfo {{type {patch_type};}} }}\n'
         elif patch_type in {'inlet', 'outlet', 'inletOutlet', 'NCC'}:
             surface_block += f'{" " * 12}{name} {{level (0 0); patchInfo {{type patch;}} }}\n'
         else:
             surface_block += f'{" " * 12}{name} {{level (0 0); patchInfo {{type wall;}} }}\n'
+
+        # Add 0 layers to internal boundaries
+        if patch_type in {'baffle', 'internal'} or 'ncc' in name.lower():
+            layer_block += f'{" " * 8}{name}{{nSurfaceLayers 0;}}  // Stops layers from disrupting baffle surface\n'
+            
     # Define the patterns to match the entire lines containing the variables
     patterns_and_replacements = [(r'.*\$STL_FILES_AND_GEOMETRIES\$.*\n', stl_block),
                                  (r'.*\$MESH_FEATURES\$.*\n', mesh_block),
