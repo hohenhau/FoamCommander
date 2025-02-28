@@ -376,7 +376,7 @@ def generate_all_zero_file(patch_names, fm):
 
     print('\nGenerating fields in 0/')
     for field_name, field_dict in field_dicts.items():
-        generate_zero_file(patch_names, field_name, field_dict[field_name])
+        generate_zero_file(patch_names, field_name, field_dict)
 
 
 if __name__ == "__main__":
