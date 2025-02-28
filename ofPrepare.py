@@ -304,7 +304,7 @@ def generate_zero_file(patch_names: list, field: str, boundary_dict: dict):
 
     patterns_and_replacements = replace_zero_boundaries(filtered_names, boundary_types, boundary_vals, internal_field)
     perform_regex_replacements(patterns_and_replacements, template_path, output_path)
-    print(f"snappyHexMeshDict.gen created at: {output_path}")
+    print(f"Field {field} created at: {output_path}")
 
 
 def generate_all_zero_file(patch_names, fm):
