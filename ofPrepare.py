@@ -255,8 +255,8 @@ def replace_zero_boundaries(patch_names, boundary_types, boundary_values, intern
         patterns_and_replacements = [(r'.*\$INTERNAL_FIELD\$.*\n', internal_field_block),
                                      (r'.*\$BOUNDARY_FIELDS\$.*\n', boundary_block)]
         return patterns_and_replacements
-    
-    
+
+
 def perform_regex_replacements(patterns_and_replacements: list, template_path: str, output_path: str):
     # Read the template file
     with open(template_path, 'r') as template_file:
@@ -273,12 +273,12 @@ def generate_dict(patch_names, template_name, template_dir, output_name, output_
     """Create various dict.gen files"""
     template_path = os.path.join(template_dir, template_name)  # Template file
     output_path = os.path.join(output_dir, output_name)
-    print(f"/nCreating system/{output_name}...")
+    print(f"\nCreating system/{output_name}...")
     patterns_and_replacements = replace_function(patch_names)
     perform_regex_replacements(patterns_and_replacements, template_path, output_path)
     print(f"{output_name} created at: {output_path}")
-    
-    
+
+
 def generate_zero_file(patch_names: list, field: str, boundary_dict: dict):
     """Creates a file in the zero directory with grouped patch settings."""
     template_path = os.path.join(TEMPLATE_BOUNDARY_DIR, f"{field}")
