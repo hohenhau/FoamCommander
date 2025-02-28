@@ -380,7 +380,10 @@ def generate_all_zero_file(patch_names, fm):
 if __name__ == "__main__":
     print(f"\nPreparing case in directory: {CURRENT_DIR}")
     initialisation()
+    arguments = detect_and_parse_arguments(sys)
+    flow_metrics = estimate_internal_fields(arguments)
     patch_names = load_and_process_stl_files()
+    generate_all_zero_file(patch_names, flow_metrics)
 
     generate_dict(patch_names, 'snappyHexMeshTemplate', TEMPLATE_SYSTEM_DIR,
                   'snappyHexMeshDict', SYSTEM_DIR, replace_snappy_hex_mesh_dict)
@@ -393,7 +396,3 @@ if __name__ == "__main__":
 
     generate_dict(patch_names, 'createNonConformalCouplesTemplate', TEMPLATE_SYSTEM_DIR,
                   'createNonConformalCouplesDict', SYSTEM_DIR, replace_create_ncc_dict)
-
-    arguments = detect_and_parse_arguments(sys)
-    flow_metrics = estimate_internal_fields(arguments)
-    generate_all_zero_file(patch_names, flow_metrics)
