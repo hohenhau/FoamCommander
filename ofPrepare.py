@@ -164,7 +164,7 @@ def replace_create_baffles_dict(patch_names):
         patch_type = get_patch_type_from_patch_name(patch_name)
         if patch_type not in {'baffle', 'internal', 'cyclic', 'NCC'}:
             continue
-        baffle_type = 'patch' if patch_type == 'NCC' else 'cyclic'
+        baffle_type = 'patch' if patch_type.lower() == 'ncc' else 'cyclic'
         replacement_text += (f'{" " * 4}{patch_name}Group\n'
                              f'{" " * 4}{{\n'
                              f'{" " * 8}type        faceZone;\n'
