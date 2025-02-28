@@ -230,9 +230,7 @@ def replace_zero_boundaries(patch_names, boundary_types, boundary_values, intern
         if patch_type not in patch_groups:
             patch_groups[patch_type] = []
         patch_groups[patch_type].append(patch_name)
-    print('DEBUG ------------------')
-    print(f'PATCH GROUPS = {patch_groups}')
-    print('DEBUG ------------------')
+
     boundary_block = str()
     for patch_type, patch_group in patch_groups.items():
         # Double up cyclic boundaries, baffles, and NCCs
@@ -251,12 +249,12 @@ def replace_zero_boundaries(patch_names, boundary_types, boundary_values, intern
         if patch_type in boundary_values:
             boundary_block += f'        value           {boundary_values[patch_type]};\n'
         boundary_block += '    }\n'
-        # Define the value block   float('%.*g' % (3, internal_field))
-        internal_field_block = f"internalField   uniform {float('%.*g' % (3, internal_field))}; // Adjust to simulation"
-        # Define the patterns to match the entire lines containing the variables
-        patterns_and_replacements = [(r'.*\$INTERNAL_FIELD\$.*\n', internal_field_block),
-                                     (r'.*\$BOUNDARY_FIELDS\$.*\n', boundary_block)]
-        return patterns_and_replacements
+    # Define the value block   float('%.*g' % (3, internal_field))
+    internal_field_block = f"internalField   uniform {float('%.*g' % (3, internal_field))}; // Adjust to simulation"
+    # Define the patterns to match the entire lines containing the variables
+    patterns_and_replacements = [(r'.*\$INTERNAL_FIELD\$.*\n', internal_field_block),
+                                 (r'.*\$BOUNDARY_FIELDS\$.*\n', boundary_block)]
+    return patterns_and_replacements
 
 
 def perform_regex_replacements(patterns_and_replacements: list, template_path: str, output_path: str):
