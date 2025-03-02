@@ -16,7 +16,7 @@ FoamFile
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// For multiple rotating regions look into multiSolidBodyMotionSolver
+// For single-body motion use 'motionSolver multiSolidBodyMotionSolver' instead
 mover  // Must be called mover! Cannot be renamed!
 {
     type            motionSolver;
