@@ -1,4 +1,58 @@
 /*--------------------------------*- C++ -*----------------------------------*\
+=========                 |
+\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+ \\    /   O peration     | Website:  www.openfoam.org
+  \\  /    A nd           | Version:  User generated
+   \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      dynamicMeshDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+mover
+{
+    type            motionSolver;
+    libs            ("libfvMotionSolvers.so");
+    motionSolver    multiSolidBodyMotionSolver;
+
+    zoneNCC_ACells  // Name of cell zone (defined in snappyHexMesh)
+    {
+        solidBodyMotionFunction rotatingMotion;
+        rotatingMotionCoeffs
+        {
+            origin      (0 0 0);     // Origin of rotation
+            axis        (0 0 1);     // Axis of rotation
+            omega       200 [rpm];   // Speed in rpm
+            // omega    10;          // Radians per second (1 RPM = 0.10472 rad/s)
+        }
+    }
+
+    zoneNCC_BCells  // Name of cell zone (defined in snappyHexMesh)
+    {
+        solidBodyMotionFunction rotatingMotion;
+        rotatingMotionCoeffs
+        {
+            origin      (0 0 1);     // Origin of rotation
+            axis        (0 0 1);     // Axis of rotation
+            omega       -200 [rpm];  // Speed in rpm
+            // omega    10;          // Radians per second (1 RPM = 0.10472 rad/s)
+        }
+    }
+}
+
+// ************************************************************************* //
+
+
+
+
+/*--------------------------------*- C++ -*----------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Website:  www.openfoam.org
