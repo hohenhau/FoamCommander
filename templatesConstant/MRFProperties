@@ -26,7 +26,7 @@ FoamFile
     active    yes;
     cellZone  exampleCells;  // Name of relevant cell zone
 
-    nonRotatingPatches (stationaryWallB);  // Keeps patches stationary
+    nonRotatingPatches (stationaryExample);  // Keeps patches stationary
 
     origin    (0 0 1);     // Location of the rotation
     axis      (0 0 1);     // Axis of revoultion
