@@ -16,7 +16,8 @@ FoamFile
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-mover
+// For single-body motion use 'motionSolver solidBody' instead!
+mover  // Must be called mover! Cannot be renamed!
 {
     type            motionSolver;
     libs            ("libfvMotionSolvers.so");
@@ -43,62 +44,6 @@ mover
             axis        (0 0 1);     // Axis of rotation
             omega       -200 [rpm];  // Speed in rpm
             // omega    10;          // Radians per second (1 RPM = 0.10472 rad/s)
-        }
-    }
-}
-
-// ************************************************************************* //
-
-
-
-
-/*--------------------------------*- C++ -*----------------------------------*\
-  =========                 |
-  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  www.openfoam.org
-    \\  /    A nd           | Version:  User generated
-     \\/     M anipulation  |
-\*---------------------------------------------------------------------------*/
-
-FoamFile
-{
-    format      ascii;
-    class       dictionary;
-    location    "constant";
-    object      dynamicMeshDict;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-dynamicFvMesh   dynamicMotionSolverFvMesh;
-
-motionSolverLibs ("libfvMotionSolvers.so");
-
-motionSolver    multiSolidBodyMotion;
-
-multiSolidBodyMotionCoeffs
-{
-    rotorA // First rotating zone
-    {
-        solidBodyMotionFunction  rotatingMotion;
-        cellZone  rotorACells;  // First cell zone name from snappyHexMesh
-        rotatingMotionCoeffs
-        {
-            origin      (0 0 0);     // Location of the rotation axis
-            axis        (0 0 1);     // Axis of revolution (z-axis)
-            omega       200 [rpm];   // Revolutions per minute
-        }
-    }
-
-    rotorB // Second rotating zone
-    {
-        solidBodyMotionFunction  rotatingMotion;
-        cellZone  rotorBCells;  // Second cell zone name from snappyHexMesh
-        rotatingMotionCoeffs
-        {
-            origin      (0 0 0);     // Location of the rotation axis
-            axis        (0 0 1);     // Axis of revolution (z-axis)
-            omega       200 [rpm];   // Different rotation speed for second zone
         }
     }
 }
