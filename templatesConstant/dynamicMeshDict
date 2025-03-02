@@ -22,7 +22,7 @@ mover  // Must be called mover! Cannot be renamed!
     type            motionSolver;
     libs            ("libfvMotionSolvers.so");
     motionSolver    solidBody;
-    cellZone        baffleNCCCells;  // Match to snappyHexMesh
+    cellZone        zoneNCC_ACells;  // Match to snappyHexMesh
 
     solidBodyMotionFunction  rotatingMotion;
     origin      (0 0 0);     // Location of the rotation
