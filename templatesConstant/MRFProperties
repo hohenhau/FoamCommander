@@ -1,9 +1,9 @@
 /*--------------------------------*- C++ -*----------------------------------*\
-  =========                 |
-  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  www.openfoam.org
-    \\  /    A nd           | Version:  User generated
-     \\/     M anipulation  |
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  User generated                        |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 
 FoamFile
@@ -16,18 +16,22 @@ FoamFile
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-multipleReferenceZoneA  // Definitions of the multiple reference frame (i.e. propeller) zones
+// CAUTION: Ensure cellZone matches snappyHexMesh definition and to update the
+// relevant boundaries in 0/U to "movingWallVelocity", "slip", or "MRFnoSlip"
+
+// Insert the required $MRF_DEFINITIONS$
+
+/* multipleReferenceZoneExample  // Example of MRF definitions
 {
-    active      no;
-    cellZone    cellSelectorCells;   // CAUTION: Ensure this matches your mesh definition
+    active    yes;
+    cellZone  exampleCells;  // Name of relevant cell zone
 
-    // CAUTION: remember to update the boundaries in 0/U to "movingWallVelocity", "slip", or "MRFnoSlip"
-    nonRotatingPatches (nonRotatingWall);  // Keeps the rotatingWall stationary in the lab frame
+    nonRotatingPatches (stationaryWallB);  // Keeps patches stationary
 
-    origin    (0 0 0);     // Location of the rotation
+    origin    (0 0 1);     // Location of the rotation
     axis      (0 0 1);     // Axis of revoultion
     omega     200 [rpm];   // Revolutions per minute
     // omega  10;          // Radians per second (1 RPM = 0.10472 rad/s)
-}
+}*/
 
 // ************************************************************************* //
