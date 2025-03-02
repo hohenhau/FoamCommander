@@ -16,7 +16,7 @@ FoamFile
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// For single-body motion use 'motionSolver solidBody' instead!
+// For single-body motion use 'motionSolver solidBody' instead
 mover  // Must be called mover! Cannot be renamed!
 {
     type            motionSolver;
