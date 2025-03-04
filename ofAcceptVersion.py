@@ -20,7 +20,7 @@ def main():
 
     # Step 2: Get current working directory
     working_dir = os.getcwd()
-    print(f"Searching in directory: {working_dir}")
+    print(f"\nReplacing standard file versions with {file_ending} versions in {working_dir}")
 
     # Step 3 & 4: Search for files with the given ending and create copies
     for root, _, files in os.walk(working_dir):
