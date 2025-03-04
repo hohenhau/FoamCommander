@@ -34,9 +34,15 @@ def main():
 
                 # Step 5: Copy and overwrite if necessary
                 shutil.copy2(source_path, destination_path)
-                print(f"Copied: {source_path} --> {destination_path}")
+
+                # Print relative paths for cleaner output
+                relative_source = os.path.relpath(source_path, working_dir)
+                relative_destination = os.path.relpath(destination_path, working_dir)
+
+                print(f"Copied: {relative_source} --> {relative_destination}")
 
     print("File processing complete.")
 
 if __name__ == "__main__":
     main()
+
