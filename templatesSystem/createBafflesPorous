@@ -19,8 +19,8 @@ FoamFile
 // Only relevant if your face selection type can pick up a boundary
 internalFacesOnly true;  // Ensures only internal faces are selected
 
-// Define key baffle metrics (porosity is 0.63)
-D_SCREEN 20000000;  // Darcy coefficient
+// Define key porosity metrics
+D_SCREEN 20000000;  // Darcy coefficient (porosity is 0.63)
 I_SCREEN 280;       // Inertial coefficient
 L_SCREEN 0.003;     // Scaling of pressure drop
 
@@ -38,7 +38,7 @@ baffles  // Define baffles to be created
                 name            porousBaffleA;
                 type            cyclic;
                 neighbourPatch  porousBaffleA_slave;
-                transform       none;  // Option {rotational, none, translational} 
+                transform       none;  // Option {none, rotational, translational} 
 
                 patchFields  // Optional override of patch fields
                 {
