@@ -68,6 +68,8 @@ SIMPLE  // Semi-Implicit Method for Pressure-Linked Equations (for steady-state)
 {
     nNonOrthogonalCorrectors  1;  // Additional corrections for non-orthogonal meshes
     consistent  no;  // Enables the SIMPLEC formulation for faster convergence
+    // pRefPoint (0 0 0);         // Required if there is no inlet/outlet
+    // pRefValue 0;               // Required if there is no inlet/outlet
     residualControl  // Threshold below which the solution is considered converged
     {
         p                           1e-4;
