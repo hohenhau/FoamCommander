@@ -99,6 +99,8 @@ PIMPLE  // Combination of PISO and SIMPLE algorithms (for transient simulations)
     nNonOrthogonalCorrectors  1;  // Additional corrections for non-orthogonal meshes
     correctPhi  yes;      // correct the flux through the faces after a mesh motion update
     correctMeshPhi  yes;  // ensure that mesh-motion-induced flux is correctly accounted for
+    // pRefPoint (0 0 0);  // Required if there is no inlet/outlet
+    // pRefValue 0;  // Required if there is no inlet/outlet
 }
 /* ------------------------ PIMPLE Options & Notes ------------------------- *\
 SIMPLE Algorithm - Semi-Implicit Method for Pressure-Linked Equations
