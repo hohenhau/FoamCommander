@@ -11,3 +11,12 @@ SOLVER=$(foamDictionary -entry application -value system/controlDict)
 
 # Continue the simulation in parallel & display output on the screen
 mpirun -np $NPROCS --rankfile system/rankfile $SOLVER -parallel 2>&1 | tee -a log
+
+# Reconstruct latest timestep
+reconstructPar -latestTime 2>&1 | tee log.reconstructPar
+
+# Add dimensions to y+ and Courant number
+ofAddDimensions.py
+
+# Plot the residuals and save the plot
+ofPlotResiduals.py
