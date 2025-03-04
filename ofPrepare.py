@@ -505,3 +505,5 @@ if __name__ == "__main__":
 
     generate_dynamic_mesh_dict(patch_names, TEMPLATE_CONSTANT_DIR,
                   'dynamicMesh', CONSTANT_DIR)
+    
+    print('\nCompleted preparation!\n\n')
