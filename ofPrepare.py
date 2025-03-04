@@ -220,7 +220,7 @@ def replace_create_baffles_dict(patch_names):
                         f'{" " * 16}type            {baffle_type};\n'
                         f'{" " * 16}name            {patch_name};\n'
                         f'{" " * 16}neighbourPatch  {patch_name}_slave;\n'
-                        f'{" " * 16}transform       none;  // Option {{none, rotational, translational}}\n')
+                        f'{" " * 16}transform       none;  // Options: {{none, rotational, translational}}\n')
         if 'porous' in patch_name.lower():
             replacement += porous_block
         elif 'fan' in patch_name.lower():
@@ -231,7 +231,7 @@ def replace_create_baffles_dict(patch_names):
                         f'{" " * 16}type            {baffle_type};\n'
                         f'{" " * 16}name            {patch_name}_slave;\n'
                         f'{" " * 16}neighbourPatch  {patch_name};\n'
-                        f'{" " * 16}transform       none;  // Option {{none, rotational, translational}}\n')
+                        f'{" " * 16}transform       none;  // Options: {{none, rotational, translational}}\n')
         if 'porous' in patch_name.lower():
             replacement += porous_block
         elif 'fan' in patch_name.lower():
