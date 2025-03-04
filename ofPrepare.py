@@ -173,7 +173,7 @@ def replace_create_baffles_dict(patch_names):
     if any('fan' in patch_name.lower() for patch_name in patch_names):
         definitions += ('// Define key porosity metrics\n'
                         '// Choices are {constant, polynomial}, but was polynomial 1((100 0));\n'
-                        'JUMP_Table constant 2.0;  // \n\n')
+                        'JUMP_Table constant 2.0;\n\n')
 
     porous_block = (f'{" " * 16}patchFields  // Optional override of patch fields\n'
                     f'{" " * 16}{{\n'
@@ -366,7 +366,7 @@ def replace_zero_boundaries(patch_names, boundary_types, boundary_values, intern
     boundary_block = str()
     for patch_type, patch_group in patch_groups.items():
         # Double up cyclic boundaries, baffles, and NCCs
-        if patch_type in {'baffle', 'cyclic', 'NCC'}:
+        if patch_type in {'internal', 'baffle', 'cyclic', 'NCC'}:
             patch_group = [f"{patch}{ending}" for patch in patch_group for ending in ['', '_slave']]
         # Join patches with '|' and wrap in parentheses
         group_name = f'"{patch_group[0]}"' if len(patch_group) == 1 else f'"({"|".join(patch_group)})"'
