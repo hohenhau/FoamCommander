@@ -164,35 +164,85 @@ def replace_snappy_hex_mesh_dict(patch_names):
 
 def replace_create_baffles_dict(patch_names):
     """Function to find the replacement pattern and text for a specific template"""
-    replacement_text = str()
+
+    definitions = str()
+    if any('porous' in patch_name.lower() for patch_name in patch_names):
+        definitions += ('// Define key fan metrics\n'
+                        'D_SCREEN 20000000;  // Darcy coefficient (porosity is 0.63)\n'
+                        'L_SCREEN 0.003;     // Scaling of pressure drop\n\n')
+    if any('fan' in patch_name.lower() for patch_name in patch_names):
+        definitions += ('// Define key porosity metrics\n'
+                        '// Choices are {constant, polynomial}, but was polynomial 1((100 0));\n'
+                        'JUMP_Table constant 2.0;  // \n\n')
+
+    porous_block = (f'{" " * 16}patchFields  // Optional override of patch fields\n'
+                    f'{" " * 16}{{\n'
+                    f'{" " * 20}p\n'
+                    f'{" " * 20}{{\n'
+                    f'{" " * 24}type         porousBafflePressure;\n'
+                    f'{" " * 24}patchType    cyclic;\n'
+                    f'{" " * 24}value        uniform 0;\n'
+                    f'{" " * 24}jump         uniform 0;\n'
+                    f'{" " * 24}uniformJump  false;\n'
+                    f'{" " * 24}D            $D_SCREEN;  // Darcy coefficient\n'
+                    f'{" " * 24}I            $I_SCREEN;  // Inertial coefficient\n'
+                    f'{" " * 24}length       $L_SCREEN;  // Scaling of pressure drop\n'
+                    f'{" " * 20}}}\n'
+                    f'{" " * 16}}}\n')
+
+    fan_block = (f'{" " * 16}patchFields  // Optional override of patch fields\n'
+                 f'{" " * 16}{{\n'
+                 f'{" " * 20}p\n'
+                 f'{" " * 20}{{\n'
+                 f'{" " * 24}type            fanPressureJump;\n'
+                 f'{" " * 24}patchType       cyclic;\n'
+                 f'{" " * 24}value           uniform 0;\n'
+                 f'{" " * 24}jump            uniform 0;\n'
+                 f'{" " * 24}reverse         false;\n'
+                 f'{" " * 24}jumpTable       $JUMP_Table;  // Pressure rise (pressure / density)\n'
+                 f'{" " * 20}}}\n'
+                 f'{" " * 16}}}\n')
+
+    replacement = str()
     for patch_name in patch_names:
         patch_type = get_patch_type_from_patch_name(patch_name)
         if patch_type not in {'baffle', 'internal', 'cyclic', 'NCC'}:
             continue
         baffle_type = 'patch' if patch_type.lower() == 'ncc' else 'cyclic'
-        replacement_text += (f'{" " * 4}{patch_name}Group\n'
-                             f'{" " * 4}{{\n'
-                             f'{" " * 8}type        faceZone;\n'
-                             f'{" " * 8}zoneName    {patch_name}Faces;\n'
-                             f'{" " * 8}patches\n'
-                             f'{" " * 8}{{\n'
-                             f'{" " * 12}master\n'
-                             f'{" " * 12}{{\n'
-                             f'{" " * 16}type            {baffle_type};\n'
-                             f'{" " * 16}name            {patch_name};\n'
-                             f'{" " * 16}neighbourPatch  {patch_name}_slave;\n'
-                             f'{" " * 12}}}\n'
-                             f'{" " * 12}slave\n'
-                             f'{" " * 12}{{\n'
-                             f'{" " * 16}type            {baffle_type};\n'
-                             f'{" " * 16}name            {patch_name}_slave;\n'
-                             f'{" " * 16}neighbourPatch  {patch_name};\n'
-                             f'{" " * 12}}}\n'
-                             f'{" " * 8}}}\n'
-                             f'{" " * 4}}}\n')
+        replacement += (f'{" " * 4}{patch_name}Group\n'
+                        f'{" " * 4}{{\n'
+                        f'{" " * 8}type        faceZone;\n'
+                        f'{" " * 8}zoneName    {patch_name}Faces;\n'
+                        f'{" " * 8}patches\n'
+                        f'{" " * 8}{{\n'
+                        f'{" " * 12}master\n'
+                        f'{" " * 12}{{\n'
+                        f'{" " * 16}type            {baffle_type};\n'
+                        f'{" " * 16}name            {patch_name};\n'
+                        f'{" " * 16}neighbourPatch  {patch_name}_slave;\n'
+                        f'{" " * 16}transform       none;  // Option {{none, rotational, translational}}\n')
+        if 'porous' in patch_name.lower():
+            replacement += porous_block
+        elif 'fan' in patch_name.lower():
+            replacement += fan_block
+        replacement += (f'{" " * 12}}}\n'
+                        f'{" " * 12}slave\n'
+                        f'{" " * 12}{{\n'
+                        f'{" " * 16}type            {baffle_type};\n'
+                        f'{" " * 16}name            {patch_name}_slave;\n'
+                        f'{" " * 16}neighbourPatch  {patch_name};\n'
+                        f'{" " * 16}transform       none;  // Option {{none, rotational, translational}}\n')
+        if 'porous' in patch_name.lower():
+            replacement += porous_block
+        elif 'fan' in patch_name.lower():
+            replacement += fan_block
+        replacement += (f'{" " * 12}}}\n'
+                        f'{" " * 8}}}\n'
+                        f'{" " * 4}}}\n')
     # Bundle the replacement text and pattern
     replacement_pattern = r'.*\$BAFFLE_DEFINITIONS\$.*\n'
-    return [(replacement_pattern, replacement_text)]
+    return [(r'.*\$SHARED_DEFINITIONS\$.*\n', definitions),
+            (r'.*\$BAFFLE_DEFINITIONS\$.*\n', replacement)]
 
 
 def replace_surface_features_dict(patch_names):
@@ -504,6 +554,6 @@ if __name__ == "__main__":
                   'fvModels', CONSTANT_DIR, replace_fv_models)
 
     generate_dynamic_mesh_dict(patch_names, TEMPLATE_CONSTANT_DIR,
-                  'dynamicMesh', CONSTANT_DIR)
-    
+                               'dynamicMesh', CONSTANT_DIR)
+
     print('\nCompleted preparation!\n\n')
