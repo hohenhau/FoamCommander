@@ -1,0 +1,34 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  www.openfoam.org
+    \\  /    A nd           | Version:  User generated
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      fvModels;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+standardCoordinateSystem
+{
+    type    cartesian;         // Define the type of coordinate system
+    origin  (0 0 0);           // Optional to set separate coordinate system
+    coordinateRotation
+    {
+        type    axesRotation;  // Defines the rotation type (axesRotation is commonly used)
+        e1      (1 0 0);       // Primary direction (first basis vector)
+        e2      (0 1 0);       // Secondary direction (second basis vector)
+        // Third axis (e3) is automatically computed as e1 x e2
+    }
+}
+
+// Insert the required $FV_MODEL_DEFINITIONS$
+
+// ************************************************************************* //
