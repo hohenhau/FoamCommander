@@ -32,7 +32,7 @@ mover  // Must be called mover! Cannot be renamed!
         {
             origin      (0 0 0);     // Origin of rotation
             axis        (0 0 1);     // Axis of rotation
-            omega       -200 [rpm];  // Speed in rpm
+            omega       200 [rpm];  // Speed in rpm
             // omega    10;          // Radians per second (1 RPM = 0.10472 rad/s)
         }
     }*/
