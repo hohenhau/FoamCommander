@@ -6,11 +6,14 @@
 # Grab the number of processors from decomposeParDict
 NPROCS=$(foamDictionary -entry numberOfSubdomains -value system/decomposeParDict)
 
+# Grab the application from controlDict
+APP=$(foamDictionary -entry application -value system/controlDict)
+
 # Grab the solver from controlDict
 SOLVER=$(foamDictionary -entry application -value system/controlDict)
 
 # Continue the simulation in parallel & display output on the screen
-mpirun -np $NPROCS --rankfile system/rankfile $SOLVER -parallel 2>&1 | tee -a log
+mpirun -np $NPROCS --rankfile system/rankfile $SOLVER -parallel 2>&1 | tee -a log.$APP
 
 # Reconstruct latest timestep
 reconstructPar -latestTime 2>&1 | tee log.reconstructPar
