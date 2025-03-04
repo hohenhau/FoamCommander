@@ -47,12 +47,12 @@ turbulenceFields  // Calcluate Turbulence length scale (L) & Turbulence Intensit
     libs             ("libfieldFunctionObjects.so");  // Library to be used (mandatory)
     writeControl     writeTime;                       // What triggers write (optional)
     fields           (L I);                           // Fields to calculate (optional)
-    enabled          true;                            // Make it active (optional)
+    enabled          false;                           // Make it active (optional)
 }
 
 forces
 {
-    type             forces;            // Type of function (mandatory)  
+    type             forces;            // Type of function (mandatory)
     libs             ("libforces.so");  // Library to be used (mandatory)
     writeControl     writeTime;         // What triggers write (optional)
     log              true;              // Write to log? (optional)
@@ -64,19 +64,47 @@ forces
     enabled          false;             // Make it active (optional)
 }
 
-/*fileUpdate1
+
+/* -------- Settings to automatically change the type of simulation -------- //
+
+switchTime     2;
+startTime      -1;
+switchEnabled  false;
+
+fileUpdateFvSchemes
 {
-    type              timeActivatedFileUpdate;
-    libs              ("libutilityFunctionObjects.so");
-    writeControl      timeStep;
-    writeInterval     1;
-    fileToUpdate      "$FOAM_CASE/system/fvSchemes";
-    enabled           false
+    type               timeActivatedFileUpdate;
+    libs               ("libutilityFunctionObjects.so");
+    writeControl       timeStep;
+    writeInterval      1;
+    fileToUpdate       "$FOAM_CASE/system/fvSchemes";
+    enabled            $switchEnabled;
     timeVsFile
     (
-        // start with first order
-        (-1 "$FOAM_CASE/system/fvSchemes_1")
-        // after 100 iterations use second order
-        (100 "$FOAM_CASE/system/fvSchemes_2")  
+        ($startTime    "$FOAM_CASE/system/fvSchemes.steady")
+        ($switchTime   "$FOAM_CASE/system/fvSchemes.transient")
     );
-}*/
+}
+
+// --------- Settings to automatically execute external commands  ---------- //
+
+systemCallExample
+{
+    type        systemCall;
+    libs        ("libutilityFunctionObjects.so");
+    executeCalls // Calls that will be run at every step of the simulation
+    (
+        "echo Running custom system calls on execution specified in system/function"
+    );
+    writeCalls  // Calls that will be run when writing data
+    (
+        "echo Running custom system calls on write specified in system/function"
+    );
+    endCalls  // Calls that will be run when the sim has ended
+    (
+        "echo Running custom system calls on execution specified in system/function"
+    );
+    enabled     false;  // Make it active (optional)
+}
+
+\*---------------------------------------------------------------------------*/
