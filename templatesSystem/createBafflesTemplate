@@ -19,6 +19,8 @@ FoamFile
 // Only relevant if your face selection type can pick up a boundary
 internalFacesOnly true;  // Only relevant if face selection can detect boundaries
 
+// Insert the required $SHARED_DEFINITIONS$
+
 baffles  // Baffles to create
 {
     // Insert the required $BAFFLE_DEFINITIONS$
