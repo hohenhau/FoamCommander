@@ -15,6 +15,7 @@ CURRENT_DIR = os.getcwd()
 TRI_SURFACE_DIR = os.path.join(CURRENT_DIR, "constant", "triSurface")
 ZERO_DIR = os.path.join(CURRENT_DIR, "0.gen")
 SYSTEM_DIR = os.path.join(CURRENT_DIR, "system")
+CONSTANT_DIR = os.path.join(CURRENT_DIR, "constant")
 
 
 def initialisation():
@@ -152,7 +153,7 @@ def replace_snappy_hex_mesh_dict(patch_names):
         # Add 0 layers to internal boundaries
         if patch_type in {'baffle', 'internal'} or 'ncc' in name.lower():
             layer_block += f'{" " * 8}{name}{{nSurfaceLayers 0;}}  // Stops layers from disrupting baffle surface\n'
-            
+
     # Define the patterns to match the entire lines containing the variables
     patterns_and_replacements = [(r'.*\$STL_FILES_AND_GEOMETRIES\$.*\n', stl_block),
                                  (r'.*\$MESH_FEATURES\$.*\n', mesh_block),
@@ -206,18 +207,95 @@ def replace_surface_features_dict(patch_names):
 
 def replace_create_ncc_dict(patch_names):
     """Function to find the replacement pattern and text for a specific template"""
-    replacement_text = str()
-    for patch_name in patch_names:
-        if 'NCC' not in patch_name.upper():
-            continue
-        replacement_text += (f'{" " * 4}{patch_name}_Group\n'
-                             f'{" " * 4}{{\n'
-                             f'{" " * 8}patches         ({patch_name} {patch_name}_slave);\n'
-                             f'{" " * 8}transform       none;  // Options {{none, rotational, & translational}}\n'
-                             f'{" " * 4}}}\n')
+    included = tuple(['NCC'])
+    filtered_names = [name for name in patch_names if any(word.lower() in name.lower() for word in included)]
+    replace = str()
+    for patch_name in filtered_names:
+        replace += (f'{" " * 4}{patch_name}_Group\n'
+                    f'{" " * 4}{{\n'
+                    f'{" " * 8}patches         ({patch_name} {patch_name}_slave);\n'
+                    f'{" " * 8}transform       none;  // Options {{none, rotational, & translational}}\n'
+                    f'{" " * 4}}}\n')
     # Bundle the replacement text and pattern
     replacement_pattern = r'.*\$NCC_DEFINITIONS\$.*\n'
-    return [(replacement_pattern, replacement_text)]
+    return [(replacement_pattern, replace)]
+
+
+def replace_mrf_properties(patch_names):
+    """Function to find the replacement pattern and text for a specific template"""
+    included = tuple(['zone', 'region'])
+    filtered_names = [name for name in patch_names if any(word.lower() in name.lower() for word in included)]
+    replace = str()
+    for patch_name in filtered_names:
+        replace += (f'{" " * 0}multipleReferenceFrame_{patch_name}\n'
+                    f'{" " * 0}{{\n'
+                    f'{" " * 4}cellZone    {patch_name}Cells;  // CAUTION: Must match mesh definition\n\n'
+                    f'{" " * 4}// CAUTION: Update 0/fields to "movingWallVelocity", "slip", "MRFnoSlip"\n'
+                    f'{" " * 4}nonRotatingPatches (stationaryWall);\n\n'
+                    f'{" " * 4}origin    (0 0 0);     // Location of the rotation\n'
+                    f'{" " * 4}axis      (1 0 0);     // Axis of revolution\n'
+                    f'{" " * 4}omega     200 [rpm];   // Revolutions per minute\n'
+                    f'{" " * 4}// omega  10;          // Radians per second (1 RPM = 0.105 rad/s)\n'
+                    f'{" " * 0}}}\n')
+    # Bundle the replacement text and pattern
+    replacement_pattern = r'.*\$MRF_DEFINITIONS\$.*\n'
+    return [(replacement_pattern, replace)]
+
+
+def replace_fv_models(patch_names):
+    """Function to find the replacement pattern and text for a specific template"""
+    included = tuple(['honeycomb'])
+    filtered_names = [name for name in patch_names if any(word.lower() in name.lower() for word in included)]
+    replace = str()
+    for patch_name in filtered_names:
+        replace += (f'{" " * 0}porositySource_{patch_name}\n'
+                    f'{" " * 0}{{\n'
+                    f'{" " * 4}active  no;\n'
+                    f'{" " * 4}type    explicitPorositySource;\n'
+                    f'{" " * 4}explicitPorositySourceCoeffs\n'
+                    f'{" " * 4}{{\n'
+                    f'{" " * 8}selectionMode  cellZone;         // Options: {{cellZone, points, box, etc}}\n'
+                    f'{" " * 8}cellZone       {patch_name}Cells;  // CAUTION: Must match mesh definition\n'
+                    f'{" " * 8}type           DarcyForchheimer; // Options: {{DarcyForchheimer, PowerLaw}}\n'
+                    f'{" " * 8}// Very high viscous terms can restrict the flow to a single direction\n'
+                    f'{" " * 8}d   (7e5 1e10 1e10);  // (x y z) Darcy (viscous) term - proportional to velocity\n'
+                    f'{" " * 8}f   (  5    0    0);  // (x y z) Forchheimer (inertial) term - prop. to velocity^2\n'
+                    f'{" " * 8}coordinateSystem {{#include "standardCoordinateSystem"}}\n'
+                    f'{" " * 4}}}\n'
+                    f'{" " * 0}}}\n')
+    # Bundle the replacement text and pattern
+    replacement_pattern = r'.*\$FV_MODEL_DEFINITIONS\$.*\n'
+    return [(replacement_pattern, replace)]
+
+
+def replace_dynamic_mesh(patch_names):
+    """Function to find the replacement pattern and text for a specific template"""
+    included = tuple(['NCC'])
+    filtered_names = [name for name in patch_names if any(word.lower() in name.lower() for word in included)]
+    replace = str()
+    if len(filtered_names) == 1:
+        print('Implementing a region with single-body movement')
+        replace += f'{" " * 4}cellZone       {filtered_names[0]}Cells;  // CAUTION: Must match mesh definition\n'
+        replacement_pattern = r'.*\$CELL_ZONE_NAME\$.*\n'
+        return [(replacement_pattern, replace)], 'dynamicMeshTemplate'
+    for patch_name in filtered_names:
+        print('Implementing regions with multi-body movement')
+        replace += (f'{" " * 4}{patch_name}Cells  // CAUTION: Must match mesh definition\n'
+                    f'{" " * 4}{{\n'
+                    f'{" " * 8}solidBodyMotionFunction rotatingMotion;\n'
+                    f'{" " * 8}rotatingMotionCoeffs;\n'
+                    f'{" " * 8}{{\n'
+                    f'{" " * 12}origin    (0 0 0);     // Location of the rotation\n'
+                    f'{" " * 12}axis      (1 0 0);     // Axis of revolution\n'
+                    f'{" " * 12}omega     200 [rpm];   // Revolutions per minute\n'
+                    f'{" " * 12}// omega  10;          // Radians per second (1 RPM = 0.105 rad/s)\n'
+                    f'{" " * 8}}}\n'
+                    f'{" " * 4}}}\n')
+    if len(replace) > 0:
+        print('Implementing regions with multi-body movement')
+    # Bundle the replacement text and pattern
+    replacement_pattern = r'.*\$DYNAMIC_MESH_DEFINITIONS\$.*\n'
+    return [(replacement_pattern, replace)], 'dynamicMeshTemplateMulti'
 
 
 def replace_zero_boundaries(patch_names, boundary_types, boundary_values, internal_field):
@@ -280,8 +358,25 @@ def generate_dict(patch_names, template_name, template_dir, output_name, output_
     template_path = os.path.join(template_dir, template_name)  # Template file
     output_path = os.path.join(output_dir, output_name)
     patterns_and_replacements = replace_function(patch_names)
-    perform_regex_replacements(patterns_and_replacements, template_path, output_path)
-    print(f"{output_name} created at: {output_path}")
+    if any([replacement for pattern, replacement in patterns_and_replacements]):
+        perform_regex_replacements(patterns_and_replacements, template_path, output_path)
+        print(f"{output_name} created at: {output_path}")
+    else:
+        print(f"Could not generate suitable inputs for {output_name}")
+
+
+def generate_dynamic_mesh_dict(patch_names, template_dir, output_name, output_dir):
+    """Create various dict.gen files"""
+    output_name = f'{output_name}.gen'
+    print(f"\nCreating system/{output_name}...")
+    output_path = os.path.join(output_dir, output_name)
+    patterns_and_replacements, template_name = replace_dynamic_mesh(patch_names)
+    template_path = os.path.join(template_dir, template_name)  # Template file
+    if any([replacement for pattern, replacement in patterns_and_replacements]):
+        perform_regex_replacements(patterns_and_replacements, template_path, output_path)
+        print(f"{output_name} created at: {output_path}")
+    else:
+        print(f"Could not generate suitable inputs for {output_name}")
 
 
 def generate_zero_file(patch_names: list, field: str, boundary_dict: dict):
@@ -312,7 +407,7 @@ def generate_zero_file(patch_names: list, field: str, boundary_dict: dict):
     print(f"Field {field} created at: {output_path}")
 
 
-def generate_all_zero_file(patch_names, fm):
+def generate_all_zero_files(patch_names, fm):
     """Build the zero files for the various fields and boundaries"""
 
     rotating_u_types = (f'{" " * 8}#include "../system/fvSchemes"\n'
@@ -388,7 +483,7 @@ if __name__ == "__main__":
     arguments = detect_and_parse_arguments(sys)
     flow_metrics = estimate_internal_fields(arguments)
     patch_names = load_and_process_stl_files()
-    generate_all_zero_file(patch_names, flow_metrics)
+    generate_all_zero_files(patch_names, flow_metrics)
 
     generate_dict(patch_names, 'snappyHexMeshTemplate', TEMPLATE_SYSTEM_DIR,
                   'snappyHexMeshDict', SYSTEM_DIR, replace_snappy_hex_mesh_dict)
@@ -401,3 +496,12 @@ if __name__ == "__main__":
 
     generate_dict(patch_names, 'createNonConformalCouplesTemplate', TEMPLATE_SYSTEM_DIR,
                   'createNonConformalCouplesDict', SYSTEM_DIR, replace_create_ncc_dict)
+
+    generate_dict(patch_names, 'MRFPropertiesTemplate', TEMPLATE_CONSTANT_DIR,
+                  'MRFProperties', CONSTANT_DIR, replace_mrf_properties)
+
+    generate_dict(patch_names, 'fvModelsTemplate', TEMPLATE_CONSTANT_DIR,
+                  'fvModels', CONSTANT_DIR, replace_fv_models)
+
+    generate_dynamic_mesh_dict(patch_names, TEMPLATE_CONSTANT_DIR,
+                  'dynamicMesh', CONSTANT_DIR)
