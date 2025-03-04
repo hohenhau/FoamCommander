@@ -275,7 +275,7 @@ def replace_dynamic_mesh(patch_names):
     replace = str()
     if len(filtered_names) == 1:
         print('Implementing a region with single-body movement')
-        replace += f'{" " * 4}cellZone       {filtered_names[0]}Cells;  // CAUTION: Must match mesh definition\n'
+        replace += f'{" " * 4}cellZone        {filtered_names[0]}Cells;  // CAUTION: Must match mesh definition\n'
         replacement_pattern = r'.*\$CELL_ZONE_NAME\$.*\n'
         return [(replacement_pattern, replace)], 'dynamicMeshTemplate'
     for patch_name in filtered_names:
