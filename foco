@@ -7,8 +7,10 @@ TOOL_DIR="$(dirname "${BASH_SOURCE[0]}")/tools"
 if [ $# -lt 1 ]; then
     echo "Usage: foco <command> [args]"
     echo "Available commands:"
-    ls "${TOOL_DIR}" | sed 's/\.py$//g'  # List tools, stripping `.py` extensions.
+    # List tools, stripping `.py` extensions & exclude files in 'utilities'
+    find "${TOOL_DIR}" -maxdepth 1 -type f -not -path "${TOOL_DIR}/utilities/*" | sed 's/\.py$//g' | sed 's|'"${TOOL_DIR}"'/||g'
     exit 1
+fi
 fi
 
 # First argument is the command name.
