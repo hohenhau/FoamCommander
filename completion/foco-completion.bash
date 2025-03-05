@@ -16,11 +16,11 @@ _foco_complete()
     # If completing the first argument (command name), suggest tool names.
     if [[ $COMP_CWORD -eq 1 ]]; then
         COMPREPLY=($(compgen -W "$tools" -- "$cur"))
-    
+
     # Special handling for argument completion for 'ofParseArgs'.
     # This is an example — you could add more argument hints for other tools.
     elif [[ "${COMP_WORDS[1]}" == "ofParseArgs" ]]; then
-        COMPREPLY=($(compgen -W "-hydraulic_diameter -free_stream_velocity -kinematic_viscosity -reynolds_number -turb_intensity -turb_kinetic_energy -turb_length_scale -turb_dissipation_rate -specific_dissipation -turb_viscosity" -- "$cur"))
+        COMPREPLY=($(compgen -W "-hydraulic_diameter -free_stream_velocity -kinematic_viscosity -reynolds_number -turbulence_intensity" -- "$cur"))
     else
         # For other commands, no argument hints (you could extend this later if needed).
         COMPREPLY=()

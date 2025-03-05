@@ -11,20 +11,25 @@ if [ $# -lt 1 ]; then
     find "${TOOL_DIR}" -maxdepth 1 -type f -not -path "${TOOL_DIR}/utilities/*" | sed 's/\.py$//g' | sed 's|'"${TOOL_DIR}"'/||g'
     exit 1
 fi
-fi
 
 # First argument is the command name.
 cmd=$1
-shift  # Shift removes the command name, leaving only the arguments.
+shift # Shift removes the command name, leaving only the arguments.
 
 # Check if command is a Python script in the tools directory.
 if [ -f "${TOOL_DIR}/${cmd}.py" ]; then
-    python3 "${TOOL_DIR}/${cmd}.py" "$@"  # Pass remaining arguments to the Python script.
+    python3 "${TOOL_DIR}/${cmd}.py" "$@" # Pass remaining arguments to the Python script.
 # Check if command is a plain executable (bash script, etc.).
 elif [ -f "${TOOL_DIR}/${cmd}" ]; then
-    "${TOOL_DIR}/${cmd}" "$@"  # Directly run the executable with arguments.
+    "${TOOL_DIR}/${cmd}" "$@" # Directly run the executable with arguments.
 # Handle unknown command.
 else
     echo "Unknown command: $cmd"
     exit 1
+fi
+
+# Check if this script is being sourced
+if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+    # Load bash completion from the completion subdirectory
+    source "$(dirname "${BASH_SOURCE[0]}")/completion/foco-completion.bash"
 fi
