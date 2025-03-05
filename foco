@@ -6,7 +6,7 @@ TOOL_DIR="$(dirname "${BASH_SOURCE[0]}")/tools"
 # Check if this script is being sourced or executed directly
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     # Script is being executed directly
-    
+
     # If no arguments are provided, show usage and available commands.
     if [ $# -lt 1 ]; then
         echo "Usage: foco <command> [args]"
