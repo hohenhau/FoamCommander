@@ -4,7 +4,7 @@
 git clone https://github.com/hohenhau/FoamCommander.git
 
 # Remove the old tools
-sudo rm -r /mnt/cfd/FoamCommander
+sudo rm -r /mnt/cfd/cfd_tools
 
 # Move the updated tools to the correct directory
 mv FoamCommander /mnt/cfd/
