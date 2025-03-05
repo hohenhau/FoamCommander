@@ -33,7 +33,7 @@ baffles  // Baffles to create
                 name            fanBaffleA;
                 type            cyclic;
                 neighbourPatch  fanBaffleA_slave;
-                transform       none;  // Option {none, rotational, translational} 
+                transform       none;  // Option {none, rotational, translational}
 
                 patchFields  // Optional override of patchfields (default is type "calculated")
                 {
