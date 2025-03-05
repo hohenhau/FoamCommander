@@ -13,4 +13,4 @@ mv FoamCommander /mnt/cfd/
 mv /mnt/cfd/FoamCommander /mnt/cfd/cfd_tools
 
 # Change permission for the tools to be accessible by all
-sudo chmod -R ugo+rx /mnt/cfd/cfd_tools/*
+sudo chmod -R ugo+rwx /mnt/cfd/cfd_tools/*
