@@ -38,7 +38,6 @@ def get_patch_type_from_patch_name(input_patch_name: str):
     common_patch_types['max'] = 'empty'
     common_patch_types['baffle'] = 'baffle'
     common_patch_types['internal'] = 'internal'
-    common_patch_types['porous'] = 'internal'
     common_patch_types['screen'] = 'internal'
     common_patch_types['rotating'] = 'rotating'
     common_patch_types['stationary'] = 'movingWallVelocity'
