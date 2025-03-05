@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Set the directory where commands are located.
+TOOL_DIR="$(dirname "${BASH_SOURCE[0]}")/tools"
+
+# If no arguments are provided, show usage and available commands.
+if [ $# -lt 1 ]; then
+    echo "Usage: foco <command> [args]"
+    echo "Available commands:"
+    ls "${TOOL_DIR}" | sed 's/\.py$//g'  # List tools, stripping `.py` extensions.
+    exit 1
+fi
+
+# First argument is the command name.
+cmd=$1
+shift  # Shift removes the command name, leaving only the arguments.
+
+# Check if command is a Python script in the tools directory.
+if [ -f "${TOOL_DIR}/${cmd}.py" ]; then
+    python3 "${TOOL_DIR}/${cmd}.py" "$@"  # Pass remaining arguments to the Python script.
+# Check if command is a plain executable (bash script, etc.).
+elif [ -f "${TOOL_DIR}/${cmd}" ]; then
+    "${TOOL_DIR}/${cmd}" "$@"  # Directly run the executable with arguments.
+# Handle unknown command.
+else
+    echo "Unknown command: $cmd"
+    exit 1
+fi
