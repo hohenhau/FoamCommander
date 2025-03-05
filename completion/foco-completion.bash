@@ -19,7 +19,7 @@ _foco_complete()
 
     # Special handling for argument completion for 'ofParseArgs'.
     # This is an example — you could add more argument hints for other tools.
-    elif [[ "${COMP_WORDS[1]}" == "ofParseArgs" ]]; then
+    elif [[ "${COMP_WORDS[1]}" == "estimateInternalFields" || "${COMP_WORDS[1]}" == "prepare" ]]; then
         COMPREPLY=($(compgen -W "-hydraulic_diameter -free_stream_velocity -kinematic_viscosity -reynolds_number -turbulence_intensity" -- "$cur"))
     else
         # For other commands, no argument hints (you could extend this later if needed).

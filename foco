@@ -6,7 +6,7 @@ TOOL_DIR="$(dirname "${BASH_SOURCE[0]}")/tools"
 # Check if this script is being sourced or executed directly
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     # Script is being executed directly
-    
+
     # If no arguments are provided, show usage and available commands.
     if [ $# -lt 1 ]; then
         echo "Usage: foco <command> [args]"
@@ -19,27 +19,6 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     # First argument is the command name.
     cmd=$1
     shift # Shift removes the command name, leaving only the arguments.
-
-    # Special case for "which" command
-    if [ "$cmd" == "which" ]; then
-        if [ $# -lt 1 ]; then
-            echo "Usage: foco which <command>"
-            exit 1
-        fi
-        
-        sub_cmd=$1
-        # Check for .py file first
-        if [ -f "${TOOL_DIR}/${sub_cmd}.py" ]; then
-            echo "${TOOL_DIR}/${sub_cmd}.py"
-        # Then check for executable
-        elif [ -f "${TOOL_DIR}/${sub_cmd}" ]; then
-            echo "${TOOL_DIR}/${sub_cmd}"
-        else
-            echo "Command not found: $sub_cmd"
-            exit 1
-        fi
-        exit 0
-    fi
 
     # Check if command is a Python script in the tools directory.
     if [ -f "${TOOL_DIR}/${cmd}.py" ]; then
