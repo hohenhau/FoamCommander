@@ -311,13 +311,23 @@ def replace_fv_models(patch_names):
                     f'{" " * 8}// Very high viscous terms can restrict the flow to a single direction\n'
                     f'{" " * 8}d   (7e5 1e10 1e10);  // (x y z) Darcy (viscous) term - proportional to velocity\n'
                     f'{" " * 8}f   (  5    0    0);  // (x y z) Forchheimer (inertial) term - prop. to velocity^2\n'
-                    f'{" " * 8}coordinateSystem {{#include "standardCoordinateSystem"}}\n'
+                    f'{" " * 8}coordinateSystem\n'
+                    f'{" " * 8}{{\n'
+                    f'{" " * 12}type cartesian;        // Define the type of coordinate system\n'
+                    f'{" " * 12}origin (0 0 0);        // Optional to set separate coordinate system\n'
+                    f'{" " * 12}coordinateRotation\n'
+                    f'{" " * 12}{{\n'
+                    f'{" " * 16}type axesRotation;      // Defines the rotation type (usually axesRotation)\n'
+                    f'{" " * 16}e1 (1 0 0);             // Primary direction (first basis vector)\n'
+                    f'{" " * 16}e2 (0 1 0);             // Secondary direction (second basis vector)\n'
+                    f'{" " * 16}// e3 (third axis) is automatically computed as e1 x e2\n'
+                    f'{" " * 12}}}\n'
+                    f'{" " * 8}}}\n'
                     f'{" " * 4}}}\n'
                     f'{" " * 0}}}\n')
     # Bundle the replacement text and pattern
     replacement_pattern = r'.*\$FV_MODEL_DEFINITIONS\$.*\n'
     return [(replacement_pattern, replace)]
-
 
 def replace_dynamic_mesh(patch_names):
     """Function to find the replacement pattern and text for a specific template"""
