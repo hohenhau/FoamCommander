@@ -108,7 +108,7 @@ addLayersControls
     layers
     {
         // example{nSurfaceLayers 2; expansionRatio 1.2; finalLayerThickness 0.3; minThickness 0.1;}
-        walls{nSurfaceLayers 2;}
+        // walls{nSurfaceLayers 0;}
         // Insert the required $SURFACE_LAYERS$ (Ensure to set 0 for baffles!)
     }
 
