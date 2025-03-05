@@ -34,7 +34,6 @@ boundaryField
     {
         type            slip;
     }
-    #includeEtc "caseDicts/setConstraintTypes"  // base types from OF directory
 }
 
 // ************************************************************************* //
