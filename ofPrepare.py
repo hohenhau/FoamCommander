@@ -168,8 +168,9 @@ def replace_create_baffles_dict(patch_names):
     definitions = str()
     if any('porous' in patch_name.lower() for patch_name in patch_names):
         definitions += ('// Define key fan metrics\n'
-                        'D_SCREEN 20000000;  // Darcy coefficient (porosity is 0.63)\n'
-                        'L_SCREEN 0.003;     // Scaling of pressure drop\n\n')
+                        'D_SCREEN 20000000;  // Darcy (viscous) term (porosity is 0.63)\n'
+                        'D_SCREEN 280;       // Forchheimer (interial) term\n'
+                        'L_SCREEN 0.003;     // Linear scaling of pressure drop\n\n')
     if any('fan' in patch_name.lower() for patch_name in patch_names):
         definitions += ('// Define key porosity metrics\n'
                         '// Choices are {constant, polynomial}, but was polynomial 1((100 0));\n'
