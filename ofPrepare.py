@@ -150,7 +150,7 @@ def replace_snappy_hex_mesh_dict(patch_names):
             surface_block += f'{" " * 12}{name} {{level (0 0); patchInfo {{type wall;}} }}\n'
 
         # Add 0 layers to internal boundaries
-        if patch_type in {'baffle', 'internal'} or 'ncc' in name.lower():
+        if patch_type in {'baffle', 'internal'} or 'ncc' in name.lower() or 'honeycomb' in name.lower():
             layer_block += f'{" " * 8}{name}{{nSurfaceLayers 0;}}  // Stops layers from disrupting baffle surface\n'
 
     # Define the patterns to match the entire lines containing the variables
