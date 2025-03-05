@@ -3,8 +3,8 @@
 import os
 import re
 import sys
-from ofEstimateInternalFields import estimate_internal_fields
-from ofParseArgs import detect_and_parse_arguments
+from estimateInternalFields import estimate_internal_fields
+from utilities/parseArgs import detect_and_parse_arguments
 
 # Global Variables
 PY_FILE_PATH = os.path.dirname(os.path.realpath(__file__))

@@ -1,3 +1,0 @@
-!#/bin/bash
-reconstructPar -fields '(U p)'; reconstructPar -time 5; reconstructPar -time 10; reconstructPar -time 15; reconstructPar -time 20; reconstructPar -time 25; reconstructPar -time 30; reconstructPar -time 35; reconstructPar -time 40; reconstructPar -time 45; reconstructPar -latestTime
-
