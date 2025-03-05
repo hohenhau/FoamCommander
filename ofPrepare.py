@@ -173,7 +173,7 @@ def replace_create_baffles_dict(patch_names):
     if any('fan' in patch_name.lower() for patch_name in patch_names):
         definitions += ('// Define key porosity metrics\n'
                         '// Choices are {constant, polynomial}, but was polynomial 1((100 0));\n'
-                        'JUMP_Table constant 2.0;\n\n')
+                        'JUMP_TABLE constant 2.0;\n\n')
 
     porous_block = (f'{" " * 16}patchFields  // Optional override of patch fields\n'
                     f'{" " * 16}{{\n'
@@ -199,7 +199,7 @@ def replace_create_baffles_dict(patch_names):
                  f'{" " * 24}value           uniform 0;\n'
                  f'{" " * 24}jump            uniform 0;\n'
                  f'{" " * 24}reverse         false;\n'
-                 f'{" " * 24}jumpTable       $JUMP_Table;  // Pressure rise (pressure / density)\n'
+                 f'{" " * 24}jumpTable       $JUMP_TABLE;  // Pressure rise (pressure / density)\n'
                  f'{" " * 20}}}\n'
                  f'{" " * 16}}}\n')
 
