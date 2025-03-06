@@ -1,18 +1,17 @@
 #!/bin/bash
-
 # Set variables
 NAME="foco"
 COMPLETION_FILE="foco-completion.bash"
 COMPLETION_DIR="completion"
 
-# Path to completion file inside the repo
-COMPLETION_PATH="$BASE_DIR/$COMPLETION_DIR/$COMPLETION_FILE"
-
 # Detect the location of the install script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Find the base directory by going up [2] levels
-BASE_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+# Find the base directory by going up one level from the utilities folder
+BASE_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+# Path to completion file inside the repo
+COMPLETION_PATH="$BASE_DIR/$COMPLETION_DIR/$COMPLETION_FILE"
 
 # Ensure the completion file exists
 if [ ! -f "$COMPLETION_PATH" ]; then
