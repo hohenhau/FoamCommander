@@ -1,16 +1,34 @@
-#/bin/bash
+#!/bin/bash
 
-# Copy the repository from GitHub to the current directory
-git clone https://github.com/hohenhau/FoamCommander.git
+# Set the name of the repository/tool
+NAME="FoamCommander"
 
-# Move the updated tools to the correct directory
-mv FoamCommander /mnt/cfd/
+# Notify the user the update has started
+echo "Updating $NAME tools..."
 
-# Remove the old tools
-sudo rm -r /mnt/cfd/cfd_tools
+# Get the script directory (where the updater lives)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Rename the new tools to the correct (old) name
-mv /mnt/cfd/FoamCommander /mnt/cfd/cfd_tools
+# Get the parent directory of the script
+PARENT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-# Change permission for the tools to be accessible by all
-sudo chmod -R ugo+rwx /mnt/cfd/cfd_tools/*
+# Clone the updated repository to a temporary location (to avoid self-clobbering)
+git clone "https://github.com/hohenhau/$NAME.git" "$PARENT_DIR/${NAME}_tmp"
+
+# Check if the clone was successful
+if [ ! -d "$PARENT_DIR/${NAME}_tmp" ]; then
+    echo "Clone failed! Update aborted."
+    exit 1
+fi
+
+# Remove the old tools (this includes removing the updater itself)
+sudo rm -r "$PARENT_DIR/$NAME"
+
+# Move the new tools into place
+mv "$PARENT_DIR/${NAME}_tmp" "$PARENT_DIR/$NAME"
+
+# (Optional) Adjust permissions if needed
+sudo chmod -R ugo+rwx "$PARENT_DIR/$NAME"
+
+# Notify the user the update has completed
+echo "Update complete!"
