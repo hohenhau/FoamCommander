@@ -37,6 +37,20 @@ else
     echo "$NAME completion already present in ~/.bashrc"
 fi
 
+# Define the line to add $BASE_DIR/$NAME to the PATH
+PATH_LINE="export PATH=\$PATH:\"$BASE_DIR/$NAME\""
+
+# Remove any old references to the PATH modification
+sed -i "/$BASE_DIR\/$NAME/d" "$BASHRC"
+
+# Add the PATH modification if not already present
+if ! grep -Fxq "$PATH_LINE" "$BASHRC"; then
+    echo "$PATH_LINE" >> "$BASHRC"
+    echo "Added $NAME directory to \$PATH in ~/.bashrc"
+else
+    echo "$NAME directory already present in \$PATH in ~/.bashrc"
+fi
+
 # Show final messages
 echo ""
 echo "Installation complete!"
