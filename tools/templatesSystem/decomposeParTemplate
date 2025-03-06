@@ -1,0 +1,67 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  www.openfoam.org
+    \\  /    A nd           | Version:  User generated
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      decomposeParDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+numberOfSubdomains 2;  // Number of CPU cores
+
+method scotch;  // Decomposition method (simple, hierarchical, scotch, etc.)
+
+
+// ------------------ OPTIONAL decomposition constraints ------------------- //
+
+constraints
+{
+    // Keep owner and neighbour of BAFFLES on the same processor
+    // Use for porousBaffles, fanBaffles, wire screens, etc.
+    preserveBaffles
+    {
+        type    preserveBaffles;
+        enabled false;  // Set the $BAFFLES_FLAG$ to 'true' to enable
+    }
+
+    // Keep onwer and neighbour of FACE ZONES on the same processor
+    // Use for face zones, i.e. the surfaces of honeycombs
+    // FORMAT: zones (example1 example2 example3) or (".*");
+    preserveFaceZones
+    {
+        type    preserveFaceZones;
+        zones   ();     // List the $PRESERVED_FACE_ZONES$ here
+        enabled false;  // Set the $FACE_ZONES_FLAG$ to 'true' to enable
+    }
+
+    // Keep owner and neighbour of PATCHES on the same processor
+    // Usually used for cyclics (not necessarily NCCs)
+    // FORMAT: patches (example1 example2 example3) or (".*");
+    preservePatches
+    {
+        type    preservePatches;
+        patches ();     // List the $PRESERVED_PATCHES$ here
+        enabled false;  // Set the $PATCHES_FLAG$ to 'true' to enable
+    }
+
+    // Keep all cells of FACE SET on the same processor
+    // Use for set to -1 for good load balancing
+    // FORMAT: singleProcessorFaceSets ((example1 -1) (example2 -1))
+    singleProcessorFaceSets
+    {
+        type    singleProcessorFaceSets;
+        singleProcessorFaceSets ();  // List the $PRESERVED_FACE_SETS$ here
+        enabled false;  // Set the $FACE_SETS_FLAG$ to 'true' to enable  
+    }
+}
+
+// ************************************************************************* //
