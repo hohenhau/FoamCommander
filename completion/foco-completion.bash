@@ -1,60 +1,56 @@
 #!/bin/bash
 
 # Bash completion function for 'foco'
-_foco_complete()
-{
-    # Variables that bash-completion uses internally
+_foco_complete() {
     local cur prev words cword
-    # Initialize bash completion state.
-    _init_completion || return
-    
-    # Get the tool directory (assumes foco is in the PATH and next to tools/)
-    TOOL_DIR="$(dirname "$(which foco)")/tools"
-    
-    # If completing the first argument (command name), suggest tool names only
-    if [[ $COMP_CWORD -eq 1 ]]; then
-        compopt -o nospace  # Disable filename completion
+    _init_completion -s || return
+
+    TOOL_DIR="$(dirname "$(command -v foco)")/tools"
+
+    # Command name completion (first argument)
+    if (( COMP_CWORD == 1 )); then
+        compopt -o nospace
         
-        # List available tools (exclude directories and .py extensions)
+        # Get base filenames without extensions or directories
         local tools
-        tools=$(find "$TOOL_DIR" -maxdepth 1 -type f -not -path "${TOOL_DIR}/utilities/*" \
-            | xargs -I{} basename {} .py)
+        tools=$(find "$TOOL_DIR" -maxdepth 1 -type f \( ! -name ".*" \) -not -path "${TOOL_DIR}/utilities/*" \
+            -exec basename {} \; | sed -E 's/\.[^.]+$//')
         
         COMPREPLY=($(compgen -W "$tools" -- "$cur"))
         return
     fi
-    
-    # For argument completion, first get the current command
+
     local cmd="${COMP_WORDS[1]}"
-    
-    # Special handling for specific commands' arguments
     case "$cmd" in
         estimateInternalFields|prepare)
-            # Define available arguments as array
-            local opts=(-hydraulic_diameter -free_stream_velocity 
-                       -kinematic_viscosity -reynolds_number 
-                       -turbulence_intensity)
-            
-            # Filter out already used options
-            for word in "${COMP_WORDS[@]:2}"; do
-                if [[ "$word" == -* ]]; then
-                    # Remove matching option from array
-                    opts=("${opts[@]/$word/}")
-                fi
+            # Available options with metadata
+            local opts=(
+                '-hydraulic_diameter:Specify hydraulic diameter'
+                '-free_stream_velocity:Set free stream velocity'
+                '-kinematic_viscosity:Define kinematic viscosity'
+                '-reynolds_number:Input Reynolds number'
+                '-turbulence_intensity:Specify turbulence intensity'
+            )
+
+            # Filter used options using array operations
+            for existing_opt in "${COMP_WORDS[@]:2}"; do
+                for i in "${!opts[@]}"; do
+                    [[ "${opts[i]%%:*}" == "$existing_opt" ]] && unset -v 'opts[i]'
+                done
             done
-            
-            # Clean up empty array elements
-            opts=("${opts[@]}")
-            
-            COMPREPLY=($(compgen -W "${opts[*]}" -- "$cur"))
+
+            # Generate completion with descriptions
+            if [[ -n "$cur" ]]; then
+                COMPREPLY=($(printf '%s\n' "${opts[@]}" | compgen -W "$(printf '%s ' "${opts[@]}")" -- "$cur"))
+            else
+                COMPREPLY=("${opts[@]}")
+            fi
+            compopt -o nospace -o nosort
             ;;
-            
         *)
-            # For other commands, no argument suggestions
             COMPREPLY=()
             ;;
     esac
 }
 
-# Register completion function for 'foco' command
 complete -o nospace -F _foco_complete foco
