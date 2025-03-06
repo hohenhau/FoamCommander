@@ -1,6 +1,5 @@
 #!/bin/bash
-
-# Bash completion function for named command
+# Bash completion function for 'foco'
 _foco_complete() {
     local cur prev words cword
     _init_completion -s || return
@@ -11,20 +10,28 @@ _foco_complete() {
     # Find the completion script's directory
     COMPLETION_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
-    # Set the path to command relative to the completion script
-    COMMAND_PATH="$COMPLETION_DIR/../$COMMAND_NAME"
+    # Set the base directory relative to the completion script
+    BASE_DIR="$COMPLETION_DIR/.."
 
+    # Set the path to foco relative to the completion script
+    COMMAND_PATH="$BASE_DIR/$COMMAND_NAME"
+
+    # Source the command script
+    source "$COMMAND_PATH"
+
+    # Check if the script exists
     if [ ! -f "$COMMAND_PATH" ]; then
-        return # command script not found
+        echo "Error: foco script not found at $COMMAND_PATH" >&2
+        return 1
     fi
 
-    # Set base directory relative to command
-    BASE_DIR="$(dirname "$COMMAND_PATH")"
+    # Set tool directory
     TOOL_DIR="$BASE_DIR/tools"
 
     # Check if tools directory exists
     if [ ! -d "$TOOL_DIR" ]; then
-        return # Tools directory not found
+        echo "Error: Tools directory not found at $TOOL_DIR" >&2
+        return 1
     fi
 
     # Command name completion (first argument)
