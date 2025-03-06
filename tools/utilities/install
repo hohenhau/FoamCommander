@@ -32,7 +32,7 @@ SOURCE_LINE="source \"$COMPLETION_PATH\""
 echo "$SOURCE_LINE" >> "$BASHRC"
 
 # Define the line to add $BASE_DIR/$NAME to the PATH
-PATH_LINE="export PATH=\"\$PATH:$BASE_DIR/$NAME\""
+PATH_LINE="export PATH=\"\$PATH:$BASE_DIR\""
 
 # Add the PATH modification if not already present
 echo "$PATH_LINE" >> "$BASHRC"
