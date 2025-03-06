@@ -9,56 +9,53 @@ _foco_complete()
     # Get the tool directory (assumes foco is in the PATH and next to tools/).
     TOOL_DIR="$(dirname $(which foco))/tools"
     
-    # If completing the first argument (command name), suggest tool names.
+    # If completing the first argument (command name), suggest tool names only.
     if [[ $COMP_CWORD -eq 1 ]]; then
-        # List available tools (remove .py extensions to match user commands).
-        tools=$(find "$TOOL_DIR" -maxdepth 1 -type f -not -path "${TOOL_DIR}/utilities/*" | sed 's/\.py$//g' | sed 's|'"${TOOL_DIR}"'/||g')
+        # Force file-only completion, no directories
+        compopt -o nospace -o filenames
+        
+        # List available tools (exclude directories and .py extensions)
+        tools=$(find "$TOOL_DIR" -maxdepth 1 -type f -not -path "${TOOL_DIR}/utilities/*" | xargs basename | sed 's/\.py$//g')
+        
         COMPREPLY=($(compgen -W "$tools" -- "$cur"))
         return
     fi
     
-    # Get the current command
+    # For argument completion, first get the current command
     local cmd="${COMP_WORDS[1]}"
     
-    # Handle different commands
+    # Debug output - uncomment if needed
+    # echo "Command: $cmd, Previous: $prev, Current: $cur" >&2
+    
+    # Special handling for specific commands' arguments
     case "$cmd" in
         estimateInternalFields|prepare)
-            # Define all possible options
+            # Define available arguments
             local opts="-hydraulic_diameter -free_stream_velocity -kinematic_viscosity -reynolds_number -turbulence_intensity"
             
-            # If the previous word is an option that requires a value, don't suggest options
+            # If previous word is an option needing a value, don't offer completions
             if [[ "$prev" == -* ]]; then
-                # Previous word is an option, so we're expecting a value
                 COMPREPLY=()
                 return
             fi
             
-            # Filter out options that have already been used
-            local used_opts=""
+            # Filter out already used options
             for ((i=2; i < ${#COMP_WORDS[@]}; i++)); do
                 if [[ "${COMP_WORDS[i]}" == -* ]]; then
-                    used_opts+=" ${COMP_WORDS[i]}"
+                    opts=${opts/${COMP_WORDS[i]}/}
                 fi
             done
             
-            # Remove used options from available options
-            for opt in $used_opts; do
-                opts=${opts/$opt/}
-            done
-            
-            # Only suggest remaining options if current word starts with '-'
-            if [[ "$cur" == -* || "$cur" == "" ]]; then
-                COMPREPLY=($(compgen -W "$opts" -- "$cur"))
-            else
-                COMPREPLY=()
-            fi
+            # Only suggest options for current word
+            COMPREPLY=($(compgen -W "$opts" -- "$cur"))
             ;;
+            
         *)
-            # For other commands, no argument hints
+            # For other commands, no argument suggestions
             COMPREPLY=()
             ;;
     esac
 }
 
 # Register completion function for 'foco' command.
-complete -F _foco_complete foco
+complete -o nospace -o filenames -F _foco_complete foco
