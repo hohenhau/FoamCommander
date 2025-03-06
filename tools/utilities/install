@@ -26,13 +26,13 @@ BASHRC="$HOME/.bashrc"
 sed -i "\#$BASE_DIR#d" "$BASHRC"
 
 # Define the desired line to source the completion script
-SOURCE_LINE="source \"$COMPLETION_PATH\"/"
+SOURCE_LINE="source \"$COMPLETION_PATH\""
 
 # Add new source line
 echo "$SOURCE_LINE" >> "$BASHRC"
 
 # Define the line to add $BASE_DIR/$NAME to the PATH
-PATH_LINE="export PATH=\"\$PATH:$BASE_DIR\""
+PATH_LINE="export PATH=\"\$PATH:$BASE_DIR\"/"
 
 # Add the PATH modification if not already present
 echo "$PATH_LINE" >> "$BASHRC"
