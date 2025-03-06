@@ -22,34 +22,20 @@ fi
 # Bashrc path
 BASHRC="$HOME/.bashrc"
 
+# Remove the references to any previous installations
+sed -i "\#$BASE_DIR#d" "$BASHRC"
+
 # Define the desired line to source the completion script
 SOURCE_LINE="source \"$COMPLETION_PATH\""
 
-# Remove any old references to completion file pointing to different paths
-# This handles cases where the user moved the installation folder
-sed -i "s#source \"$COMPLETION_PATH\"##g" "$BASHRC"
-
-# Add new source line if not already present
-if ! grep -Fxq "$SOURCE_LINE" "$BASHRC"; then
-    echo "$SOURCE_LINE" >> "$BASHRC"
-    echo "Added $NAME completion to ~/.bashrc"
-else
-    echo "$NAME completion already present in ~/.bashrc"
-fi
+# Add new source line
+echo "$SOURCE_LINE" >> "$BASHRC"
 
 # Define the line to add $BASE_DIR/$NAME to the PATH
 PATH_LINE="export PATH=\"\$PATH:$BASE_DIR/$NAME\""
 
-# Remove any old references to the PATH modification
-sed -i "s#export PATH=\"\$PATH:$BASE_DIR/$NAME\"##g" "$BASHRC"
-
 # Add the PATH modification if not already present
-if ! grep -Fxq "$PATH_LINE" "$BASHRC"; then
-    echo "$PATH_LINE" >> "$BASHRC"
-    echo "Added $NAME directory to \$PATH in ~/.bashrc"
-else
-    echo "$NAME directory already present in \$PATH in ~/.bashrc"
-fi
+echo "$PATH_LINE" >> "$BASHRC"
 
 # Show final messages
 echo ""
