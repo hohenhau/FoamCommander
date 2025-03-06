@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Set variables
+NAME="foco"
+COMPLETION_FILE="foco-completion.bash"
+COMPLETION_DIR="completion"
+
+# Path to completion file inside the repo
+COMPLETION_PATH="$BASE_DIR/$COMPLETION_DIR/$COMPLETION_FILE"
+
+# Detect the location of the install script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Find the base directory by going up [2] levels
+BASE_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+
+# Ensure the completion file exists
+if [ ! -f "$COMPLETION_PATH" ]; then
+    echo "Error: Completion file not found at $COMPLETION_PATH"
+    exit 1
+fi
+
+# Bashrc path
+BASHRC="$HOME/.bashrc"
+
+# Define the desired line to source the completion script
+SOURCE_LINE="source \"$COMPLETION_PATH\""
+
+# Remove any old references to completion file pointing to different paths
+# This handles cases where the user moved the installation folder
+sed -i "/$COMPLETION_FILE/d" "$BASHRC"
+
+# Add new source line if not already present
+if ! grep -Fxq "$SOURCE_LINE" "$BASHRC"; then
+    echo "$SOURCE_LINE" >> "$BASHRC"
+    echo "Added $NAME completion to ~/.bashrc"
+else
+    echo "$NAME completion already present in ~/.bashrc"
+fi
+
+# Final message
+echo "Installation complete! Run:"
+echo "    source ~/.bashrc"
+echo "to apply the changes."
