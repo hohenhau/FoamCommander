@@ -37,7 +37,11 @@ else
     echo "$NAME completion already present in ~/.bashrc"
 fi
 
-# Final message
-echo "Installation complete! Run:"
-echo "    source ~/.bashrc"
-echo "to apply the changes."
+# Show final messages
+echo ""
+echo "Installation complete!"
+echo "Restarting console to apply changes..."
+echo ""
+
+# Restart the terminal to apply changes
+source ~/.bashrc
