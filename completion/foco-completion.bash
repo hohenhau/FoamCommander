@@ -25,11 +25,16 @@ _foco_complete() {
         estimateInternalFields|prepare)
             # Available options with metadata
             local opts=(
-                '-hydraulic_diameter:Specify hydraulic diameter'
-                '-free_stream_velocity:Set free stream velocity'
-                '-kinematic_viscosity:Define kinematic viscosity'
-                '-reynolds_number:Input Reynolds number'
-                '-turbulence_intensity:Specify turbulence intensity'
+                '-hydraulic_diameter'
+                '-free_stream_velocity'
+                '-kinematic_viscosity'
+                '-reynolds_number'
+                '-turb_intensity'
+                '-turb_kinetic_energy'
+                '-turb_length_scale'
+                '-turb_dissipation_rate'
+                '-specific_dissipation'
+                '-turb_viscosity'
             )
 
             # Filter used options using array operations
@@ -40,9 +45,9 @@ _foco_complete() {
             done
 
             # Generate completion with descriptions
-            if [[ -n "$cur" ]]; then
+            if [[ -n "$cur" ]]; then  # If user has started typing show matching options
                 COMPREPLY=($(printf '%s\n' "${opts[@]}" | compgen -W "$(printf '%s ' "${opts[@]}")" -- "$cur"))
-            else
+            else  # If user has not started typing show all options
                 COMPREPLY=("${opts[@]}")
             fi
             compopt -o nospace -o nosort
