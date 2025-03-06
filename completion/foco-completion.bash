@@ -1,43 +1,45 @@
 #!/bin/bash
-# Bash completion function for 'foco'
+
+# Bash completion function for named command
 _foco_complete() {
     local cur prev words cword
     _init_completion -s || return
-    
-    # Specify the program's command name
+
+    # Specify the command name
     COMMAND_NAME="foco"
-    
-    # Find the executable location
-    COMMAND_PATH=$(command -v $COMMAND_NAME)
-    
-    if [ -z "$COMMAND_PATH" ]; then
-        return # Command not found in PATH
+
+    # Find the completion script's directory
+    COMPLETION_DIR="$(dirname "${BASH_SOURCE[0]}")"
+
+    # Set the path to command relative to the completion script
+    COMMAND_PATH="$COMPLETION_DIR/../$COMMAND_NAME"
+
+    if [ ! -f "$COMMAND_PATH" ]; then
+        return # command script not found
     fi
-    
-    # Find the base directory where the command is located
+
+    # Set base directory relative to command
     BASE_DIR="$(dirname "$COMMAND_PATH")"
-    
-    # Tools directory should be in the same parent directory
     TOOL_DIR="$BASE_DIR/tools"
-    
+
     # Check if tools directory exists
     if [ ! -d "$TOOL_DIR" ]; then
         return # Tools directory not found
     fi
-    
+
     # Command name completion (first argument)
     if (( COMP_CWORD == 1 )); then
         compopt -o nospace
-        
+
         # Get base filenames without extensions or directories
         local tools
         tools=$(find "$TOOL_DIR" -maxdepth 1 -type f \( ! -name ".*" \) -not -path "${TOOL_DIR}/utilities/*" \
             -exec basename {} \; | sed -E 's/\.[^.]+$//')
-        
+
         COMPREPLY=($(compgen -W "$tools" -- "$cur"))
         return
     fi
-    
+
     local cmd="${COMP_WORDS[1]}"
     case "$cmd" in
         estimateInternalFields|prepare)
