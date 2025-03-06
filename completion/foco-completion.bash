@@ -1,5 +1,5 @@
 #!/bin/bash
-# Bash completion function for 'foco'
+# Bash completion function
 _command_completion() {
     local cur prev words cword
     _init_completion -s || return
@@ -13,7 +13,7 @@ _command_completion() {
     # Set the base directory relative to the completion script
     BASE_DIR="$COMPLETION_DIR/.."
 
-    # Set the path to foco relative to the completion script
+    # Set the command path relative to the completion script
     COMMAND_PATH="$BASE_DIR/$COMMAND_NAME"
 
     # Check if the script exists
@@ -79,5 +79,5 @@ _command_completion() {
             ;;
     esac
 }
-complete -o nospace -F _foco_complete foco
+complete -o nospace -F _command_completion $COMMAND_NAME
 
