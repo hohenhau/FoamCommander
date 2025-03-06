@@ -27,7 +27,7 @@ SOURCE_LINE="source \"$COMPLETION_PATH\""
 
 # Remove any old references to completion file pointing to different paths
 # This handles cases where the user moved the installation folder
-sed -i "s#$COMPLETION_FILE##" "$BASHRC"
+sed -i "/$COMPLETION_FILE/d" "$BASHRC"
 
 # Add new source line if not already present
 if ! grep -Fxq "$SOURCE_LINE" "$BASHRC"; then
@@ -41,7 +41,7 @@ fi
 PATH_LINE="export PATH=\"\$PATH:$BASE_DIR/$NAME\""
 
 # Remove any old references to the PATH modification
-sed -i "s#$BASE_DIR/$NAME##" "$BASHRC"
+sed -i "/$BASE_DIR\/$NAME/d" "$BASHRC"
 
 # Add the PATH modification if not already present
 if ! grep -Fxq "$PATH_LINE" "$BASHRC"; then
