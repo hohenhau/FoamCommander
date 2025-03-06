@@ -79,5 +79,5 @@ _command_completion() {
             ;;
     esac
 }
-complete -o nospace -F _command_completion $COMMAND_NAME
+complete -o nospace -F _command_completion foco
 
