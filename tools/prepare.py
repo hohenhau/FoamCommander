@@ -271,6 +271,20 @@ def replace_create_ncc_dict(patch_names):
     return [(replacement_pattern, replace)]
 
 
+def replace_decompose_par_dict(patch_names):
+    """Function to find the replacement pattern and text for a specific template"""
+    included = tuple(['internal'])
+    filtered_names = [name for name in patch_names if any(word.lower() in name.lower() for word in included)]
+    replace = str()
+    if filtered_names > 0:
+        replace += f"{" " * 8}enabled true;   // Set the $BAFFLES_FLAG$ to 'false' to disable"
+    else:
+        replace += f"{" " * 8}enabled false;  // Set the $BAFFLES_FLAG$ to 'true' to enable"
+    # Bundle the replacement text and pattern
+    replacement_pattern = r'.*\$BAFFLES_FLAG\$.*\n'
+    return [(replacement_pattern, replace)]
+
+
 def replace_mrf_properties(patch_names):
     """Function to find the replacement pattern and text for a specific template"""
     included = tuple(['zone', 'region'])
@@ -556,6 +570,9 @@ if __name__ == "__main__":
 
     generate_dict(patch_names, 'createNonConformalCouplesTemplate', TEMPLATE_SYSTEM_DIR,
                   'createNonConformalCouplesDict', SYSTEM_DIR, replace_create_ncc_dict)
+
+    generate_dict(patch_names, 'decomposeParTemplate', TEMPLATE_SYSTEM_DIR,
+                  'decomposeParDict', SYSTEM_DIR, replace_decompose_par_dict)
 
     generate_dict(patch_names, 'MRFPropertiesTemplate', TEMPLATE_CONSTANT_DIR,
                   'MRFProperties', CONSTANT_DIR, replace_mrf_properties)
