@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bash completion function for 'foco'
-_foco_complete() {
+_command_completion() {
     local cur prev words cword
     _init_completion -s || return
 
@@ -16,12 +16,9 @@ _foco_complete() {
     # Set the path to foco relative to the completion script
     COMMAND_PATH="$BASE_DIR/$COMMAND_NAME"
 
-    # Source the command script
-    source "$COMMAND_PATH"
-
     # Check if the script exists
     if [ ! -f "$COMMAND_PATH" ]; then
-        echo "Error: foco script not found at $COMMAND_PATH" >&2
+        echo "Error: command script not found at $COMMAND_PATH" >&2
         return 1
     fi
 
@@ -83,3 +80,4 @@ _foco_complete() {
     esac
 }
 complete -o nospace -F _foco_complete foco
+
