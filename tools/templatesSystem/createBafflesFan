@@ -21,7 +21,7 @@ internalFacesOnly true;  // Only relevant if face selection can detect boundarie
 
 baffles  // Baffles to create
 {
-    fanBaffleABoth  // First baffle to be created
+    fanBaffleAGroup  // First baffle to be created
     {
         type        faceZone;      // select faces & orientation
         zoneName    fanBaffleAFaces;  // name specified in snappyhexmesh
@@ -59,7 +59,7 @@ baffles  // Baffles to create
             }
         }
     }
-    // fanBaffleBBoth  // Specify additional baffles here
+    // fanBaffleBGroup  // Specify additional baffles here
     // {
     // }
 }
