@@ -5,10 +5,10 @@
 cp $FOAM_TUTORIALS/resources/geometry/propeller*.obj.gz constant/geometry/
 
 # Remove previous time steps
-ofDeleteTimeSteps.py
+foco deleteTimeSteps
 
 # Remove previous mesh artifacts
-ofDeleteMesh.py
+foco deleteMesh
 
 # Generate the background computational mesh from blockMeshDict
 runApplication blockMesh

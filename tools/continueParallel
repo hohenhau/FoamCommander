@@ -19,7 +19,7 @@ mpirun -np $NPROCS --rankfile system/rankfile $SOLVER -parallel 2>&1 | tee -a lo
 reconstructPar -latestTime 2>&1 | tee log.reconstructPar
 
 # Add dimensions to y+ and Courant number
-ofAddDimensions.py
+foco addDimensions
 
 # Plot the residuals and save the plot
-ofPlotResiduals.py
+foco plotResiduals

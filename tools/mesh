@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Remove previous time steps
-ofDeleteTimeSteps.py
+foco deleteTimeSteps
 
 # Remove previous mesh artifacts
-ofDeleteMesh.py
+foco deleteMesh
 
 # Generate the background computational mesh from blockMeshDict
 blockMesh
