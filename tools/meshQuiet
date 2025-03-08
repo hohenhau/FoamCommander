@@ -1,3 +1,9 @@
+#!/bin/bash
+
+# Exit if 'constant' or 'system' directories are missing
+[ -d "constant" ] || { echo "ERROR: 'constant' directory is missing."; exit 1; }
+[ -d "system" ] || { echo "ERROR: 'system' directory is missing."; exit 1; }
+
 # Source tutorial run functions
 . $WM_PROJECT_DIR/bin/tools/RunFunctions
 
