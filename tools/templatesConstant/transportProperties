@@ -1,0 +1,46 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  www.openfoam.org
+    \\  /    A nd           | Version:  User generated
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      transportProperties;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+transportModel  Newtonian;
+
+nu   nu [ 0 2 -1 0 0 0 0 ] 1.004e-06;    // kinematic viscosity of water at 20C
+//nu   nu [ 0 2 -1 0 0 0 0 ] 8.927e-07;    // kinematic viscosity of water at 25C
+//nu   nu [ 0 2 -1 0 0 0 0 ] 8.007e-07;    // kinematic viscosity of water at 30C
+
+//nu   nu [ 0 2 -1 0 0 0 0 ] 1.271e-05;    // kinematic viscosity of air at 20C
+//nu   nu [ 0 2 -1 0 0 0 0 ] 1.295e-05;    // kinematic viscosity of air at 25C
+//nu   nu [ 0 2 -1 0 0 0 0 ] 1.319e-05;    // kinematic viscosity of air at 30C
+
+
+CrossPowerLawCoeffs
+{
+    nu0             nu0 [ 0 2 -1 0 0 0 0 ] 1e-06;
+    nuInf           nuInf [ 0 2 -1 0 0 0 0 ] 1e-06;
+    m               m [ 0 0 1 0 0 0 0 ] 1;
+    n               n [ 0 0 0 0 0 0 0 ] 1;
+}
+
+BirdCarreauCoeffs
+{
+    nu0             nu0 [ 0 2 -1 0 0 0 0 ] 1e-06;
+    nuInf           nuInf [ 0 2 -1 0 0 0 0 ] 1e-06;
+    k               k [ 0 0 1 0 0 0 0 ] 0;
+    n               n [ 0 0 0 0 0 0 0 ] 1;
+}
+
+// ************************************************************************* //
