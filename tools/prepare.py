@@ -277,9 +277,9 @@ def replace_decompose_par_dict(patch_names):
     filtered_names = [name for name in patch_names if any(word.lower() in name.lower() for word in included)]
     replace = str()
     if len(filtered_names) > 0:
-        replace += f"{" " * 8}enabled true;   // Set the $BAFFLES_FLAG$ to 'false' to disable"
+        replace += f"{" " * 8}enabled true;   // Set the $BAFFLES_FLAG$ to 'false' to disable\n"
     else:
-        replace += f"{" " * 8}enabled false;  // Set the $BAFFLES_FLAG$ to 'true' to enable"
+        replace += f"{" " * 8}enabled false;  // Set the $BAFFLES_FLAG$ to 'true' to enable\n"
     # Bundle the replacement text and pattern
     replacement_pattern = r'.*\$BAFFLES_FLAG\$.*\n'
     return [(replacement_pattern, replace)]
