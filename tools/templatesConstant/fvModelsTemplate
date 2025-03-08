@@ -27,9 +27,11 @@ FoamFile
         selectionMode  cellZone;         // Options: {cellZone, points, box, etc}
         cellZone       exampleCells;     // CAUTION: Must match mesh definition
         type           DarcyForchheimer; // Options: {DarcyForchheimer, PowerLaw}
-        // Very high viscous terms can restrict the flow to a single direction
-        d   (7e5 1e10 1e10);  // (x y z) Darcy (viscous) term - proportional to velocity
-        f   (  5    0    0);  // (x y z) Forchheimer (inertial) term - prop. to velocity^2
+        // CAUTION: Forchheimer values from literature should be scaled for OpenFOAM
+        // EXAMPLE: F_openfoam = 2 x F_literature / density
+        // Negative D terms are multiplied by -1 & 3e21 to create directional blockage
+        d   (3.0e6 -1e4 -1e4);  // (x y z) Darcy (viscous) term - proportional to velocity
+        f   (5.3e0    0    0);  // (x y z) Forchheimer (inertial) term - prop. to velocity^2
         coordinateSystem {#include "standardCoordinateSystem"}
     }
 }*/
