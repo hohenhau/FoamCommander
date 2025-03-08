@@ -60,7 +60,7 @@ constraints
     {
         type    singleProcessorFaceSets;
         singleProcessorFaceSets ();  // List the $PRESERVED_FACE_SETS$ here
-        enabled false;  // Set the $FACE_SETS_FLAG$ to 'true' to enable  
+        enabled false;  // Set the $FACE_SETS_FLAG$ to 'true' to enable
     }
 }
 
