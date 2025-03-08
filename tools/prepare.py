@@ -167,9 +167,9 @@ def replace_create_baffles_dict(patch_names):
     definitions = str()
     if any('porous' in patch_name.lower() for patch_name in patch_names):
         definitions += ('// Define key fan metrics\n'
-                        'D_SCREEN 20000000;  // Darcy (viscous) term (porosity is 0.63)\n'
-                        'I_SCREEN 280;       // Forchheimer (interial) term\n'
-                        'L_SCREEN 0.003;     // Linear scaling of pressure drop\n\n')
+                        'D_SCREEN 7000000;   // Darcy (viscous) term (porosity is 0.63)\n'
+                        'I_SCREEN 240;       // Forchheimer (interial) term\n'
+                        'L_SCREEN 0.002;     // Linear scaling of pressure drop\n\n')
     if any('fan' in patch_name.lower() for patch_name in patch_names):
         definitions += ('// Define key porosity metrics\n'
                         '// Choices are {constant, polynomial}, but was polynomial 1((100 0));\n'
@@ -321,9 +321,11 @@ def replace_fv_models(patch_names):
                     f'{" " * 8}selectionMode  cellZone;         // Options: {{cellZone, points, box, etc}}\n'
                     f'{" " * 8}cellZone       {patch_name}Cells;  // CAUTION: Must match mesh definition\n'
                     f'{" " * 8}type           DarcyForchheimer; // Options: {{DarcyForchheimer, PowerLaw}}\n'
+                    f'{" " * 8}// CAUTION: Darcy values from literature should be multiplied by kinematic viscosity\n'
+                    f'{" " * 8}// EXAMPLE: D_openfoam = kinematic_viscosity x D_literature\n'
                     f'{" " * 8}// Very high viscous terms can restrict the flow to a single direction\n'
-                    f'{" " * 8}d   (7e5 1e10 1e10);  // (x y z) Darcy (viscous) term - proportional to velocity\n'
-                    f'{" " * 8}f   (  5    0    0);  // (x y z) Forchheimer (inertial) term - prop. to velocity^2\n'
+                    f'{" " * 8}d   (5.50e4  1e10 1e10);  // (x y z) Darcy (viscous) term - proportional to velocity\n'
+                    f'{" " * 8}f   (5.52e-3    0    0);  // (x y z) Forchheimer (inertial) term - prop. to velocity^2\n'
                     f'{" " * 8}coordinateSystem\n'
                     f'{" " * 8}{{\n'
                     f'{" " * 12}type cartesian;        // Define the type of coordinate system\n'
