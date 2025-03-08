@@ -325,7 +325,7 @@ def replace_fv_models(patch_names):
                     f'{" " * 8}// EXAMPLE: F_openfoam = 2 x F_literature / density\n'
                     f'{" " * 8}// Very high viscous terms can restrict the flow to a single direction\n'
                     f'{" " * 8}d   (3.0e6  1e10 1e10);  // (x y z) Darcy (viscous) term - proportional to velocity\n'
-                    f'{" " * 8}f   (5.3e3     0    0);  // (x y z) Forchheimer (inertial) term - prop. to velocity^2\n'
+                    f'{" " * 8}f   (5.3e0     0    0);  // (x y z) Forchheimer (inertial) term - prop. to velocity^2\n'
                     f'{" " * 8}coordinateSystem\n'
                     f'{" " * 8}{{\n'
                     f'{" " * 12}type cartesian;        // Define the type of coordinate system\n'
