@@ -276,7 +276,7 @@ def replace_decompose_par_dict(patch_names):
     included = tuple(['internal'])
     filtered_names = [name for name in patch_names if any(word.lower() in name.lower() for word in included)]
     replace = str()
-    if filtered_names > 0:
+    if len(filtered_names) > 0:
         replace += f"{" " * 8}enabled true;   // Set the $BAFFLES_FLAG$ to 'false' to disable"
     else:
         replace += f"{" " * 8}enabled false;  // Set the $BAFFLES_FLAG$ to 'true' to enable"
