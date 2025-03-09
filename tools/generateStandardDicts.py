@@ -12,7 +12,7 @@ SYSTEM_DIR = os.path.join(CURRENT_DIR, "system")
 CONSTANT_DIR = os.path.join(CURRENT_DIR, "constant")
 
 def generate_system_dicts():
-    dict_names = ['blockMeshDict', 'controlDict', 'decomposeParDict', 'rankfile', 'functions']
+    dict_names = ['blockMeshDict', 'controlDict', 'rankfile', 'functions']
 
     for dict_name in dict_names:
         template_path = os.path.join(TEMPLATE_SYSTEM_DIR, dict_name)
