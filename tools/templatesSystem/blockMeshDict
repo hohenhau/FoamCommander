@@ -20,10 +20,10 @@ scale 1; // Define scaling factor (0.1 = down, 1 = no change, 10 = up)
 
 
 // -------------- Define block mesh coordinates -------------- //
-Xmin -1.500000;  // minimum x
-Xmax  1.500000;  // maximum x
-Ymin -1.500000;  // minimum y
-Ymax  1.500000;  // maximum y
+Xmin -1.000000;  // minimum x
+Xmax  1.000000;  // maximum x
+Ymin -1.000000;  // minimum y
+Ymax  1.000000;  // maximum y
 Zmin -1.000000;  // minimum z
 Zmax -1.000000;  // maximum z
 
