@@ -385,7 +385,7 @@ def replace_zero_boundaries(patch_names, boundary_types, boundary_values, intern
         # Override patch type for special patches (fan, porous screen, etc.)
         print(patch_names)
         print(boundary_types)
-        if 'type' in boundary_types[patch_name]:
+        if patch_name in boundary_types and 'type' in boundary_types[patch_name]:
             patch_type = boundary_types[patch_name]
         # If the patch type is not specified, get the type
         if patch_type not in boundary_types:
