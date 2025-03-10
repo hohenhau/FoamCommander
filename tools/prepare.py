@@ -406,7 +406,7 @@ def replace_zero_boundaries(patch_names, boundary_types, boundary_values, intern
         boundary_block += f'    {group_name}\n    {{\n'
         # Take care of special if-statement based types and values
         if 'type' in patch_type:
-            boundary_block += patch_type
+            boundary_block += f'    {group_name}\n    {{\n'
             continue
 
         # Add the patch type and value to the block
@@ -497,7 +497,7 @@ def generate_zero_file(patch_names: list, field: str, boundary_dict: dict):
         boundary_types[j] = (f'{" " * 8}type            porousBafflePressure;\n'
                              f'{" " * 8}patchType       cyclic;\n'
                              f'{" " * 8}value           uniform 0;\n'
-                             f'{" " * 8}uniformJump     false;'
+                             f'{" " * 8}uniformJump     false;\n'
                              f'{" " * 8}D               20000000; // Darcy coefficient\n'
                              f'{" " * 8}I               280;      // Inertial coefficient\n'
                              f'{" " * 8}length          0.003;    // Scaling of pressure drop\n')
@@ -511,7 +511,6 @@ def generate_zero_file(patch_names: list, field: str, boundary_dict: dict):
                              f'{" " * 12}type        movingWallVelocity;\n'
                              f'{" " * 12}value       uniform (0 0 0);\n'
                              f'{" " * 8}#endif\n'
-                             f'{" " * 4}}}\n')
 
     print(boundary_types)
     # Filter out any "patches" that are actually regions, but are not an NCC type region
