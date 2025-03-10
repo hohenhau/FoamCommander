@@ -277,9 +277,9 @@ def replace_decompose_par_dict(patch_names):
     filtered_names = [name for name in patch_names if any(word.lower() in name.lower() for word in included)]
     replace = str()
     if len(filtered_names) > 0:
-        replace += f"{" " * 8}enabled true;   // Set the $BAFFLES_FLAG$ to 'false' to disable\n"
+        replace += f'{" " * 8}enabled true;   // Set the $BAFFLES_FLAG$ to "false" to disable\n'
     else:
-        replace += f"{" " * 8}enabled false;  // Set the $BAFFLES_FLAG$ to 'true' to enable\n"
+        replace += f'{" " * 8}enabled false;  // Set the $BAFFLES_FLAG$ to "true" to enable\n'
     # Bundle the replacement text and pattern
     replacement_pattern = r'.*\$BAFFLES_FLAG\$.*\n'
     return [(replacement_pattern, replace)]
@@ -476,7 +476,8 @@ def generate_zero_file(patch_names: list, field: str, boundary_dict: dict):
                 boundary_vals[pseudo_wall] = boundary_vals['wall']
 
     # Create a fan condition for internal fan faces for the pressure field
-    for j in (i for i in patch_names if "fan" in i.lower() and field == "p" and boundary_types[i] == "cyclic"):
+    for j in (i for i in patch_names if "fan" in i.lower() and field == "p"
+                                        and get_boundary_type_from_patch_name(i) == "cyclic"):
         boundary_types[j] = (f'{" " * 8}type            fanPressureJump;  // Units are pressure(Pa) / density (rho)\n'
                              f'{" " * 8}patchType       cyclic;\n'
                              f'{" " * 8}value           uniform 0;\n'
@@ -485,14 +486,15 @@ def generate_zero_file(patch_names: list, field: str, boundary_dict: dict):
                              f'{" " * 8}jumpTable       constant 2.0;  // Options {{constant, polynomial}}\n')
 
     # Create a porous condition for internal porous faces for the pressure field
-    for j in (i for i in patch_names if "porous" in i.lower() and field == "p" and boundary_types[i] == "cyclic"):
+    for j in (i for i in patch_names if "porous" in i.lower() and field == "p"
+                                        and get_boundary_type_from_patch_name(i) == "cyclic"):
         boundary_types[j] = (f'{" " * 8}type            porousBafflePressure;\n'
                              f'{" " * 8}patchType       cyclic;\n'
                              f'{" " * 8}value           uniform 0;\n'
                              f'{" " * 8}uniformJump     false;'
-                             f'{" " * 8}D               7000000;  // Darcy coefficient\n'
-                             f'{" " * 8}I               240;      // Inertial coefficient\n'
-                             f'{" " * 8}length          0.002;    // Scaling of pressure drop\n')
+                             f'{" " * 8}D               20000000; // Darcy coefficient\n'
+                             f'{" " * 8}I               280;      // Inertial coefficient\n'
+                             f'{" " * 8}length          0.003;    // Scaling of pressure drop\n')
 
     # Filter out any "patches" that are actually regions, but are not an NCC type region
     excluded = ('zone', 'region', 'honeycomb')
