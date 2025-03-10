@@ -9,7 +9,7 @@ def invert_stl_normals(input_path):
     """
     Reads an STL file and inverts all normal vectors while preserving formatting.
     Overwrites the original file with the modified content.
-    Zero values (0.000000e+000) are not inverted.
+    True zero values in any scientific notation format are not inverted.
     
     Args:
         input_path (str): Path to the input STL file
@@ -51,7 +51,6 @@ def invert_stl_normals(input_path):
                         suffix = match.group(7)
                         
                         # Invert normals by adding a negative sign or removing it
-                        # Only if the value is not zero
                         x_inverted = negate_value(x_normal)
                         y_inverted = negate_value(y_normal)
                         z_inverted = negate_value(z_normal)
@@ -78,18 +77,25 @@ def invert_stl_normals(input_path):
 def negate_value(value_str):
     """
     Negates a numeric value in scientific notation.
-    Zero values are not negated.
+    Only true zero values (in any scientific notation format) are not negated.
     
     Args:
         value_str (str): A string representing a number in scientific notation
         
     Returns:
-        str: The negated value in same format, or unchanged if zero
+        str: The negated value in same format, or unchanged if true zero
     """
-    # Check if the value is zero (any form of 0.0000...)
-    if value_str.startswith('0.') or value_str == '-0.000000e+000' or value_str == '0.000000e+000':
-        return value_str  # Don't modify zero values
+    # Convert to float to check if it's mathematically zero
+    # This handles different representations of zero like 0.000e+0, 0.000000e+000, etc.
+    try:
+        value = float(value_str)
+        if value == 0.0:
+            return value_str  # Don't modify true zero values
+    except ValueError:
+        # If conversion fails for some reason, continue with string-based approach
+        pass
     
+    # For all non-zero values
     if value_str.startswith('-'):
         return value_str[1:]  # Remove the negative sign
     else:
