@@ -402,6 +402,7 @@ def replace_zero_boundaries(patch_names, boundary_types, boundary_values, intern
         if '#ifeq' in boundary_types[patch_type]:
             boundary_block += boundary_types[patch_type]
             continue
+
         # Add the patch type and value to the block
         boundary_block += f'        type            {boundary_types[patch_type]};\n'
         if patch_type in boundary_values:
@@ -474,7 +475,26 @@ def generate_zero_file(patch_names: list, field: str, boundary_dict: dict):
             if pseudo_wall not in boundary_vals and 'wall' in boundary_vals:
                 boundary_vals[pseudo_wall] = boundary_vals['wall']
 
-    # Filter out any "patches" that are actually regions, but are not an NCC region
+    # Create a fan condition for internal fan faces for the pressure field
+    for j in (i for i in patch_names if "fan" in i.lower() and field == "p" and boundary_types[i] == "cyclic"):
+        boundary_types[j] = (f'{" " * 8}type            fanPressureJump;  // Units are pressure(Pa) / density (rho)\n'
+                             f'{" " * 8}patchType       cyclic;\n'
+                             f'{" " * 8}value           uniform 0;\n'
+                             f'{" " * 8}jump            uniform 0;\n'
+                             f'{" " * 8}reverse         true;\n'
+                             f'{" " * 8}jumpTable       constant 2.0;  // Options {{constant, polynomial}}\n')
+
+    # Create a porous condition for internal porous faces for the pressure field
+    for j in (i for i in patch_names if "porous" in i.lower() and field == "p" and boundary_types[i] == "cyclic"):
+        boundary_types[j] = (f'{" " * 8}type            porousBafflePressure;\n'
+                             f'{" " * 8}patchType       cyclic;\n'
+                             f'{" " * 8}value           uniform 0;\n'
+                             f'{" " * 8}uniformJump     false;'
+                             f'{" " * 8}D               7000000;  // Darcy coefficient\n'
+                             f'{" " * 8}I               240;      // Inertial coefficient\n'
+                             f'{" " * 8}length          0.002;    // Scaling of pressure drop\n')
+
+    # Filter out any "patches" that are actually regions, but are not an NCC type region
     excluded = ('zone', 'region', 'honeycomb')
     filtered_names = [i for i in patch_names if 'ncc' in i.lower() or not any(word in i.lower() for word in excluded)]
 
