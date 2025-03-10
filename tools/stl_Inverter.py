@@ -9,6 +9,7 @@ def invert_stl_normals(input_path):
     """
     Reads an STL file and inverts all normal vectors while preserving formatting.
     Overwrites the original file with the modified content.
+    Zero values (0.000000e+000) are not inverted.
     
     Args:
         input_path (str): Path to the input STL file
@@ -50,6 +51,7 @@ def invert_stl_normals(input_path):
                         suffix = match.group(7)
                         
                         # Invert normals by adding a negative sign or removing it
+                        # Only if the value is not zero
                         x_inverted = negate_value(x_normal)
                         y_inverted = negate_value(y_normal)
                         z_inverted = negate_value(z_normal)
@@ -76,13 +78,18 @@ def invert_stl_normals(input_path):
 def negate_value(value_str):
     """
     Negates a numeric value in scientific notation.
+    Zero values are not negated.
     
     Args:
         value_str (str): A string representing a number in scientific notation
         
     Returns:
-        str: The negated value in same format
+        str: The negated value in same format, or unchanged if zero
     """
+    # Check if the value is zero (any form of 0.0000...)
+    if value_str.startswith('0.') or value_str == '-0.000000e+000' or value_str == '0.000000e+000':
+        return value_str  # Don't modify zero values
+    
     if value_str.startswith('-'):
         return value_str[1:]  # Remove the negative sign
     else:
