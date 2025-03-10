@@ -54,11 +54,11 @@ def invert_stl_normals(input_path):
                         y_inverted = negate_value(y_normal)
                         z_inverted = negate_value(z_normal)
                         
-                        # Write the inverted normal line
-                        inverted_line = f"{prefix}{x_inverted}{space1}{y_inverted}{space2}{z_inverted}{suffix}"
+                        # Write the inverted normal line with the newline character
+                        inverted_line = f"{prefix}{x_inverted}{space1}{y_inverted}{space2}{z_inverted}{suffix}\n"
                         temp_file.write(inverted_line)
                     else:
-                        # Write unchanged line
+                        # Write unchanged line (already includes newline)
                         temp_file.write(line)
         
         # Replace the original file with the temporary file
