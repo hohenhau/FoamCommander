@@ -404,13 +404,12 @@ def replace_zero_boundaries(patch_names, boundary_types, boundary_values, intern
         boundary_block += f'    {group_name}\n    {{\n'
         # Take care of special if-statement based types and values
         if 'type' in patch_type:
-            boundary_block += f'    {patch_type}\n    {{\n'
-            continue
-
+            boundary_block += f'{patch_type}\n'
         # Add the patch type and value to the block
-        boundary_block += f'        type            {boundary_types[patch_type]};\n'
-        if patch_type in boundary_values:
-            boundary_block += f'        value           {boundary_values[patch_type]};\n'
+        else:
+            boundary_block += f'        type            {boundary_types[patch_type]};\n'
+            if patch_type in boundary_values:
+                boundary_block += f'        value           {boundary_values[patch_type]};\n'
         boundary_block += '    }\n'
     # Define the value block   float('%.*g' % (3, internal_field))
     internal_field_block = f"internalField   uniform {float('%.*g' % (3, internal_field))}; // Adjust to simulation"
