@@ -7,7 +7,8 @@ import shutil
 
 def invert_stl_normals(input_path):
     """
-    Reads an STL file and inverts all normal vectors while preserving formatting.
+    Reads an STL file and inverts all normal vectors while also reversing vertex order.
+    This ensures proper orientation reversal for OpenFOAM.
     Overwrites the original file with the modified content.
     True zero values in any scientific notation format are not inverted.
     
@@ -30,15 +31,19 @@ def invert_stl_normals(input_path):
     # Regex pattern to match normal vectors line
     normal_pattern = re.compile(r'(.*facet normal\s+)(-?\d+\.\d+e[+-]\d+)(\s+)(-?\d+\.\d+e[+-]\d+)(\s+)(-?\d+\.\d+e[+-]\d+)(.*)')
     
-    # Process the file using a temporary file
     try:
         # Create a temporary file
         with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
             temp_path = temp_file.name
             
-            # Process the original file
             with open(input_path, 'r') as original_file:
-                for line in original_file:
+                lines = original_file.readlines()
+                
+                i = 0
+                while i < len(lines):
+                    line = lines[i]
+                    
+                    # Process normal vectors line
                     match = normal_pattern.match(line)
                     if match:
                         # Extract components
@@ -58,13 +63,38 @@ def invert_stl_normals(input_path):
                         # Write the inverted normal line with the newline character
                         inverted_line = f"{prefix}{x_inverted}{space1}{y_inverted}{space2}{z_inverted}{suffix}\n"
                         temp_file.write(inverted_line)
+                        
+                        # Look for vertex lines and reverse their order
+                        if i+1 < len(lines) and "outer loop" in lines[i+1]:
+                            temp_file.write(lines[i+1])  # Write "outer loop" line unchanged
+                            
+                            # Store vertex lines
+                            vertex1 = lines[i+2]
+                            vertex2 = lines[i+3]
+                            vertex3 = lines[i+4]
+                            
+                            # Write vertices in reversed order (vertex1, vertex3, vertex2)
+                            # Keep vertex1 in the same position but swap vertex2 and vertex3
+                            temp_file.write(vertex1)
+                            temp_file.write(vertex3)
+                            temp_file.write(vertex2)
+                            
+                            # Write endloop and endfacet lines
+                            temp_file.write(lines[i+5])  # endloop
+                            temp_file.write(lines[i+6])  # endfacet
+                            
+                            # Skip the lines we've already processed
+                            i += 7
+                            continue
                     else:
-                        # Write unchanged line (already includes newline)
+                        # Write unchanged line
                         temp_file.write(line)
+                    
+                    i += 1
         
         # Replace the original file with the temporary file
         shutil.move(temp_path, input_path)
-        print(f"Successfully inverted normal vectors in '{input_path}'")
+        print(f"Successfully inverted normal vectors and vertex order in '{input_path}'")
         return True
         
     except Exception as e:
