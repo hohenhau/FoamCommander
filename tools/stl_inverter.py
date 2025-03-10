@@ -76,8 +76,8 @@ def invert_stl_normals(input_path):
                             # Write vertices in reversed order (vertex1, vertex3, vertex2)
                             # Keep vertex1 in the same position but swap vertex2 and vertex3
                             temp_file.write(vertex1)
-                            temp_file.write(vertex2)
                             temp_file.write(vertex3)
+                            temp_file.write(vertex2)
 
                             # Write endloop and endfacet lines
                             temp_file.write(lines[i+5])  # endloop
