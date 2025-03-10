@@ -405,8 +405,8 @@ def replace_zero_boundaries(patch_names, boundary_types, boundary_values, intern
         # Add the patch text to the text block
         boundary_block += f'    {group_name}\n    {{\n'
         # Take care of special if-statement based types and values
-        if 'type' in boundary_types[patch_type]:
-            boundary_block += boundary_types[patch_type]
+        if 'type' in patch_type:
+            boundary_block += patch_type
             continue
 
         # Add the patch type and value to the block
