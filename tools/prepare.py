@@ -510,7 +510,7 @@ def generate_zero_file(patch_names: list, field: str, boundary_dict: dict):
                              f'{" " * 8}#else\n'
                              f'{" " * 12}type        movingWallVelocity;\n'
                              f'{" " * 12}value       uniform (0 0 0);\n'
-                             f'{" " * 8}#endif\n'
+                             f'{" " * 8}#endif\n')
 
     print(boundary_types)
     # Filter out any "patches" that are actually regions, but are not an NCC type region
