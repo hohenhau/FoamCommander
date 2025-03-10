@@ -344,6 +344,7 @@ def replace_fv_models(patch_names):
     replacement_pattern = r'.*\$FV_MODEL_DEFINITIONS\$.*\n'
     return [(replacement_pattern, replace)]
 
+
 def replace_dynamic_mesh(patch_names):
     """Function to find the replacement pattern and text for a specific template"""
     included = tuple(['NCC'])
@@ -381,7 +382,10 @@ def replace_zero_boundaries(patch_names, boundary_types, boundary_values, intern
     patch_groups = {}
     for patch_name in patch_names:
         patch_type = get_patch_type_from_patch_name(patch_name)
-        # It the patch type is not specified, get the type
+        # Override patch type for special patches (fan, porous screen, etc)
+        if 'type' in boundary_types[patch_name]:
+            patch_type = boundary_types[patch_name]
+        # If the patch type is not specified, get the type
         if patch_type not in boundary_types:
             boundary_types[patch_type] = get_boundary_type_from_patch_name(patch_name)
         # If this is the first patch of its type, start a group
@@ -399,7 +403,7 @@ def replace_zero_boundaries(patch_names, boundary_types, boundary_values, intern
         # Add the patch text to the text block
         boundary_block += f'    {group_name}\n    {{\n'
         # Take care of special if-statement based types and values
-        if '#ifeq' in boundary_types[patch_type]:
+        if 'type' in boundary_types[patch_type]:
             boundary_block += boundary_types[patch_type]
             continue
 
@@ -496,6 +500,17 @@ def generate_zero_file(patch_names: list, field: str, boundary_dict: dict):
                              f'{" " * 8}I               280;      // Inertial coefficient\n'
                              f'{" " * 8}length          0.003;    // Scaling of pressure drop\n')
 
+    # Create a velocity condition for rotating surfaces in the velocity field
+    for j in (i for i in patch_names if field == "U" and get_boundary_type_from_patch_name(i) == "rotating"):
+        boundary_types[j] = (f'{" " * 8}#include "../system/fvSchemes"\n'
+                             f'{" " * 8}#ifeq $ddtSchemes.default steadyState\n'
+                             f'{" " * 12}type        MRFnoSlip;\n'
+                             f'{" " * 8}#else\n'
+                             f'{" " * 12}type        movingWallVelocity;\n'
+                             f'{" " * 12}value       uniform (0 0 0);\n'
+                             f'{" " * 8}#endif\n'
+                             f'{" " * 4}}}\n')
+
     print(boundary_types)
     # Filter out any "patches" that are actually regions, but are not an NCC type region
     excluded = ('zone', 'region', 'honeycomb')
@@ -509,18 +524,9 @@ def generate_zero_file(patch_names: list, field: str, boundary_dict: dict):
 def generate_all_zero_files(patch_names, fm):
     """Build the zero files for the various fields and boundaries"""
 
-    rotating_u_types = (f'{" " * 8}#include "../system/fvSchemes"\n'
-                        f'{" " * 8}#ifeq $ddtSchemes.default steadyState\n'
-                        f'{" " * 12}type        MRFnoSlip;\n'
-                        f'{" " * 8}#else\n'
-                        f'{" " * 12}type        movingWallVelocity;\n'
-                        f'{" " * 12}value       uniform (0 0 0);\n'
-                        f'{" " * 8}#endif\n'
-                        f'{" " * 4}}}\n')
-
     field_dicts = {
         'U': {'types': {'wall': 'fixedValue', 'MRFnoSlip': 'MRFnoSlip', 'movingWallVelocity': 'movingWallVelocity',
-                        'NCC': 'movingWallSlipVelocity', 'rotating': rotating_u_types},
+                        'NCC': 'movingWallSlipVelocity'},
               'values': {'inlet': 'uniform (0 0 0)', 'wall': 'uniform (0 0 0)',
                          'movingWallVelocity': 'uniform (0 0 0)', 'NCC': 'uniform (0 0 0)'},
               'internal_field': 0},
