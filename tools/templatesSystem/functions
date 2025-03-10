@@ -41,6 +41,16 @@ yPlus
     enabled          true;                            // Make it active (optional)
 }
 
+totalPressure
+{
+    type      pressure;                // Mandatory entries (unmodifiable)
+    libs      (fieldFunctionObjects);  // Mandatory entries (unmodifiable)
+    mode      total;                   // Mandatory entry (runtime modifiable)
+    p         p;                       // Kinematic pressure (required for incompressible flow)
+    U         U;                       // Velocity field (required for incompressible flow)
+    enabled   true;                    // Make it active (optional)
+}
+
 turbulenceFields  // Calcluate Turbulence length scale (L) & Turbulence Intensity (I)
 {
     type             turbulenceFields;                // Type of function (mandatory)
