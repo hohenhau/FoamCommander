@@ -36,6 +36,7 @@ totalPressure
 {
     type          pressure;                        // Mandatory entries (unmodifiable)
     libs          ("libfieldFunctionObjects.so");  // Mandatory entries (unmodifiable)
+    writeControl  writeTime;                       // What triggers write (optional)
     pRef          0;                               // Pressure needed to calculate total
     calcTotal     yes;                             // Modifu in accordance with table
     calcCoeff     no;                              // Modify in accordance with table
@@ -47,7 +48,6 @@ totalPressure
     // P. coefficient  | no        | yes
     // Total P. coef.  | yes       | yes
 
-    writeControl  writeTime;                       // What triggers write (optional)
     enabled       true;                            // Make it active (optional)
 }
 
