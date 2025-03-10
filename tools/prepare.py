@@ -494,6 +494,7 @@ def generate_zero_file(patch_names: list, field: str, boundary_dict: dict):
         boundary_types[j] = (f'{" " * 8}type            porousBafflePressure;\n'
                              f'{" " * 8}patchType       cyclic;\n'
                              f'{" " * 8}value           uniform 0;\n'
+                             f'{" " * 8}jump            uniform 0;\n'
                              f'{" " * 8}uniformJump     false;\n'
                              f'{" " * 8}D               7000000;  // Darcy coefficient\n'
                              f'{" " * 8}I               240;      // Inertial coefficient\n'
