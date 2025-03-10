@@ -496,6 +496,7 @@ def generate_zero_file(patch_names: list, field: str, boundary_dict: dict):
                              f'{" " * 8}I               280;      // Inertial coefficient\n'
                              f'{" " * 8}length          0.003;    // Scaling of pressure drop\n')
 
+    print(boundary_types)
     # Filter out any "patches" that are actually regions, but are not an NCC type region
     excluded = ('zone', 'region', 'honeycomb')
     filtered_names = [i for i in patch_names if 'ncc' in i.lower() or not any(word in i.lower() for word in excluded)]
