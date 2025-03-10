@@ -57,7 +57,6 @@ turbulenceIntensity
     libs          ("libfieldFunctionObjects.so");  // Library to be used (mandatory)
     writeControl  writeTime;                       // What triggers write (optional)
     enabled       true;                            // Make it active (optional)
-
 }
 
 forces
