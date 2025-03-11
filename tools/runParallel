@@ -20,6 +20,9 @@ echo Running $APP with the $SOLVER solver on $NPROCS processors
 # -o = overwrites the existing log
 decomposePar -force 2>&1 | tee log.decomposePar
 
+# Renumber the mesh to speed up large simulations
+mpirun -np $NPROCS renumberMesh -overwrite -parallel -noZero 2>&1 | tee log.$APP
+
 # Move 0 files for processor folders
 cp -r 0 processor*/*
 
