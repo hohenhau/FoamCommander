@@ -1,0 +1,66 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  www.openfoam.org
+    \\  /    A nd           | Version:  User generated
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;  // Options: binary (less space), ascii (human-readable)
+    class       volScalarField;
+    location    "0";
+    object      S;
+}
+
+// Custom Scalar Transport Field
+// Models: Models using flow induced roation
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    "inlet"
+    {
+        type            fixedValue;
+        value           $internalField;
+    }
+    "outlet"
+    {
+        type            zeroGradient;
+        value           $internalField;
+    }
+    "rotatingPropeller"
+    {
+        type            zeroGradient;
+        value           $internalField;
+    }
+    "stationaryWall"
+    {
+        type            zeroGradient;
+        value           $internalField;
+    }
+    "walls"
+    {
+        type            zeroGradient;
+        value           $internalField;
+    }
+    "(zoneNCC|zoneNCC_slave)"
+    {
+        type            zeroGradient;
+    }
+    "(minX|maxX|minY|maxY|minZ|maxZ)"
+    {
+        type            slip;
+    }
+
+    // CAUTION: Including base types can break cyclic behaviour
+    #includeEtc "caseDicts/setConstraintTypes"  // base types from OF directory
+}
+
+// ************************************************************************* //
