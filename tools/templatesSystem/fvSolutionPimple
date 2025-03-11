@@ -84,7 +84,7 @@ PIMPLE  // Combination of PISO and SIMPLE algorithms (for transient simulations)
     nOuterCorrectors  2;  // Number of outer loops (typically 1-2 are sufficient for PIMPLE)
     nCorrectors       2;  // Number of inner loops (typically 1-2 are sufficient for PIMPLE)
     nNonOrthogonalCorrectors  1;  // Additional corrections for non-orthogonal meshes
-    momentumPredictor yes;  // Predict velocity before pressure correction to improve convergence
+    momentumPredictor no;  // Predict U before p (only useful for 2-phase or high viscosity)
     // pRefPoint (0 0 0);  // Required if there is no inlet/outlet
     // pRefValue 0;  // Required if there is no inlet/outlet
     residualControl  // Threshold below which the solution is considered converged
