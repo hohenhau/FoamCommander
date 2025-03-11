@@ -6,83 +6,38 @@
      \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 
-// File specifying the functions required for an induced roation
+// Function to build an new transport equations:
+// ddt(rho, S) + div(phi,S) + laplacian(D,S) == Q 
+// The source term Q can be modelled with the fvOptions functionality.
+// Attention to the units you specify.
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-//- Include libraries in order to get access
-//  Run time loadable | not linked in the solver itself - powerful option
-libs
-(
-    //- Include the solverFunctionObjects to get access to build passive
-    //  scalar equations on the fly
-    "libsolverFunctionObjects.so"
-);
-
-//- Build own functions
-functions
+S
 {
-    S
+    type            scalarTransport;
+    writeInterval   outputTime;
+    active          false;
+    field           S;      // Field name
+    diffusivity     false;  // Field in use
+    schemesField    S;      // Schemes used -> system/fvSchemes
+    autoSchemes     false;  // Either use auto schemes or manually added schemes
+    nCorr           0;      // Corrections
+    resetOnStartUp  false;  // Restart on start-up
+
+    fvConstraints  // Build a source term Q at different points (in this case)
     {
-        //- Here we build an new transport equations such as:
-        //  ddt(rho, S) + div(phi,S) + laplacian(D,S) == Q 
-        //  The source term Q can be modelled with the fvOptions
-        //  functionality. Attention to the units you specify.
-
-        type            scalarTransport;
-        writeInterval   outputTime;
-        active          false;
-
-        //- Field name 
-        field           S;
-
-        //- Field in use
-        //- constant
-        //- viscosity
-        //- no/off/false
-        diffusivity     false;
-
-        //- Schemes used -> system/fvSchemes
-        schemesField    S;
-
-        //- Either use auto schemes or manuell added schemes
-        autoSchemes     false;
-
-        //- Corrections
-        nCorr           0;
-
-        //- Restart on start-up
-        resetOnStartUp  false;
-
-        //- Build a source term Q at different points (in this case)
-        //  Highly flexible
-        fvConstraints
+        sourceForS
         {
-            sourceForS
+            type            scalarSemiImplicitSource;
+            active          true;
+            selectionMode   cellZone;
+            cellZone        zoneNCZ;
+            injectionRateSuSp  // Take care of the specific vs absolute value
             {
-                type            scalarSemiImplicitSource;
-                active          true;
-
-                //- Different selection modes possible such as points or
-                //  cellZones etc.
-                selectionMode   points;
-                volumeMode      specific;
-                points
-                4( 
-                    (-0.6  0.15 0.0025)
-                    (-0.6  0.13 0.0025)
-
-                    (-0.6 -0.21 0.0025)
-                    (-0.6 -0.23 0.0025)
-                );
-
-                //- Take care of the specific vs absolute value
-                injectionRateSuSp
-                {
-                    //- Value 2 starting at time t = 0
-                    S (2 0);
-                }
+                // Value 2 starting at time t = 0
+                S (2 0);
             }
-        };
-    }
+        }
+    };
 }
