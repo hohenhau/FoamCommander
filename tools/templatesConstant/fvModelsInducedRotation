@@ -11,7 +11,7 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";        // Update this
-    object      fvConstraints;   // Update this
+    object      fvModels;   // Update this
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -19,33 +19,18 @@ FoamFile
 // Used if the passive scalar is activated in the controlDict and/or functions
 scalarConstraint
 {
-    type        semiImplicitSource;
+    type            semiImplicitSource;
+    selectionMode   cellZone;
+    cellZone        zoneNCZ;
 
-    //- Different selection modes possible such as points or
-    //  cellZones etc.
-    selectionMode   points;
-    volumeMode      specific;
-
-    points
-    4( 
-        (-0.6  0.15 0.0025)
-        (-0.6  0.13 0.0025)
-
-        (-0.6 -0.21 0.0025)
-        (-0.6 -0.23 0.0025)
-    );
-
-    // Handle the specific vs absolute value
-    sources 
+    sources  // Handle the specific vs absolute value
     {
-        //- Value 2 starting at time t = 0
-        S 
+        S  // Value 2 starting at time t = 0
         {
             explicit 2;
             implicit 0;
         }
     }
 }
-
 
 // ************************************************************************* //
