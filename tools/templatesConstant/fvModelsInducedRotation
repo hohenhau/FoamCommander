@@ -21,7 +21,7 @@ scalarConstraint
 {
     type            semiImplicitSource;
     selectionMode   cellZone;
-    cellZone        zoneNCZ;
+    cellZone        zoneNCC;
 
     sources  // Handle the specific vs absolute value
     {
