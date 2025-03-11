@@ -31,37 +31,28 @@ mover
         //  :: l :: innerDistance
         //  :: l :: outerDistance
         //  :: l :: g              (only if g is in db()) 
+        //
         //  :: lOD :: test         (default = false) | test mode, only g act 
         //  :: lOD :: rho          (default = rho)   | needed for incompressible
         //                         if rho = rhoInf -> lookup rhoInf value
 
         //- List of mesh patches associated with the solid body 
-        patches         (VAWT);
-
-        //- Inner morphing distance (limit of solid-body region)
-        innerDistance   1.0;
-
-        //- Outer morphing distance (limit of linear interpolation region)
-        outerDistance   1.1;
+        patches  (rotatingPropeller);
 
         //- Note: Based on innterDistance and outerDistance, we make a pointField
         //  that scales the morphing items (see also in the source code)
 
-        //- Gravitational acceleration if g is used in the calculation
-        //g               (0 0 0);
+        //- Inner morphing distance (limit of solid-body region)
+        innerDistance  1.0;
 
-        //  Denisty name (normally rho but for incompressible cases we have to
-        //  specify rhoInf and set the density). Each name different from rhoInf
-        //  will be treated as variable. E.g. if we set rhoTest, FOAM search for
-        //  a reserved rhoTest quantity
-        rho             rhoInf;
+        //- Outer morphing distance (limit of linear interpolation region)
+        outerDistance  1.1;
+
+        //  Denisty name (specify rhoInf and set the density
+        rho  rhoInf;
 
         //- For incompressible cases [kg/m^3]
-        // rhoInf          1.2;  // Density of air
-        rhoInf          998;  // Density of water
-
-
-
+        rhoInf  998;  // Density of water and air are 998 and 1.2 respectively 
 
         //  The following items is read from the sixDoFRigidBodyMotion class and
         //  sixDoFRigidBodyMotionState
@@ -81,11 +72,8 @@ mover
         //  :: lOD :: angularMomentum           (default = (0 0 0))
         //  :: lOD :: torque                    (default = (0 0 0))
         //
-        //  -- need subDicts 
-        //          "solver"
-        //     and read if found
-        //          "restraints"
-        //          "constraints"
+        //  - need subDicts: "solver"
+        //  - and read if found: "restraints" & "constraints"
 
         //  Mass of the moving object [kg]
         mass        180;
@@ -129,14 +117,9 @@ mover
         // Acceleration dumping coeff (for steady-state simulations) [0-1]
         // accelerationDumping 0.1;
 
-
         //  Motion Solver only needed for deforming meshes, not sliding meshes
         //  Options: {Newmark, Crank-Nicolsen, etc }
-        solver
-        {
-            type Newmark;
-        }
-
+        solver{type Newmark;}
 
         //- Section for constraints (Check the openfoamwiki or the source code)
         constraints
@@ -144,35 +127,26 @@ mover
             zAxis  // Arbitrary name
             {
                 // Fix the axis
-                // Here: rigid-body cannot move in x and z and rotate
-                // But we could move in y direction
-                sixDoFRigidBodyMotionConstraint axis;
-                axis (0 0 1);  //
+                axis (0 0 1);  // Limit rotation to the z axis
             }
             fixedPt  // Arbitrary name
             {
-                //- Fix the point
-                //  Here: motion also avoided in y direction
-                //  Only possibility now -> rotate arount y axis
+                // Fix the point
                 sixDoFRigidBodyMotionConstraint point;
-                centreOfRotation (0 0 0.025);
+                centreOfRotation (0 0 0);
             }
         }
-
         
-        //- Section for restraints
-        //  Checkout the openfoamwiki or the source code
+        // Section for restraints (Checkout the openfoamwiki or the source code)
         restraints
         {
-            //- Some dumping functions
-            /*translationDamper
+            /*translationDamper  // Some dumping function
             {
                     //- Nms/rad
                     //  Acts against motion as friction
                     sixDoFRigidBodyMotionRestraint  sphericalAngularDamper;
                     coeff 0.05;
-            }
-            */
+            } */
         }
     }
 }
