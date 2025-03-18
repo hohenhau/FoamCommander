@@ -610,6 +610,6 @@ if __name__ == "__main__":
                   'fvModels', CONSTANT_DIR, replace_fv_models)
 
     generate_dynamic_mesh_dict(patch_names, TEMPLATE_CONSTANT_DIR,
-                               'dynamicMesh', CONSTANT_DIR)
+                               'dynamicMeshDict', CONSTANT_DIR)
 
     print('\nCompleted preparation!\n\n')
