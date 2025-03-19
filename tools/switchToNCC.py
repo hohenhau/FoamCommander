@@ -42,15 +42,16 @@ def switch_to_ncc():
       sys.exit(1)
   
   # Run the bash commands for each timestep and STL file
+  print('Switching boundary types from "MRFnoSlip" to "movingWallVelocity" with a value of "uniform (0 0 0)"')
   for time_step in time_step_dirs:
       for stl_file in stl_files:
           boundary_name = os.path.splitext(stl_file)[0]  # Remove .stl extension
-          print(f"Processing timestep {time_step} for boundary {boundary_name}")
+          print(f"Processing timestep {time_step} for the {boundary_name} boundary patch")
           
           commands = [
               ["foamDictionary", f"{time_step}/U", "-entry", f"boundaryField/{boundary_name}/value", "-remove"],
-              ["foamDictionary", f"{time_step}/U", "-entry", f"boundaryField/{boundary_name}/type", "-set", "fixedValue"],
-              ["foamDictionary", f"{time_step}/U", "-entry", f"boundaryField/{boundary_name}/value", "-set", "uniform ( 0 0 0 )"]
+              ["foamDictionary", f"{time_step}/U", "-entry", f"boundaryField/{boundary_name}/type", "-set", "movingWallVelocity"],
+              ["foamDictionary", f"{time_step}/U", "-entry", f"boundaryField/{boundary_name}/value", "-set", "uniform (0 0 0)"]
           ]
           
           for cmd in commands:
