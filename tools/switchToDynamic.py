@@ -47,15 +47,9 @@ def switch_to_ncc():
       for stl_file in stl_files:
           boundary_name = os.path.splitext(stl_file)[0]  # Remove .stl extension
           print(f"Processing timestep {time_step} for the {boundary_name} boundary patch")
-          
-          commands = [
-              ["foamDictionary", f"{time_step}/U", "-entry", f"boundaryField/{boundary_name}/value", "-remove"],
-              ["foamDictionary", f"{time_step}/U", "-entry", f"boundaryField/{boundary_name}/type", "-set", "movingWallVelocity"]
-              # ["foamDictionary", f"{time_step}/U", "-entry", f"boundaryField/{boundary_name}/value", "-set", "uniform (0 0 0)"]
-          ]
-          
-          for cmd in commands:
-              subprocess.run(cmd)
+          subprocess.run(["foamDictionary", f"{time_step}/U", "-entry", f"boundaryField/{boundary_name}/type", "-set", "movingWallVelocity"])
+          # subprocess.run(["foamDictionary", f"{time_step}/U", "-entry", f"boundaryField/{boundary_name}/value", "-remove"])
+          # subprocess.run(["foamDictionary", f"{time_step}/U", "-entry", f"boundaryField/{boundary_name}/value", "-set", "uniform (0 0 0)"])
 
 
 if __name__ == "__main__":
