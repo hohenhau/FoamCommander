@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Convert internal faces to baffles
+createBaffles -overwrite;
+
+# Split the newly created baffles
+splitBaffles; 
+
+# Create Non-Conformal Couples from baffles
+createNonConformalCouples -overwrite;
