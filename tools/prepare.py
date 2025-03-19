@@ -40,7 +40,7 @@ def get_patch_type_from_patch_name(input_patch_name: str):
     common_patch_types['internal'] = 'internal'
     common_patch_types['screen'] = 'internal'
     common_patch_types['rotating'] = 'rotating'
-    common_patch_types['stationary'] = 'movingWallVelocity'
+    common_patch_types['stationary'] = 'wall'
     common_patch_types['NCC'] = 'NCC'
     # Define types that have overlapping patch_names with the common types
     overlapping_patch_types = {'noSlip': 'noSlip',  # Overlaps with slip
