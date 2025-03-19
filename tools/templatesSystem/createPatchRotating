@@ -16,27 +16,20 @@ FoamFile
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// Do not remove any existing patches
-pointSync false;
+pointSync false;  // Synchronisation of coupled points after creation
 
-// Patches to create
 patches
 (
     {
-        // Name of new patch
-        name rotatingPropeller;
-        
-        // Type of new patch
-        patchInfo
+        name rotatingPropeller;       // name of new patch
+        patches (rotatingPropeller);  // name of old patches (can be blockmesh patches)
+        constructFrom patches;        // Options {'patches', 'set'}
+        patchInfo                     // Type of new patch
         {
             type            movingWallVelocity;
             value           uniform (0 0 0);
         }
-
-        // How to construct: either from 'patches' or 'set'
-        constructFrom patches;
-        
-        // If constructFrom = patches : names of patches to use
-        patches (rotatingPropeller);
     }
 );
+
+// ************************************************************************* //
