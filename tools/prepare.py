@@ -503,7 +503,7 @@ def generate_zero_file(patch_names: list, field: str, boundary_dict: dict):
     # Create a velocity condition for rotating surfaces in the velocity field
     for j in (i for i in patch_names if field == "U" and get_boundary_type_from_patch_name(i) == "rotating"):
         boundary_types[j] = (f'{" " * 8}#include "../system/fvSchemes"\n'
-                             f'{" " * 8}#ifeq $ddtSchemes.default steadyState\n'
+                             f'{" " * 8}#ifeq $ddtSchemes/default steadyState\n'
                              f'{" " * 12}type        MRFnoSlip;\n'
                              f'{" " * 8}#else\n'
                              f'{" " * 12}type        movingWallVelocity;\n'
