@@ -1,0 +1,32 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  www.openfoam.org
+    \\  /    A nd           | Version:  User generated
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      changeDictionaryDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+U
+{
+    boundaryField
+    {
+        my_inlet_patch
+        {
+            type            fixedValue;
+            value           uniform (0 0 0); //just set your desired velocity vector
+        }
+    }
+ }
+
+
+// ************************************************************************* //
