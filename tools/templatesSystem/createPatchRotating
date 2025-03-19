@@ -26,8 +26,8 @@ patches
         constructFrom patches;        // Options {'patches', 'set'}
         patchInfo                     // Type of new patch
         {
-            type            movingWallVelocity;
-            value           uniform (0 0 0);
+            type            movingWallVelocity;  // Needed for dynamic mesh
+            value           uniform (0 0 0);     // Needed for dynamic mesh
         }
     }
 );
