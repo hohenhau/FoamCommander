@@ -50,8 +50,8 @@ def switch_to_ncc():
           
           commands = [
               ["foamDictionary", f"{time_step}/U", "-entry", f"boundaryField/{boundary_name}/value", "-remove"],
-              ["foamDictionary", f"{time_step}/U", "-entry", f"boundaryField/{boundary_name}/type", "-set", "movingWallVelocity"],
-              ["foamDictionary", f"{time_step}/U", "-entry", f"boundaryField/{boundary_name}/value", "-set", "uniform (0 0 0)"]
+              ["foamDictionary", f"{time_step}/U", "-entry", f"boundaryField/{boundary_name}/type", "-set", "movingWallVelocity"]
+              # ["foamDictionary", f"{time_step}/U", "-entry", f"boundaryField/{boundary_name}/value", "-set", "uniform (0 0 0)"]
           ]
           
           for cmd in commands:
