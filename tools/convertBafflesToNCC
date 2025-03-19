@@ -4,7 +4,7 @@
 createBaffles -overwrite 2>&1 | tee log.createNCC;
 
 # Split the newly created baffles
-splitBaffles -overwrite 2>&1 | tee log.createNCC; 
+splitBaffles -overwrite 2>&1 | tee log.createNCC;
 
 # Create Non-Conformal Couples from baffles
 createNonConformalCouples -overwrite 2>&1 | tee log.createNCC;
