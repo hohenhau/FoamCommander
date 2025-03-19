@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Convert internal faces to baffles
-createBaffles -overwrite;
+createBaffles -overwrite 2>&1 | tee log.createNCC;
 
 # Split the newly created baffles
-splitBaffles; 
+splitBaffles -overwrite 2>&1 | tee log.createNCC; 
 
 # Create Non-Conformal Couples from baffles
-createNonConformalCouples -overwrite;
+createNonConformalCouples -overwrite 2>&1 | tee log.createNCC;
