@@ -22,7 +22,7 @@ patches
 (
     {
         name rotatingPropeller;       // name of new patch
-        patches (rotatingPropeller);  // name of old patches (can be blockmesh patches)
+        patches (rotatingPropeller);  // name of old patches
         constructFrom patches;        // Options {'patches', 'set'}
         patchInfo                     // Type of new patch
         {
