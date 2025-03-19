@@ -20,7 +20,7 @@ U
 {
     boundaryField
     {
-        my_inlet_patch
+        rotatingPropeller
         {
             type            fixedValue;
             value           uniform (0 0 0); //just set your desired velocity vector
