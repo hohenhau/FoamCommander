@@ -1,0 +1,42 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  www.openfoam.org
+    \\  /    A nd           | Version:  User generated
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      createPatchDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Do not remove any existing patches
+pointSync false;
+
+// Patches to create
+patches
+(
+    {
+        // Name of new patch
+        name rotatingPropeller;
+        
+        // Type of new patch
+        patchInfo
+        {
+            type            movingWallVelocity;
+            value           uniform (0 0 0);
+        }
+
+        // How to construct: either from 'patches' or 'set'
+        constructFrom patches;
+        
+        // If constructFrom = patches : names of patches to use
+        patches (rotatingPropeller);
+    }
+);
