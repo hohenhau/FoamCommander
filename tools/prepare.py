@@ -556,6 +556,12 @@ def generate_all_zero_files(patch_names, fm):
                   # value for wall needs to be high (1e5 or 1e6)
                   'internal_field': fm.specific_dissipation.value},
 
+        'pointDisplacement': {'types': {'inlet': 'fixedValue', 'outlet': 'fixedValue', 'wall': 'fixedValue',
+                                        'rotating': 'calculated', 'stationary': 'calculated'},
+                              'values': {'inlet': '$internalField', 'outlet': '$internalField', 'wall': '$internalField', 
+                                         'rotating': 'uniform (0 0 0)', 'stationary': 'uniform (0 0 0)'},
+                              'internal_field': 'uniform (0 0 0)'},
+        
         'kl': {'types': {'wall': 'fixedValue'},
                'values': {'inlet': 'uniform 0', 'wall': 'uniform 0'},
                'internal_field': 0},
