@@ -8,7 +8,7 @@
 
 FoamFile
 {
-    format      ascii;  // Options: binary (less space), ascii (human-readable)
+    format      binary;  // Options: binary (less space), ascii (human-readable)
     class       pointVectorField;
     location    "0";
     object      pointDisplacement;
