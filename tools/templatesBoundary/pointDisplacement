@@ -32,7 +32,7 @@ boundaryField
     }
 
     // CAUTION: Including base types can break cyclic behaviour
-    #includeEtc "caseDicts/setConstraintTypes"  // base types from OF directory
+    // #includeEtc "caseDicts/setConstraintTypes"  // base types from OF directory
 }
 
 // ************************************************************************* //
