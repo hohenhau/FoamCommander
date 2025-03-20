@@ -395,8 +395,8 @@ def replace_zero_boundaries(patch_names, boundary_types, boundary_values, intern
 
     boundary_block = str()
     for patch_type, patch_group in patch_groups.items():
-        # Double up cyclic boundaries, baffles, and NCCs
-        if patch_type in {'internal', 'baffle', 'cyclic', 'NCC'} or 'type' in patch_type:
+        # Double up internal, baffles, and NCC boundaries
+        if patch_type in {'internal', 'baffle', 'NCC'}:
             patch_group = [f"{patch}{ending}" for patch in patch_group for ending in ['', '_slave']]
         # Join patches with '|' and wrap in parentheses
         group_name = f'"{patch_group[0]}"' if len(patch_group) == 1 else f'"({"|".join(patch_group)})"'
