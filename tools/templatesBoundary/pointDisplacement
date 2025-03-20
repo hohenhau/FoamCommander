@@ -25,35 +25,7 @@ internalField   uniform (0 0 0);
 
 boundaryField
 {
-    "inlet"
-    {
-        type            fixedValue;
-        value           $internalField;
-    }
-    "outlet"
-    {
-        type            fixedValue;
-        value           $internalField;
-    }
-    "rotatingPropeller"
-    {
-        type            calculated;
-        value           uniform (0 0 0);
-    }
-    "stationaryWall"
-    {
-        type            calculated;
-        value           uniform (0 0 0);
-    }
-    "walls"
-    {
-        type            fixedValue;
-        value           $internalField;
-    }
-    "(zoneNCC|zoneNCC_slave)"
-    {
-        type            zeroGradient;
-    }
+    // Insert the required $BOUNDARY_FIELDS$
     "(minX|maxX|minY|maxY|minZ|maxZ)"
     {
         type            slip;
