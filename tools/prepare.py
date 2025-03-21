@@ -560,7 +560,7 @@ def generate_all_zero_files(patch_names, fm):
                                         'rotating': 'calculated', 'stationary': 'calculated'},
                               'values': {'inlet': '$internalField', 'outlet': '$internalField', 'wall': '$internalField', 
                                          'rotating': 'uniform (0 0 0)', 'stationary': 'uniform (0 0 0)'},
-                              'internal_field': 'uniform (0 0 0)'},
+                              'internal_field': 0},
         
         'kl': {'types': {'wall': 'fixedValue'},
                'values': {'inlet': 'uniform 0', 'wall': 'uniform 0'},
