@@ -40,7 +40,7 @@ def get_patch_type_from_patch_name(input_patch_name: str):
     common_patch_types['internal'] = 'internal'
     common_patch_types['screen'] = 'internal'
     common_patch_types['rotating'] = 'rotating'
-    common_patch_types['stationary'] = 'wall'
+    common_patch_types['stationary'] = 'stationary'
     common_patch_types['NCC'] = 'NCC'
     # Define types that have overlapping patch_names with the common types
     overlapping_patch_types = {'noSlip': 'noSlip',  # Overlaps with slip
@@ -472,7 +472,7 @@ def generate_zero_file(patch_names: list, field: str, boundary_dict: dict):
         boundary_types['wall'] = get_boundary_type_from_patch_name('wall')
 
     # Copy wall entry to pseudo walls
-    for pseudo_wall in ['MRFnoSlip', 'movingWallVelocity', 'rotating']:
+    for pseudo_wall in ['MRFnoSlip', 'movingWallVelocity', 'stationary', 'rotating']:
         if pseudo_wall not in boundary_types:
             boundary_types[pseudo_wall] = boundary_types['wall']
             if pseudo_wall not in boundary_vals and 'wall' in boundary_vals:
