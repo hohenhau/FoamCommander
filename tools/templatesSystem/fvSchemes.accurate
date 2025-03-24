@@ -53,7 +53,7 @@ gradSchemes  // Calculate the gradient between cell centres and walls
 divSchemes // Calculate the divergence (i.e. spread) typically for flux & convection terms
 {
     default                        Gauss limitedLinear 1;
-    div(phi, U)                    Gauss limitedLinearV 0.5;
+    div(phi,U)                     Gauss limitedLinearV 0.5;
     div((nuEff*dev2(T(grad(U)))))  Gauss linear;
 }
     /* -------------------- Divergence Options & Notes --------------------- *\

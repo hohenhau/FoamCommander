@@ -56,7 +56,7 @@ divSchemes // Calculate the divergence (i.e. spread) typically for flux & convec
     div(phi,k)                     Gauss limitedLinear 1;
     div(phi,epsilon)               Gauss limitedLinear 1;
     div(phi,omega)                 Gauss limitedLinear 1;
-    div(phi, U)                    Gauss limitedLinearV 1;
+    div(phi,U)                     Gauss limitedLinearV 1;
     div((nuEff*dev2(T(grad(U)))))  Gauss linear;
 }
     /* -------------------- Divergence Options & Notes --------------------- *\
