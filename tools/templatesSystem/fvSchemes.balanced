@@ -38,7 +38,7 @@ gradSchemes  // Calculate the gradient between cell centres and walls
     /* --------------------- Gradient Options & Notes --------------------- *\
     FORMAT: <OPTIONAL limiter> <scheme> <SOMETIMES coefficient>
     default  Gauss linear;           // 2nd order central differencing, balancing speed and accuracy
-    default  Gauss linearCorrected;  // Like linear but with non-orthogonal correction 
+    default  Gauss linearCorrected;  // Like linear but with non-orthogonal correction
     default  leastSquares 1;         // Highly accurate (1 = most accurate)
     default  none;                   // Forces explicit definition of all terms
     default  cellLimited Gauss linear;    // 0 = no limit & 1 = limited
