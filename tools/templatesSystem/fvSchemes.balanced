@@ -105,7 +105,7 @@ snGradSchemes // Defines how the gradient normal to a face is calculated
     FORMAT: <snGrad scheme>
     default  limited 1;  // Limits the surface-normal gradient (0 = no limit & 1 = limited)
     default  corrected;  // More accurate but slower than limited 
-    
+
     The 'limited' scheme limits the surface gradient while the 'corrected' scheme is
     more accurate and corrects the surface-normal gradient for non-orthogonality.
     \* --------------------------------------------------------------------- */
