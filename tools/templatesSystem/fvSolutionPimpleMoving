@@ -64,22 +64,22 @@ solvers  // Numerical algorithms used to solve the field equations
     }
 }
 /* ------------------------ Solver Options & Notes ------------------------- *\
-solver - The algorithm to solve the linear system of equations (matrices) for a 
-field. Symmetric matrices (A = transpose(A)) are for diffusion-like terms, while 
+solver - The algorithm to solve the linear system of equations (matrices) for a
+field. Symmetric matrices (A = transpose(A)) are for diffusion-like terms, while
 non-symmetric matrices are for turbulence & velocity. Common solver option are:
    - GAMG = Geometric-Algebraic MultiGrid - usually used for Pressure
    - smoothSolver = Smoothed solver - fast/fragile compared to PBiCG
-   - PBiCG = Preconditioned Bi-Conjugate Gradient - slow/robust 
+   - PBiCG = Preconditioned Bi-Conjugate Gradient - slow/robust
    - PCG = Preconditioned Conjugate Gradient (only for symmetric matrices)
 
-smoother - Technique (for GAMG and smoothSolver) to reduce local errors during 
+smoother - Technique (for GAMG and smoothSolver) to reduce local errors during
 each iteration by smoothing the solution field. Common options are:
    - DIC = Diagonal-based incomplete Cholesky - good for symmetric GAMG - fast & somewhat robust
    - DICGaussSeidel = Combination of DIC and GaussSeidel
    - GaussSeidel = Classic Gauss-Seidel - good for non-symmetri smoothSolver - slower but more robust
    - symGaussSeidel = Symmetric Gauss-Seidel (good for smoothSolver) - somewhat robust
 
-preconditioner - Matrix-based technique transforming the a system of equations into an 
+preconditioner - Matrix-based technique transforming the a system of equations into an
 equivalent one that is better *conditioned* and easier to solve. Common options are:
    - DILU = Diagonal-based incomplete LU - good for non-symmetric matrices - fast & robust
    - FDIC = Fast Diagonal-based Incomplete Cholesky - good for symmetic PCG - faster than DIC
@@ -87,7 +87,7 @@ equivalent one that is better *conditioned* and easier to solve. Common options 
 tolerance - is the absolute residual below which a solution for a variable
 is considered converged for a single solver iteration
 
-relTol - The relative tolerance stops the solver if the residual drop is small 
+relTol - The relative tolerance stops the solver if the residual drop is small
 compared to the initial residual of that iteration. To ignore set "relTol 0;"
 \*---------------------------------------------------------------------------*/
 
@@ -107,9 +107,9 @@ SIMPLE Algorithm - Semi-Implicit Method for Pressure-Linked Equations
 PISO Algortihm   - Pressure Implicit with Splitting of Operator
 PIMPLE Algorithm - Combination of PISO and SIMPLE algorithms
 
-nOuterCorrectors - Outer loops to couple *all* equations. A value of 1 replicates PISO. 
-Higher values enable iterative corrections for better convergence in strongly-coupled 
-(i.e. turbulent) systems but also increase computational cost. Increase beyond 2 if 
+nOuterCorrectors - Outer loops to couple *all* equations. A value of 1 replicates PISO.
+Higher values enable iterative corrections for better convergence in strongly-coupled
+(i.e. turbulent) systems but also increase computational cost. Increase beyond 2 if
 the case involves strong coupling between equations or challenging turbulence models
 
 nCorrectors - Inner loops to couple *momentum-pressure* equations. It increases the 
@@ -125,10 +125,10 @@ relaxationFactors // Control under-relaxation to stabilize iterative solvers
 }
 /* ---------------------- Relaxation Options & Notes ----------------------- *\
 Relaxation Factors can be between 0 and 1. 1 means the solution fully updates
-with each step, O means the simulation does not update at all (not practical), 
+with each step, O means the simulation does not update at all (not practical),
 and a value beteen 0 and 1 blends the previous and current simulation. Lower
 factors increase stability but reduce rate of convergence. Typical values are
-between 0.3 and 0.7 for steady state solutions, but transient solutions often 
+between 0.3 and 0.7 for steady state solutions, but transient solutions often
 use a value of 1.0 for faster convergence. 
 \*---------------------------------------------------------------------------*/
 
@@ -138,9 +138,9 @@ cache  // Cache specific field to improve performance
     grad(U);  // cache velocity gradient evaluation
 }
 /* ------------------------ Caching Options & Notes ------------------------ *\
-It is generally advisable to cache the velocity gradient evaluation for RANS 
-turbulence models (k-ω, k-ε, SST, etc.), Large simulations (e.g., fine mesh, 
-rotating machinery, etc.), and the PIMPLE algorithm with multiple correctors 
+It is generally advisable to cache the velocity gradient evaluation for RANS
+turbulence models (k-ω, k-ε, SST, etc.), Large simulations (e.g., fine mesh,
+rotating machinery, etc.), and the PIMPLE algorithm with multiple correctors
 (e.g., nOuterCorrectors > 1, nCorrectors > 1)
 \*---------------------------------------------------------------------------*/
 

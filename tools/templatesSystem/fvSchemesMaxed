@@ -42,36 +42,34 @@ gradSchemes  // Calculate the gradient between cell centres and walls
     default  none;                   // Forces explicit definition of all terms
     default  cellLimited Gauss linear;    // 0 = no limit & 1 = limited
     default  cellLimited leastSquares 1;  // 0 = no limit & 1 = limited
-    
+
     NOTE: In limited schemes 0 = most accurate & 1 = most stable (limited). The
-    limitedLinear schemes are specifically designed to limit linear interpolation, 
+    limitedLinear schemes are specifically designed to limit linear interpolation,
     while cellLimited schemes apply additional limiting at the cell level
     \* --------------------------------------------------------------------- */
 
 
 divSchemes // Calculate the divergence (i.e. spread) typically for flux & convection terms
 {
-    default                        Gauss linearCorrected; 
+    default                        Gauss linear; 
 }
     /* -------------------- Divergence Options & Notes --------------------- *\
     FORMAT: <OPTIONAL limiter> <scheme> <SOMETIMES coefficient> <OPTIONAL gradient to use for corrections>
     default  Gauss upwind;           // 1st order upwind, quick & robust but diffusive
     default  Gauss linearUpwind;     // 2nd order upwind, good balance of accuracy/stability
-    default  Gauss limitedLinear 1;  // Limited linear interpolation (prevents oscillations/overshoots)
-    default  Gauss limitedLinearV 1; // Vector limited linear interpolation (optimized for sharp gradients)
+    default  Gauss limitedLinear 1;  // Limited linear interpolation towards upwind
     default  Gauss linear;           // 2nd order central differencing, balancing speed and accuracy
-    default  Gauss linearCorrected;  // Like linear but with non-orthogonal correction 
+
+    default  Gauss limitedLinearV 1; // Vector limited linear interpolation towards upwind
+    default  Gauss linearUpwindV 1;  // Vector 2nd order upwind, good balance of accuracy/stability
     default  none;                   // Forces explicit definition of all terms
-    default  cellLimited Gauss linearUpwind;   // 0 = no limit & 1 = limited
-    default  cellLimited Gauss linearUpwindV;  // 0 = no limit & 1 = limited
-    default  cellLimited Gauss linear;         // 0 = no limit & 1 = limited
-    
+
     div(phi,U) Gauss LUST grad(U); // Linear-Upwind Stabilised Transport (75% linear, 25% upwind)
     Here "phi" is the flux term and calculates how the other terms are transported.
 
-    The term div((nuEff*dev2(T(grad(U))))) represents the rate of change or flow 
-    of momentum in the fluid, factoring in the velocity gradient & the viscosity. 
-    It is important for simulating viscous flow & turbulence and * MUST BE * set 
+    The term div((nuEff*dev2(T(grad(U))))) represents the rate of change or flow
+    of momentum in the fluid, factoring in the velocity gradient & the viscosity.
+    It is important for simulating viscous flow & turbulence and * MUST BE * set
     at least to "linear" or a more accurate scheme
     \* --------------------------------------------------------------------- */
 
@@ -100,8 +98,8 @@ snGradSchemes // Defines how the gradient normal to a face is calculated
     default  limited 1;  // Limits the surface-normal gradient (0 = no limit & 1 = limited)
     default  corrected;  // More accurate but slower than limited 
     
-    The 'limited' scheme limits the surface gradient while the 'corrected' scheme is 
-    more accurate and corrects the surface-normal gradient for non-orthogonality. 
+    The 'limited' scheme limits the surface gradient while the 'corrected' scheme is
+    more accurate and corrects the surface-normal gradient for non-orthogonality.
     \* --------------------------------------------------------------------- */
 
 
@@ -111,7 +109,7 @@ interpolationSchemes  // Used to interpolate values from cell centers to face ce
 }
     /* ------------------- Interpolation Options & Notes ------------------- *\
     FORMAT: <interpolation scheme>
-    default linear;  // Uses second-order central differencing for interpolation 
+    default linear;  // Uses second-order central differencing for interpolation
     \* --------------------------------------------------------------------- */
 
 

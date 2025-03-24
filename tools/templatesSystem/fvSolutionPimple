@@ -51,8 +51,8 @@ solvers  // Numerical algorithms used to solve the field equations
     }
 }
 /* ------------------------ Solver Options & Notes ------------------------- *\
-solver - The algorithm to solve the linear system of equations (matrices) for a 
-field. Symmetric matrices (A = transpose(A)) are for diffusion-like terms, while 
+solver - The algorithm to solve the linear system of equations (matrices) for a
+field. Symmetric matrices (A = transpose(A)) are for diffusion-like terms, while
 non-symmetric matrices are for turbulence & velocity. Common solver option are:
    - GAMG = Geometric-Algebraic MultiGrid - usually used for Pressure
    - smoothSolver = Smoothed solver - fast/fragile compared to PBiCG
@@ -74,7 +74,7 @@ equivalent one that is better *conditioned* and easier to solve. Common options 
 tolerance - is the absolute residual below which a solution for a variable
 is considered converged for a single solver iteration
 
-relTol - The relative tolerance stops the solver if the residual drop is small 
+relTol - The relative tolerance stops the solver if the residual drop is small
 compared to the initial residual of that iteration. To ignore set "relTol 0;"
 \*---------------------------------------------------------------------------*/
 
@@ -99,12 +99,12 @@ SIMPLE Algorithm - Semi-Implicit Method for Pressure-Linked Equations
 PISO Algortihm   - Pressure Implicit with Splitting of Operator
 PIMPLE Algorithm - Combination of PISO and SIMPLE algorithms
 
-nOuterCorrectors - Outer loops to couple *all* equations. A value of 1 replicates PISO. 
-Higher values enable iterative corrections for better convergence in strongly-coupled 
-(i.e. turbulent) systems but also increase computational cost. Increase beyond 2 if 
+nOuterCorrectors - Outer loops to couple *all* equations. A value of 1 replicates PISO.
+Higher values enable iterative corrections for better convergence in strongly-coupled
+(i.e. turbulent) systems but also increase computational cost. Increase beyond 2 if
 the case involves strong coupling between equations or challenging turbulence models
 
-nCorrectors - Inner loops to couple *momentum-pressure* equations. It increases the 
+nCorrectors - Inner loops to couple *momentum-pressure* equations. It increases the
 accuracy of pressure-velocity coupling by solving the pressure equation multiple times.
 
 residualControl - Only applicable to some solvers, including GAMG and PBICG
@@ -125,10 +125,10 @@ relaxationFactors // Control under-relaxation to stabilize iterative solvers
 }
 /* ---------------------- Relaxation Options & Notes ----------------------- *\
 Relaxation Factors can be between 0 and 1. 1 means the solution fully updates
-with each step, O means the simulation does not update at all (not practical), 
+with each step, O means the simulation does not update at all (not practical),
 and a value beteen 0 and 1 blends the previous and current simulation. Lower
 factors increase stability but reduce rate of convergence. Typical values are
-between 0.3 and 0.7 for steady state solutions, but transient solutions often 
+between 0.3 and 0.7 for steady state solutions, but transient solutions often
 use a value of 1.0 for faster convergence. 
 \*---------------------------------------------------------------------------*/
 
@@ -138,9 +138,9 @@ cache  // Cache specific field to improve performance
     grad(U);  // cache velocity gradient evaluation
 }
 /* ------------------------ Caching Options & Notes ------------------------ *\
-It is generally advisable to cache the velocity gradient evaluation for RANS 
-turbulence models (k-ω, k-ε, SST, etc.), Large simulations (e.g., fine mesh, 
-rotating machinery, etc.), and the PIMPLE algorithm with multiple correctors 
+It is generally advisable to cache the velocity gradient evaluation for RANS
+turbulence models (k-ω, k-ε, SST, etc.), Large simulations (e.g., fine mesh,
+rotating machinery, etc.), and the PIMPLE algorithm with multiple correctors
 (e.g., nOuterCorrectors > 1, nCorrectors > 1)
 \*---------------------------------------------------------------------------*/
 
