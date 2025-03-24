@@ -56,21 +56,19 @@ divSchemes // Calculate the divergence (i.e. spread) typically for flux & convec
     div(phi,k)                     Gauss limitedLinear 1;
     div(phi,epsilon)               Gauss limitedLinear 1;
     div(phi,omega)                 Gauss limitedLinear 1;
-    div(phi, U)                    Gauss limitedLinearV 1; 
+    div(phi, U)                    Gauss limitedLinearV 1;
     div((nuEff*dev2(T(grad(U)))))  Gauss linear;
 }
     /* -------------------- Divergence Options & Notes --------------------- *\
     FORMAT: <OPTIONAL limiter> <scheme> <SOMETIMES coefficient> <OPTIONAL gradient to use for corrections>
     default  Gauss upwind;           // 1st order upwind, quick & robust but diffusive
     default  Gauss linearUpwind;     // 2nd order upwind, good balance of accuracy/stability
-    default  Gauss limitedLinear 1;  // Limited linear interpolation (prevents oscillations/overshoots)
-    default  Gauss limitedLinearV 1; // Vector limited linear interpolation (optimized for sharp gradients)
+    default  Gauss limitedLinear 1;  // Limited linear interpolation towards upwind
     default  Gauss linear;           // 2nd order central differencing, balancing speed and accuracy
-    default  Gauss linearCorrected;  // Like linear but with non-orthogonal correction 
+
+    default  Gauss limitedLinearV 1; // Vector limited linear interpolation towards upwind
+    default  Gauss linearUpwindV 1;  // Vector 2nd order upwind, good balance of accuracy/stability
     default  none;                   // Forces explicit definition of all terms
-    default  cellLimited Gauss linearUpwind;   // 0 = no limit & 1 = limited
-    default  cellLimited Gauss linearUpwindV;  // 0 = no limit & 1 = limited
-    default  cellLimited Gauss linear;         // 0 = no limit & 1 = limited
 
     div(phi,U) Gauss LUST grad(U); // Linear-Upwind Stabilised Transport (75% linear, 25% upwind)
     Here "phi" is the flux term and calculates how the other terms are transported.
