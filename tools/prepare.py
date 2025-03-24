@@ -485,7 +485,7 @@ def generate_zero_file(patch_names: list, field: str, boundary_dict: dict):
                              f'{" " * 8}patchType       cyclic;\n'
                              f'{" " * 8}value           uniform 0;\n'
                              f'{" " * 8}jump            uniform 0;\n'
-                             f'{" " * 8}reverse         true;\n'
+                             f'{" " * 8}reverse         false;\n'
                              f'{" " * 8}jumpTable       constant 2.0;  // Options {{constant, polynomial}}\n')
 
     # Create a porous condition for internal porous faces for the pressure field
