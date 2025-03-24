@@ -38,12 +38,12 @@ gradSchemes  // Calculate the gradient between cell centres and walls
     /* --------------------- Gradient Options & Notes --------------------- *\
     FORMAT: <OPTIONAL limiter> <scheme> <SOMETIMES coefficient>
     default  Gauss linear;           // 2nd order central differencing, balancing speed and accuracy
-    default  Gauss linearCorrected;  // Like linear but with non-orthogonal correction 
+    default  Gauss linearCorrected;  // Like linear but with non-orthogonal correction
     default  leastSquares 1;         // Highly accurate (1 = most accurate)
     default  none;                   // Forces explicit definition of all terms
     default  cellLimited Gauss linear;    // 0 = no limit & 1 = limited
     default  cellLimited leastSquares 1;  // 0 = no limit & 1 = limited
-    
+
     NOTE: In limited schemes 0 = most accurate & 1 = most stable (limited). The
     limitedLinear schemes are specifically designed to limit linear interpolation,
     while cellLimited schemes apply additional limiting at the cell level
@@ -52,8 +52,8 @@ gradSchemes  // Calculate the gradient between cell centres and walls
 
 divSchemes // Calculate the divergence (i.e. spread) typically for flux & convection terms
 {
-    default                        Gauss limitedLinear 1; 
-    div(phi, U)                    Gauss limitedLinearV 0.5; 
+    default                        Gauss limitedLinear 1;
+    div(phi, U)                    Gauss limitedLinearV 0.5;
     div((nuEff*dev2(T(grad(U)))))  Gauss linear;
 }
     /* -------------------- Divergence Options & Notes --------------------- *\
