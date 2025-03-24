@@ -18,7 +18,7 @@ FoamFile
 
 ddtSchemes  // Time differencing schemes (1st order = stable, 2nd order = accurate)
 {
-    default  backward;
+    default  backward;           // 2nd order but less accurate than Crank-Nicolson
 }
     /* -------------------- Temporal Options and Notes --------------------- *\
     default  steadyState;        // Time-independent (for steady state simulations)
@@ -32,16 +32,14 @@ ddtSchemes  // Time differencing schemes (1st order = stable, 2nd order = accura
 
 gradSchemes  // Calculate the gradient between cell centres and walls
 {
-    default      cellLimited Gauss linear 0.5;
-    grad(U)      Gauss linearCorrected;
+    default      Gauss linear;
 }
     /* --------------------- Gradient Options & Notes --------------------- *\
     FORMAT: <OPTIONAL limiter> <scheme> <SOMETIMES coefficient>
     default  Gauss linear;           // 2nd order central differencing, balancing speed and accuracy
-    default  Gauss linearCorrected;  // Like linear but with non-orthogonal correction
-    default  leastSquares 1;         // Highly accurate (1 = most accurate)
+    default  leastSquares;           // Highly accurate 
     default  none;                   // Forces explicit definition of all terms
-    default  cellLimited Gauss linear;    // 0 = no limit & 1 = limited
+    default  cellLimited Gauss linear 1;  // 0 = no limit & 1 = limited
     default  cellLimited leastSquares 1;  // 0 = no limit & 1 = limited
 
     NOTE: In limited schemes 0 = most accurate & 1 = most stable (limited). The
