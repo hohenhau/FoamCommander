@@ -81,7 +81,7 @@ if __name__ == "__main__":
     print(f'Z: {MIN_Z} - {MAX_Z}')
 
     precision_decimals = 4
-    boundary_extension = 1**(-precision_decimals)
+    boundary_extension = 10**(-precision_decimals)
     print(f'\nCoordinates for the blockMeshDict (precision to {boundary_extension} metres):')
     print(f'Xmin {round(MIN_X - boundary_extension, precision_decimals)};  // minimum x')
     print(f'Xmax {round(MAX_X + boundary_extension, precision_decimals)};  // maximum x')
