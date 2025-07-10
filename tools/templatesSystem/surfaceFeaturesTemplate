@@ -21,7 +21,10 @@ surfaces
 );
 
 // Identify a feature when angle between faces < includedAngle
-includedAngle 150;
+includedAngle 170;
+
+// Enabled write object to inspect the extracted edges in ParaView
+writeObj yes;
 
 trimFeatures
 {
