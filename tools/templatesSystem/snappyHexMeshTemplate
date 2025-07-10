@@ -54,7 +54,7 @@ castellatedMeshControls
 
         refinementSurfaces  // MANDATORY: Definition and refinement of surfaces
         // Format: patchName {level (0 0); patchInfo {type patchType;} }
-        // Refinement levels (min max) are linked to the proximity to a surface
+        // Refinement levels (min max) are linked resolveFeatureAngle parameter
         {
             // Insert the required $REFINEMENT_SURFACES$
         }
