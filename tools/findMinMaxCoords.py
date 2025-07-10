@@ -80,11 +80,12 @@ if __name__ == "__main__":
     print(f'Y: {MIN_Y} - {MAX_Y}')
     print(f'Z: {MIN_Z} - {MAX_Z}')
 
-    boundary_extension = 0.000001
+    precision_decimals = 4
+    boundary_extension = 1**(-precision_decimals)
     print('\nCoordinates for the blockMeshDict:')
-    print(f'Xmin {MIN_X - boundary_extension};  // minimum x')
-    print(f'Xmax {MAX_X + boundary_extension};  // maximum x')
-    print(f'Ymin {MIN_Y - boundary_extension};  // minimum y')
-    print(f'Ymax {MAX_Y + boundary_extension};  // maximum y')
-    print(f'Zmin {MIN_Z - boundary_extension};  // minimum z')
-    print(f'Zmax {MAX_Z + boundary_extension};  // maximum z\n')
+    print(f'Xmin {round(MIN_X - boundary_extension, precision_decimals)};  // minimum x')
+    print(f'Xmax {round(MAX_X + boundary_extension, precision_decimals)};  // maximum x')
+    print(f'Ymin {round(MIN_Y - boundary_extension, precision_decimals)};  // minimum y')
+    print(f'Ymax {round(MAX_Y + boundary_extension, precision_decimals)};  // maximum y')
+    print(f'Zmin {round(MIN_Z - boundary_extension, precision_decimals)};  // minimum z')
+    print(f'Zmax {round(MAX_Z + boundary_extension, precision_decimals)};  // maximum z\n')
