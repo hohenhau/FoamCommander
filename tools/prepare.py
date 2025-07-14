@@ -345,7 +345,7 @@ def replace_fv_models(patch_names):
     return [(replacement_pattern, replace)]
 
 
-def replace_dynamic_mesh(patch_names):
+def replace_dynamic_sliding_mesh(patch_names):
     """Function to find the replacement pattern and text for a specific template"""
     included = tuple(['NCC'])
     filtered_names = [name for name in patch_names if any(word.lower() in name.lower() for word in included)]
@@ -354,7 +354,7 @@ def replace_dynamic_mesh(patch_names):
         print('Implementing a region with single-body movement')
         replace += f'{" " * 4}cellZone        {filtered_names[0]}Cells;  // CAUTION: Must match mesh definition\n'
         replacement_pattern = r'.*\$CELL_ZONE_NAME\$.*\n'
-        return [(replacement_pattern, replace)], 'dynamicMeshTemplate'
+        return [(replacement_pattern, replace)], 'dynamicMeshDictSliding'
     for patch_name in filtered_names:
         print('Implementing regions with multi-body movement')
         replace += (f'{" " * 4}{patch_name}Cells  // CAUTION: Must match mesh definition\n'
@@ -372,7 +372,7 @@ def replace_dynamic_mesh(patch_names):
         print('Implementing regions with multi-body movement')
     # Bundle the replacement text and pattern
     replacement_pattern = r'.*\$DYNAMIC_MESH_DEFINITIONS\$.*\n'
-    return [(replacement_pattern, replace)], 'dynamicMeshTemplateMulti'
+    return [(replacement_pattern, replace)], 'dynamicMeshDictSlidingMulti'
 
 
 def replace_zero_boundaries(patch_names, boundary_types, boundary_values, internal_field):
@@ -450,7 +450,7 @@ def generate_dynamic_mesh_dict(patch_names, template_dir, output_name, output_di
     output_name = f'{output_name}.gen'
     print(f"\nCreating system/{output_name}...")
     output_path = os.path.join(output_dir, output_name)
-    patterns_and_replacements, template_name = replace_dynamic_mesh(patch_names)
+    patterns_and_replacements, template_name = replace_dynamic_sliding_mesh(patch_names)
     template_path = os.path.join(template_dir, template_name)  # Template file
     if any([replacement for pattern, replacement in patterns_and_replacements]):
         perform_regex_replacements(patterns_and_replacements, template_path, output_path)
