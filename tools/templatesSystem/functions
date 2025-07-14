@@ -82,24 +82,22 @@ residuals
     enabled          false;                             // Make it active (optional)
 }
 
-/* ----------- Functions to be used for adaptive mesh refinement ----------- //
+// ----------- Functions to be used for adaptive mesh refinement ----------- //
 
-gradPmag
+pressureGradient
 {
-    type            gradient;
-    libs            (fieldFunctionObjects);
-    field           p;                // or p_rgh, as appropriate
-    result          gradP;            // name of output field
-    enabled         true;
+    type        grad;
+    libs        ("libfieldFunctionObjects.so");
+    field       p;
+    enabled     true;
 }
 
-vorticityMag
+vorticity
 {
-    type            vorticity;
-    libs            (fieldFunctionObjects);
-    field           U;
-    result          vorticity;        // name of output field
-    enabled         true;
+    type        vorticity;
+    libs        ("libfieldFunctionObjects.so");
+    field       U;
+    enabled     true;
 }
 
 /* -------- Settings to automatically change the type of simulation -------- //
