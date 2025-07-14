@@ -82,6 +82,36 @@ residuals
     enabled          false;                             // Make it active (optional)
 }
 
+/* ----------- Functions to be used for adaptive mesh refinement ----------- //
+
+{
+    gradPmag
+    {
+        type            gradient;
+        libs            (fieldFunctionObjects);
+        field           p;                // or p_rgh, as appropriate
+        result          gradP;            // name of output field
+        executeControl  timeStep;
+        executeInterval 1;
+        writeControl    timeStep;
+        writeInterval   1;
+        enabled         true;
+    }
+
+    vorticityMag
+    {
+        type            vorticity;
+        libs            (fieldFunctionObjects);
+        field           U;
+        result          vorticity;        // name of output field
+        executeControl  timeStep;
+        executeInterval 1;
+        writeControl    timeStep;
+        writeInterval   1;
+        enabled         true;
+    }
+}
+
 /* -------- Settings to automatically change the type of simulation -------- //
 
 switchTime     2;
