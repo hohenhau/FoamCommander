@@ -28,11 +28,14 @@ topoChanger
     refineInterval  1;
 
     // Field to be refinement on
-    field           alpha.water;
+    field           vorticity;
 
     // Refine field in between lower and upper levels
-    lowerRefineLevel 0.001;
-    upperRefineLevel 0.999;
+    lowerRefineLevel 1e+3; // Minimum threshold for refinement
+    upperRefineLevel 1e+10; // Maximum threshold for refinement
+
+    // When to coarsen cell levels (should be lower than lowerRefineLevel)
+    unrefineLevel   1e+2;
 
     // Have slower than 2:1 refinement
     nBufferLayers   1;
@@ -46,6 +49,5 @@ topoChanger
     // Write the refinement level as a volScalarField
     dumpLevel       true;
 }
-
 
 // ************************************************************************* //
