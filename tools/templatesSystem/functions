@@ -92,6 +92,14 @@ pressureGradient
     enabled     true;
 }
 
+velocityGradient
+{
+    type        grad;
+    libs        ("libfieldFunctionObjects.so");
+    field       U;
+    enabled     true;
+}
+
 vorticity
 {
     type        vorticity;
