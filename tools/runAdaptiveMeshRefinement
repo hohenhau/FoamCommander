@@ -3,9 +3,28 @@ cd "${0%/*}" || exit                                # Run from this directory
 . ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
 #------------------------------------------------------------------------------
 
+# Define names for AMR directories
+RUN_NAME="amr_run"
+REFINE_NAME="amr_refine"
 
-# Set the path to the refinement folder as a variable
-refinement='-case ../primal_refinement'
+# Remove any previous AMR directories
+rm -rf $RUN_NAME $REFINE_NAME
+
+# Create the directories for the AMR run
+mkdir $RUN_NAME
+mkdir $REFINE_NAME
+
+# Establish the base and AMR paths
+BASE_DIR=$(pwd)
+RUN_DIR="$BASE_DIR/$RUN_NAME"
+REFINE_DIR="$BASE_DIR/$REFINE_NAME"
+
+# Create the system and constant directories in the AMR folders
+mdkir "$RUN_DIR/constant"
+mdkir "$RUN_DIR/system"
+mdkir "$REFINE_DIR/constant"
+mdkir "$REFINE_DIR/sytem"
+
 
 # Array declaration of the mesh fields that will be copied later on
 declare -a polyMeshFields=("boundary" "cellLevel" "cellZones" "faces" "faceZones" "level0Edge" "neighbour" "owner" "pointLevel" "points" "pointZones")
