@@ -32,12 +32,12 @@ prepareCastellatedMesh() {
 # When called, this method will modify the snappyHexMeshDict file to run the 
 # snapping phase. It sets snapping to true and copies the refinement surface 
 # patch types from the original file
-prepareForSnapping(SYS_DIR) {
+prepareForSnapping() {
     # Set the local systems directory
-    local dict="system/snappyHexMeshDict"
+    local SYS_DIR="$1"
 
     # Copy the original snappyHexMeshDict from the base direcotry
-    cp SYS_DIR/snappyHexMeshDict system/
+    cp "$SYS_DIR/snappyHexMeshDict" system/
 
     # Ensure there is snapping to the surfaces
     foamDictionary $dict -entry snap -set true
@@ -54,8 +54,8 @@ REFINE_NAME="amr_refine"
 rm -rf "$RUN_NAME" "$REFINE_NAME"
 
 # Create the directories for the AMR run
-mkdir $RUN_NAME
-mkdir $REFINE_NAME
+mkdir "$RUN_NAME"
+mkdir "$REFINE_NAME"
 
 # Establish the base and AMR paths
 BASE_DIR=$(pwd)
@@ -72,18 +72,15 @@ mkdir "$REFINE_DIR/constant"
 mkdir "$REFINE_DIR/system"
 
 # Copy the relevant files into the AMR refine folders
-# cp $CONST_DIR/RASProperties $CONST_DIR/dynamicMeshDict $CONST_DIR/transportProperties $CONST_DIR/turbulenceProperties $REFINE_DIR/constant/
-# cp $SYS_DIR/controlDict $SYS_DIR/fvSchemes $SYS_DIR/fvSolution $SYS_DIR/mapFieldsDict $SYS_DIR/preProcess $REFINE_DIR/system/
 cp -r $CONST_DIR/* $REFINE_DIR/constant/
 cp -r $SYS_DIR/* $REFINE_DIR/system/
 
 # Copy the relevant files into the AMR run folders
-# cp $CONST_DIR/RASProperties $CONST_DIR/transportProperties $CONST_DIR/turbulenceProperties $RUN_DIR/constant/
 cp -r $CONST_DIR/* $RUN_DIR/constant/
 cp -r $SYS_DIR/* $RUN_DIR/system/
 
 # Navigate into the AMR run directory
-cd $RUN_DIR
+cd "$RUN_DIR"
 
 # Extract the features of the geometry (for edge refinement in snappyHexMesh)
 runApplication surfaceFeatureExtract
@@ -93,6 +90,7 @@ runApplication blockMesh
 
 # Decompose the case to run on multiple processors
 runApplication $decompDict decomposePar
+
 
 #---------------------------- Castellation Step ---------------------------- #
 
@@ -116,41 +114,41 @@ ls -d processor* | xargs -I {} rm -f {}/constant/polyMesh/faceZones
 cp -R processor* $REFINE_DIR
 cp -R constant/polyMesh $REFINE_DIR/constant/polyMesh
 
-#------------------------------ Snapping Step ------------------------------ #
 
-# After a copy of the mesh has been made, work continues on the mesh in the primalRun folder.
-# The snappyHexMesh dictionary is prepared to run the snapping phase (using the "prepareForSnapping" method declared above)
-prepareForSnapping
+#------------------------- Snapping and Simulating ------------------------- #
+
+# After a copy of the mesh has been made, the snappyHexMesh dictionary is 
+# prepared to run the snapping phase.
+
+# Modify snappyHexMesh for the snapping phase
+prepareForSnapping "$SYS_DIR"
+
+# Run snappyHexMesh, checkMesh, and topoSet
 runParallel $decompDict -s "snapped" snappyHexMesh -overwrite
 runParallel $decompDict -s "snapped" checkMesh -writeFields '(nonOrthoAngle)' -constant
 runParallel $decompDict topoSet
 
-
 #- For parallel running: set the 0 folder
 restore0Dir -processor
 
-
 # Initialize the flow field using potentialFoam (makes it easier/faster for simpleFoam to converge)
 runParallel $decompDict -s "beforeRefinement" potentialFoam -writephi
-
 
 # Run simpleFoam (first CFD run)
 runParallel $decompDict $(getApplication)
 
 
+#----------------------- Store and Process Results ------------------------- #
+
 # Copy the boundary conditions in the 0 folder to the refinement folder
 ls -d processor* | xargs -I {} \
-    cp -R ./0.orig ../primal_refinement
-
+    cp -r 0.orig "$REFINE_DIR/"
 
 # Set path to the refinement folder
-cd ../primal_refinement
-
+cd "$REFINE_DIR"
 
 # copy the decomposeParDict into the refinement folder
-cp ../primal_run/system/decomposeParDict ./system
-
-
+cp "$RUN_DIR/system/decomposeParDict" system/
 
 # Clear the 0 folders inside the processor folders
 ls -d processor* | xargs -I {} \
@@ -158,7 +156,6 @@ ls -d processor* | xargs -I {} \
 
 # Restore the 0 folder inside the processor folders
 restore0Dir -processor
-
 
 # Map the field data of the first CFD run (using the snapped mesh in the primal run folder) on the stored castellated mesh (in the primal refinement folder)
 runParallel $decompDict -s "refinement" mapFieldsPar -sourceTime 'latestTime' \
