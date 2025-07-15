@@ -1,14 +1,57 @@
 #!/bin/bash
-cd "${0%/*}" || exit                                # Run from this directory
-. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
-#------------------------------------------------------------------------------
+
+# ---------------------------- Start-up Checks ----------------------------- #
+
+# Exit if 'constant' or 'system' directories are missing
+[ -d "constant" ] || { echo "ERROR: 'constant' directory is missing."; exit 1; }
+[ -d "system" ] || { echo "ERROR: 'system' directory is missing."; exit 1; }
+
+
+# ---------------------------- Helper Functions ---------------------------- #
+
+# When called, this method will modify the snappyHexMeshDict file to run the 
+# castellated phase. It marks surfaces as baffle so that they get refined 
+# without the "inner mesh" being cut out
+prepareCastellatedMesh() {
+    # Set the local systems directory
+    local dict="system/snappyHexMeshDict"
+
+    # Ensure there is no snapping to the surfaces
+    foamDictionary $dict -entry snap -set false
+
+    # Extract all surface names under refinementSurfaces
+    surfaceNames=$(foamDictionary "$dict" -entry refinementSurfaces | grep '{' | awk '{print $1}')
+
+    # Set the surfaces to baffles
+    for surface in $surfaceNames; do
+        echo "Setting $surface.patchInfo.type to baffle"
+        foamDictionary "$dict" -entry "refinementSurfaces.$surface.patchInfo.type" -set "baffle"
+    done
+}
+
+# When called, this method will modify the snappyHexMeshDict file to run the 
+# snapping phase. It sets snapping to true and copies the refinement surface 
+# patch types from the original file
+prepareForSnapping(SYS_DIR) {
+    # Set the local systems directory
+    local dict="system/snappyHexMeshDict"
+
+    # Copy the original snappyHexMeshDict from the base direcotry
+    cp SYS_DIR/snappyHexMeshDict system/
+
+    # Ensure there is snapping to the surfaces
+    foamDictionary $dict -entry snap -set true
+}
+
+
+#------------------------------- Preparation ------------------------------- #
 
 # Define names for AMR directories
 RUN_NAME="amr_run"
 REFINE_NAME="amr_refine"
 
 # Remove any previous AMR directories
-rm -rf $RUN_NAME $REFINE_NAME
+rm -rf "$RUN_NAME" "$REFINE_NAME"
 
 # Create the directories for the AMR run
 mkdir $RUN_NAME
@@ -16,47 +59,31 @@ mkdir $REFINE_NAME
 
 # Establish the base and AMR paths
 BASE_DIR=$(pwd)
+SYS_DIR="$BASE_DIR/system"
+CONST_DIR="$BASE_DIR/constant"
 RUN_DIR="$BASE_DIR/$RUN_NAME"
 REFINE_DIR="$BASE_DIR/$REFINE_NAME"
 
 # Create the system and constant directories in the AMR folders
-mdkir "$RUN_DIR/constant"
-mdkir "$RUN_DIR/system"
-mdkir "$REFINE_DIR/constant"
-mdkir "$REFINE_DIR/sytem"
+mkdir "$RUN_DIR/constant"
+mkdir "$RUN_DIR/constant/triSurface"
+mkdir "$RUN_DIR/system"
+mkdir "$REFINE_DIR/constant"
+mkdir "$REFINE_DIR/system"
 
+# Copy the relevant files into the AMR refine folders
+# cp $CONST_DIR/RASProperties $CONST_DIR/dynamicMeshDict $CONST_DIR/transportProperties $CONST_DIR/turbulenceProperties $REFINE_DIR/constant/
+# cp $SYS_DIR/controlDict $SYS_DIR/fvSchemes $SYS_DIR/fvSolution $SYS_DIR/mapFieldsDict $SYS_DIR/preProcess $REFINE_DIR/system/
+cp -r $CONST_DIR/* $REFINE_DIR/constant/
+cp -r $SYS_DIR/* $REFINE_DIR/system/
 
-# Array declaration of the mesh fields that will be copied later on
-declare -a polyMeshFields=("boundary" "cellLevel" "cellZones" "faces" "faceZones" "level0Edge" "neighbour" "owner" "pointLevel" "points" "pointZones")
+# Copy the relevant files into the AMR run folders
+# cp $CONST_DIR/RASProperties $CONST_DIR/transportProperties $CONST_DIR/turbulenceProperties $RUN_DIR/constant/
+cp -r $CONST_DIR/* $RUN_DIR/constant/
+cp -r $SYS_DIR/* $RUN_DIR/system/
 
-
-# When called, this method will modify the snappyHexMeshDict file to run the castellated phase.
-# It marks surfaces as baffle so that they get refined without the "inner mesh" being cut out
-prepareCastellatedMesh()
-{
-    local dict=system/snappyHexMeshDict
-    local path=castellatedMeshControls.refinementSurfaces.motorBike
-    foamDictionary $dict -entry snap -set false
-    foamDictionary $dict -entry $path.faceType -add baffle
-    foamDictionary $dict -entry $path.faceZone -add motorBike_zone
-    foamDictionary $dict -entry $path.patchInfo -remove
-}
-
-# When called, this method will modify the snappyHexMeshDict file to run the snapping phase.
-# It sets snapping to true and sets the refinement surface patch type to "wall" to create a real patch (including cutting of the inner mesh)
-prepareForSnapping()
-{
-    local dict=system/snappyHexMeshDict
-    local path=castellatedMeshControls.refinementSurfaces.motorBike
-    foamDictionary $dict -entry $path.faceType -remove
-    foamDictionary $dict -entry $path.faceZone -remove
-    foamDictionary $dict -entry snap -set true
-    foamDictionary $dict -entry $path.patchInfo -add "{type wall; inGroups (motorBikeGroup);}"
-}
-
-# copy motorbike surface from resources directory
-\cp ./geometry/motorBike.obj.gz constant/triSurface/
-
+# Navigate into the AMR run directory
+cd $RUN_DIR
 
 # Extract the features of the geometry (for edge refinement in snappyHexMesh)
 runApplication surfaceFeatureExtract
@@ -67,23 +94,29 @@ runApplication blockMesh
 # Decompose the case to run on multiple processors
 runApplication $decompDict decomposePar
 
-# In the first step, the castellated mesh is generated (using the object to refine locally).
-# It's important not to cut the mesh so that only hexagonal elements are present.
-# These are required by pimpleFoam to do the refinement later on (pimpleFoam cannot properly refine cut & snapped cells)
-# The snappyHexMesh dictionary is prepared to run only the castellated phase (using the "prepareCastellatedMesh" method declared above)
+#---------------------------- Castellation Step ---------------------------- #
+
+# In the first step, the castellated mesh is generated (using the object to 
+# refine locally). It's important not to cut the mesh so that only hexagonal 
+# elements are present. These are required to carry out the refinement later. 
+# The snappyHexMesh dictionary is prepared to run only the castellated phase.
+
+# Modify snappyHexMesh for the castellation phase
 prepareCastellatedMesh
+
+# Run snappyHexMesh and checkMesh
 runParallel $decompDict -s "castellated" snappyHexMesh -overwrite
 runParallel $decompDict -s "castellated" checkMesh -writeFields '(nonOrthoAngle)' -constant
-
 
 # Remove face zones
 ls -d processor* | xargs -I {} rm -f {}/constant/polyMesh/faceZones
 
+# Copy the castellated mesh to the refinement folder, where the refinement can
+# be applied later on, after the first CFD loop has been run
+cp -R processor* $REFINE_DIR
+cp -R constant/polyMesh $REFINE_DIR/constant/polyMesh
 
-# The castellated mesh (which has not been cut) is copied into a separate folder where the refinement can be applied later on (after the first CFD loop has been run)
-cp -R processor* ../primal_refinement
-cp -R constant/polyMesh ../primal_refinement/constant/polyMesh
-
+#------------------------------ Snapping Step ------------------------------ #
 
 # After a copy of the mesh has been made, work continues on the mesh in the primalRun folder.
 # The snappyHexMesh dictionary is prepared to run the snapping phase (using the "prepareForSnapping" method declared above)
@@ -141,6 +174,9 @@ runParallel -s "refVal" $decompDict pimpleFoam -postProcess \
 # Run the actual refinement through pimpleFoam (which will use the primalRefinement/constant/dynamicMeshDict file).
 # So do change the limits for lower & upper refinement values for refVal in that file
 runParallel $decompDict pimpleFoam
+
+# Array declaration of the mesh fields that will be copied later on
+declare -a polyMeshFields=("boundary" "cellLevel" "cellZones" "faces" "faceZones" "level0Edge" "neighbour" "owner" "pointLevel" "points" "pointZones")
 
 # pimpleFoam creates a new time folder 1 that contains the refined mesh.
 # So within each processor folder, we need to copy the refined mesh from the time folder [1] to the constant/polymesh folder
