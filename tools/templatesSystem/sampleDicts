@@ -1,0 +1,59 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  www.openfoam.org
+    \\  /    A nd           | Version:  User generated
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      sampleDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+// Execute with:
+// postProcess -func sampleDict -latestTime
+
+// Define the basic function attributes
+type                sets;                // Type of function (mandatory)
+libs                ("libsampling.so");  // Library to be used (mandatory)
+interpolationScheme cellPoint;           // Type of interpolation scheme
+setFormat           csv;                 // Output file format
+fields              (U p);               // Fields to be included
+
+
+// Define base parameters for probe geometries
+X_PLANE  <X-COORDINATE> ;  // Shared x-Plane for vertical probes
+Y_PLANE  <Y-COORDINATE> ;  // Shared Y-Plane for horizontal probes
+Z_PLANE  <Z-COORDINATE> ;  // Shared Z-Plane for vertical probes
+
+
+// Define the geometry of the line probes
+sets
+(
+    horizontal_Name_DS
+    {
+        type lineUniform;
+        axis distance;
+        start   (0.0 $Y_PLANE 0.0);
+        end     (0.0 $Y_PLANE 1.0);
+        nPoints 100;
+    }
+    vertical_Name_US
+    {
+        type lineUniform;
+        axis distance;
+        start   ($X_PLANE 0.0 0.0);
+        end     ($X_PLANE 0.0 1.0);
+        nPoints 100;
+    }
+);
+
+// ************************************************************************* //
