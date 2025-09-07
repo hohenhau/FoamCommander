@@ -8,7 +8,7 @@ import re
 # ----- Define various constants ------------------------------------------------------------------------------------ #
 
 # Set the target directory
-DIRECTORY = '/Users/alex/Downloads/100' # os.getcwd()
+DIRECTORY = os.getcwd()
 
 # Specify names to be used in the plots
 FIELD_NAMES = {
