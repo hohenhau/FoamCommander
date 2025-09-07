@@ -7,8 +7,10 @@ import re
 
 # ----- Define various constants ------------------------------------------------------------------------------------ #
 
-DIRECTORY = os.getcwd()
+# Set the target directory
+DIRECTORY = '/Users/alex/Downloads/100' # os.getcwd()
 
+# Specify names to be used in the plots
 FIELD_NAMES = {
     'U_mag': 'Velocity Magnitude (m/s)',
     'p_ks': 'Kinematic Static Pressure',
@@ -17,6 +19,14 @@ FIELD_NAMES = {
     'p_as': 'Static Pressure (Pa)',
     'p_at': 'Total Pressure (Pa)',
     'p_ad': 'Dynamic Pressure (Pa)'}
+
+# Specify the dimensions of the plots
+FIG_WIDTH_MM = 160
+FIG_HEIGHT_MM = 80
+INCHES_TO_MM = 25.4
+FIG_WIDTH = FIG_WIDTH_MM / INCHES_TO_MM
+FIG_HEIGHT = FIG_HEIGHT_MM / INCHES_TO_MM
+FIG_DPI = 300
 
 
 # ----- Calculate point data ---------------------------------------------------------------------------------------- #
@@ -99,11 +109,6 @@ def graph_fields(df):
     fields = ['U_mag']
 
     df_title = df.attrs.get("title", "plot")
-    fig_width_mm = 160
-    fig_height_mm = 80
-    inches_to_mm = 25.4
-    fig_width = fig_width_mm / inches_to_mm
-    fig_height = fig_height_mm / inches_to_mm
 
     for field in fields:
         if field not in df.columns:
@@ -114,7 +119,7 @@ def graph_fields(df):
         x = df['distance']
         y = df[field]
 
-        plt.figure(figsize=(fig_width, fig_height))
+        plt.figure(figsize=(FIG_WIDTH, FIG_HEIGHT))
         plt.plot(x, y, label=field)
 
         plt.xlabel("Distance")
@@ -124,10 +129,10 @@ def graph_fields(df):
         plt.grid(True)
 
         filename = f"{DIRECTORY}/profiles_{df_title}_{field}.png"
-        plt.savefig(filename, dpi=300, bbox_inches="tight")
+        plt.savefig(filename, dpi=FIG_DPI, bbox_inches="tight")
         plt.close()
 
-        print(f"Saved: {filename}")
+        print(f"Saved: {filename.split('/')[-1]}")
 
 
 # ----- Process overview data --------------------------------------------------------------------------------------- #
@@ -162,7 +167,7 @@ def plot_line_values(df, field, suffix, filename, plot_title):
     x = np.arange(len(labels))
     values = df[column_name]
 
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(FIG_WIDTH, FIG_HEIGHT))
     ax.bar(x, values, label=FIELD_NAMES.get(field, field))
 
     ax.set_xticks(x)
@@ -172,7 +177,7 @@ def plot_line_values(df, field, suffix, filename, plot_title):
     ax.legend()
 
     plt.tight_layout()
-    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    plt.savefig(filename, dpi=FIG_DPI, bbox_inches='tight')
     plt.close()
 
 
@@ -218,15 +223,16 @@ def calculate_and_plot_loss_factor(ordered_dfs, density):
     df_loss_factors.to_csv(f'{filename}.csv', index=False)
 
     # Plot results
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(FIG_WIDTH, FIG_HEIGHT))
     ax.bar(df_loss_factors["component"], df_loss_factors["k"], color="tab:blue")
 
     ax.set_ylabel("Loss Factor K")
     ax.set_title("Loss Factors for Components")
+    ax.set_xticks(df_loss_factors["k"])
     ax.set_xticklabels(df_loss_factors["component"], rotation=45, ha="right")
 
     plt.tight_layout()
-    plt.savefig(filename, dpi=300, bbox_inches="tight")
+    plt.savefig(filename, dpi=FIG_DPI, bbox_inches="tight")
     plt.close()
 
 
