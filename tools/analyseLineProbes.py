@@ -114,14 +114,15 @@ def calculate_actual_pressures(df, density):
             df[actual_name] = df[kinematic_pressure] * density
 
 
-def graph_fields(df):
+def graph_flow_profiles(df):
 
-    # List of fields that will be graphed
-    fields = ['U_mag']
+    # List of fields and their graphing limits
+    fields = {'U_mag': {'x_min': 0, 'x_max': None, 'y_min': 0, 'y_max': None}}
 
+    # Get the name of the data frame
     df_title = df.attrs.get("title", "plot")
 
-    for field in fields:
+    for field in fields.keys():
         if field not in df.columns:
             continue
 
@@ -135,8 +136,9 @@ def graph_fields(df):
 
         plt.xlabel("Distance")
         plt.ylabel(field_name)
+        plt.xlim(fields[field]['x_min'], max(x))
+        plt.ylim(fields[field]['y_min'], fields[field]['y_max'])
         plt.title(f"{df_title}")
-        plt.legend()
         plt.grid(True)
 
         filename = f"{ANALYSIS_DIRECTORY}/profiles_{df_title}_{field}.png"
@@ -299,7 +301,7 @@ def main():
         calculate_velocity_magnitude(df)
         calculate_kinematic_dynamic_and_total_pressures(df)
         calculate_actual_pressures(df, density)
-        graph_fields(df)
+        graph_flow_profiles(df)
     process_overview_data(flow_data, density)
 
 if __name__ == "__main__":
