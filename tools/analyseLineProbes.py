@@ -8,7 +8,7 @@ import re
 # ----- Define various constants ------------------------------------------------------------------------------------ #
 
 # Set the target directory
-BASE_DIRECTORY = '/Users/alex/Downloads/100'  # os.getcwd()
+BASE_DIRECTORY = os.getcwd()
 ANALYSIS_DIRECTORY = os.path.join(BASE_DIRECTORY, 'analysis')
 
 # Specify names to be used in the plots
