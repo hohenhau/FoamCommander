@@ -17,23 +17,30 @@ FoamFile
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-
 // Execute with:
 // postProcess -func sampleDict -latestTime
 
+// Types of interpolation
+// interpolationScheme
+// interpolationScheme cell;                  // Cell-centre value assumed constant over cell
+// interpolationScheme cellPoint;             // Linear weighted interpolation using cell values
+// interpolationScheme cellPointFace;         // Mixed linear weighted / cell-face interpolation
+// interpolationScheme pointMVC;              // Point values only (Mean Value Coordinates)
+// interpolationScheme cellPatchConstrained;  // As cell but uses face value on boundary
+
 // Define the basic function attributes
-type                sets;                // Type of function (mandatory)
-libs                ("libsampling.so");  // Library to be used (mandatory)
-interpolationScheme cellPoint;           // Type of interpolation scheme
-setFormat           csv;                 // Output file format
-fields              (U p);               // Fields to be included
+type                sets;                  // Type of function (mandatory)
+libs                ("libsampling.so");    // Library to be used (mandatory)
+interpolationScheme pointMVC;              // Point values only (Mean Value Coordinates)
+setFormat           csv;                   // Output file format
+fields              (U p);                 // Fields to be included
 
 
 // Define base parameters for probe geometries
-X_PLANE  0.0;   // Shared x-Plane for vertical probes
-Y_PLANE  0.0;   // Shared Y-Plane for horizontal probes
-Z_PLANE  0.0;   // Shared Z-Plane for vertical probes
-
+X_PLANE     0.0;  // Shared x-Plane for vertical probes
+Y_PLANE    -9.9;  // Shared Y-Plane for horizontal probes
+Z_PLANE     0.0;  // Shared Z-Plane for vertical probes
+NUM_POINTS 1000;  // Number of points across a line probe
 
 // Define the geometry of the line probes
 sets
@@ -44,7 +51,7 @@ sets
         axis distance;
         start   (0.0 $Y_PLANE 0.0);
         end     (0.0 $Y_PLANE 1.0);
-        nPoints 100;
+        nPoints $NUM_POINTS;
     }
     vertical_Name_US
     {
@@ -52,7 +59,7 @@ sets
         axis distance;
         start   ($X_PLANE 0.0 0.0);
         end     ($X_PLANE 0.0 1.0);
-        nPoints 100;
+        nPoints $NUM_POINTS;
     }
 );
 
