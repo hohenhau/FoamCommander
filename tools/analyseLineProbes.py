@@ -8,7 +8,8 @@ import re
 # ----- Define various constants ------------------------------------------------------------------------------------ #
 
 # Set the target directory
-DIRECTORY = os.getcwd()
+BASE_DIRECTORY = '/Users/alex/Downloads/100'  # os.getcwd()
+ANALYSIS_DIRECTORY = os.path.join(BASE_DIRECTORY, 'analysis')
 
 # Specify names to be used in the plots
 FIELD_NAMES = {
@@ -30,6 +31,16 @@ FIG_DPI = 300
 
 
 # ----- Calculate point data ---------------------------------------------------------------------------------------- #
+
+def create_directory(path: str) -> None:
+    """Ensure that a directory exists. If it does not exist, create it."""
+
+    if not os.path.exists(path):
+        os.makedirs(path)
+        print(f"Directory created: {path}")
+    else:
+        print(f"Directory already exists: {path}")
+
 
 def load_csv_files_into_pandas(directory):
     files = os.listdir(directory)
@@ -128,7 +139,7 @@ def graph_fields(df):
         plt.legend()
         plt.grid(True)
 
-        filename = f"{DIRECTORY}/profiles_{df_title}_{field}.png"
+        filename = f"{ANALYSIS_DIRECTORY}/profiles_{df_title}_{field}.png"
         plt.savefig(filename, dpi=FIG_DPI, bbox_inches="tight")
         plt.close()
 
@@ -218,7 +229,7 @@ def calculate_and_plot_loss_factor(ordered_dfs, density):
     df_loss_factors = pd.DataFrame(loss_factors)
 
     # Define file name
-    filename = f'{DIRECTORY}/overview_loss_factors'
+    filename = f'{ANALYSIS_DIRECTORY}/overview_loss_factors'
     # Save to CSV
     df_loss_factors.to_csv(f'{filename}.csv', index=False)
 
@@ -267,10 +278,10 @@ def process_overview_data(dfs, density):
 
             if dfs:
                 line_values = calculate_line_values(dfs, fields)
-                line_values.to_csv(f'{DIRECTORY}/overview_{kind}_probes.csv', index=False)
+                line_values.to_csv(f'{ANALYSIS_DIRECTORY}/overview_{kind}_probes.csv', index=False)
 
                 for field in fields:
-                    filename = f'{DIRECTORY}/overview_{kind}_probes_{field}_{suffix}.png'
+                    filename = f'{ANALYSIS_DIRECTORY}/overview_{kind}_probes_{field}_{suffix}.png'
                     plot_title = f'{kind.capitalize()} Probes - {metric} ({FIELD_NAMES.get(field, field)})'
                     plot_line_values(line_values, field, suffix, filename, plot_title)
 
@@ -281,16 +292,14 @@ def process_overview_data(dfs, density):
 # ----- Main function ----------------------------------------------------------------------------------------------- #
 
 def main():
-    flow_data = load_csv_files_into_pandas(DIRECTORY)
-
+    flow_data = load_csv_files_into_pandas(BASE_DIRECTORY)
+    create_directory(ANALYSIS_DIRECTORY)
     density = get_density(flow_data[0])
-
     for df in flow_data:
         calculate_velocity_magnitude(df)
         calculate_kinematic_dynamic_and_total_pressures(df)
         calculate_actual_pressures(df, density)
         graph_fields(df)
-
     process_overview_data(flow_data, density)
 
 if __name__ == "__main__":
