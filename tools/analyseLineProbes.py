@@ -55,8 +55,10 @@ def load_csv_files_into_pandas(directory):
         df.attrs['min'] = {}
         df.attrs['max'] = {}
 
-        # Rename the pressure column to show it is actually kinematic static pressure
+        # Rename the pressure columns to show it is actually kinematic static pressure
         df.rename(columns={"p": "p_ks"}, inplace=True)
+        df.rename(columns={"total(p)": "p_kt"}, inplace=True)
+
 
         flow_data.append(df)
 
@@ -75,9 +77,10 @@ def calculate_velocity_magnitude(df):
 
 
 def calculate_kinematic_dynamic_and_total_pressures(df):
-    if 'U_mag' in df.columns and "p_ks" in df.columns:
+    if 'U_mag' in df.columns and "p_ks" in df.columns: 
         df['p_kd'] = 0.5 * df['U_mag'] ** 2
-        df['p_kt'] = df['p_kd'] + df['p_ks']
+        if not 'p_kt' in df.columns:
+            df['p_kt'] = df['p_kd'] + df['p_ks']
 
 
 def get_density(df):
