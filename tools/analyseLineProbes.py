@@ -216,41 +216,47 @@ def calculate_and_plot_loss_factor(ordered_dfs, density):
     # Calculate the actual loss factors
     loss_factors = list()
     pressure_changes = list()
+    velocity_magnitude = list()
     for title in paired_titles:
         df_upstream = ordered_dict[f'{title}_us']
         df_downstream = ordered_dict[f'{title}_ds']
         delta_p = df_upstream['p_at'].mean() - df_downstream['p_at'].mean()
         u_mag = df_upstream['U_mag'].mean()
         k = abs(delta_p / (0.5 * density * u_mag ** 2))
-        pressure_changes.append({"tick_label": title, "value": delta_p})
-        loss_factors.append({"tick_label": title, "value": k})
+        velocity_magnitude = u_mag
+        pressure_changes.append({"bar_name": title, "value": delta_p})
+        loss_factors.append({"bar_name": title, "value": k})
 
     # Turn pressure changes into a dataframe
     df_pressure_changes = pd.DataFrame(pressure_changes)
-    df_pressure_changes.attrs['heading'] = "Pressure Change (Pa)"
-    df_pressure_changes.attrs['ylabel'] = "Pressure Change (Pa)"
-    df_pressure_changes.attrs['file_name'] = "overview_pressure_changes"
+    df_pressure_changes.attrs['heading'] = "Loss Factor K"
+    df_pressure_changes.attrs['y_label'] = "Loss Factor K"
+    df_pressure_changes.attrs['file_name'] = "overview_loss_factors"
 
-    # Turn loss factor into a dataframe
+    # Turn pressure changes into a dataframe
     df_loss_factors = pd.DataFrame(loss_factors)
-    df_loss_factors.attrs['heading'] = "Loss Factor K"
-    df_loss_factors.attrs['ylabel'] = "Loss Factor K"
-    df_loss_factors.attrs['file_name'] = "overview_loss_factors"
+    df_loss_factors.attrs['heading'] = "Pressure Change (Pa)"
+    df_loss_factors.attrs['ylabel'] = "Pressure Change (Pa)"
+    df_loss_factors.attrs['file_name'] = "overview_pressure_changes"
 
-    for df in [df_pressure_changes, df_loss_factors]:
+    # Turn velocity magnitude into a dataframe
+    df_velocity_magnitude = pd.DataFrame(velocity_magnitude)
+    df_velocity_magnitude.attrs['heading'] = "Velocity Magnitude (m/s)"
+    df_velocity_magnitude.attrs['ylabel'] = "Velocity Magnitude (m/s)"
+    df_velocity_magnitude.attrs['file_name'] = "overview_velocity_magnitude"
+
+    for df in [df_pressure_changes, df_loss_factors, df_velocity_magnitude]:
 
         # Define file name and save to csv
         filename = f'{ANALYSIS_DIRECTORY}/{df.attrs.get("file_name")}'
-        df.to_csv(f'{filename}.csv', index=False)
+        df_loss_factors.to_csv(f'{filename}.csv', index=False)
 
         # Plot results
         fig, ax = plt.subplots(figsize=(FIG_WIDTH, FIG_HEIGHT))
-        ax.bar(df["tick_label"], df["value"], color="tab:blue")
-
+        ax.bar(df["bar_name"], df["value"], color="tab:blue")
         ax.set_ylabel(df.attrs.get("ylabel"))
         ax.set_title(df.attrs.get("heading"))
-        ax.set_xticklabels(df["tick_label"], rotation=45, ha="right")
-
+        ax.set_xticklabels(df["component"], rotation=45, ha="right")
         plt.tight_layout()
         plt.savefig(filename, dpi=FIG_DPI, bbox_inches="tight")
         plt.close()
