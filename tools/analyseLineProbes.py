@@ -245,7 +245,7 @@ def calculate_and_plot_loss_factor(ordered_dfs, density):
 
         # Plot results
         fig, ax = plt.subplots(figsize=(FIG_WIDTH, FIG_HEIGHT))
-        ax.bar(df["bar_name"], df["value"], color="tab:blue")
+        ax.bar(df["tick_label"], df["value"], color="tab:blue")
 
         ax.set_ylabel(df.attrs.get("ylabel"))
         ax.set_title(df.attrs.get("heading"))
