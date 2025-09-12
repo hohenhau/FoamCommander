@@ -187,7 +187,6 @@ def plot_line_values(df, field, suffix, filename, plot_title):
     ax.set_xticklabels(labels, rotation=45, ha="right")
     ax.set_ylabel(suffix.upper())
     ax.set_title(plot_title)
-    ax.legend()
 
     plt.tight_layout()
     plt.savefig(filename, dpi=FIG_DPI, bbox_inches='tight')
@@ -241,7 +240,6 @@ def calculate_and_plot_loss_factor(ordered_dfs, density):
 
     ax.set_ylabel("Loss Factor K")
     ax.set_title("Loss Factors for Components")
-    # ax.set_xticks(df_loss_factors["k"]
     ax.set_xticklabels(df_loss_factors["component"], rotation=45, ha="right")
 
     plt.tight_layout()
