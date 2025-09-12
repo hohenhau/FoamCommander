@@ -59,6 +59,10 @@ def load_csv_files_into_pandas(directory):
         df.rename(columns={"p": "p_ks"}, inplace=True)
         df.rename(columns={"total(p)": "p_kt"}, inplace=True)
 
+        for field, name in FIELD_NAMES.items():
+            if field in df.columns:
+                print(f"Loaded {name}")
+
 
         flow_data.append(df)
 
