@@ -241,7 +241,7 @@ def calculate_and_plot_loss_factor(ordered_dfs, density):
 
     ax.set_ylabel("Loss Factor K")
     ax.set_title("Loss Factors for Components")
-    ax.set_xticks(df_loss_factors["k"])
+    # ax.set_xticks(df_loss_factors["k"]
     ax.set_xticklabels(df_loss_factors["component"], rotation=45, ha="right")
 
     plt.tight_layout()
