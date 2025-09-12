@@ -224,7 +224,7 @@ def calculate_and_plot_loss_factor(ordered_dfs, density):
         df_downstream = ordered_dict[f'{title}_ds']
         delta_p = df_upstream['p_at'].mean() - df_downstream['p_at'].mean()
         u_mag = df_upstream['U_mag'].mean()
-        k = delta_p / (0.5 * density * u_mag**2)
+        k = abs(delta_p / (0.5 * density * u_mag**2))
         loss_factors.append({"component": title, "k": k})
 
     # Turn into a dataframe
