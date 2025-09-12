@@ -4,7 +4,6 @@ import os
 import pandas as pd
 import re
 
-
 # ----- Define various constants ------------------------------------------------------------------------------------ #
 
 # Set the target directory
@@ -115,7 +114,6 @@ def calculate_actual_pressures(df, density):
 
 
 def graph_flow_profiles(df):
-
     # List of fields and their graphing limits
     fields = {'U_mag': {'x_min': 0, 'x_max': None, 'y_min': 0, 'y_max': None}}
 
@@ -194,7 +192,6 @@ def plot_line_values(df, field, suffix, filename, plot_title):
 
 
 def calculate_and_plot_loss_factor(ordered_dfs, density):
-
     # Initiate upstream and downstream titles
     ordered_dict = dict()
     upstream_titles = set()
@@ -218,37 +215,48 @@ def calculate_and_plot_loss_factor(ordered_dfs, density):
 
     # Calculate the actual loss factors
     loss_factors = list()
+    pressure_changes = list()
     for title in paired_titles:
         df_upstream = ordered_dict[f'{title}_us']
         df_downstream = ordered_dict[f'{title}_ds']
         delta_p = df_upstream['p_at'].mean() - df_downstream['p_at'].mean()
         u_mag = df_upstream['U_mag'].mean()
-        k = abs(delta_p / (0.5 * density * u_mag**2))
-        loss_factors.append({"component": title, "k": k})
+        k = abs(delta_p / (0.5 * density * u_mag ** 2))
+        pressure_changes.append({"bar_name": title, "value": delta_p})
+        loss_factors.append({"bar_name": title, "value": k})
 
-    # Turn into a dataframe
+    # Turn pressure changes into a dataframe
+    df_pressure_changes = pd.DataFrame(pressure_changes)
+    df_pressure_changes.attrs['heading'] = "Loss Factor K"
+    df_pressure_changes.attrs['y_label'] = "Loss Factor K"
+    df_pressure_changes.attrs['file_name'] = "overview_loss_factors"
+
+    # Turn pressure changes into a dataframe
     df_loss_factors = pd.DataFrame(loss_factors)
+    df_loss_factors.attrs['heading'] = "Pressure Change (Pa)"
+    df_loss_factors.attrs['ylabel'] = "Pressure Change (Pa)"
+    df_loss_factors.attrs['file_name'] = "overview_pressure_changes"
 
-    # Define file name
-    filename = f'{ANALYSIS_DIRECTORY}/overview_loss_factors'
-    # Save to CSV
-    df_loss_factors.to_csv(f'{filename}.csv', index=False)
+    for df in [df_pressure_changes, df_loss_factors]:
 
-    # Plot results
-    fig, ax = plt.subplots(figsize=(FIG_WIDTH, FIG_HEIGHT))
-    ax.bar(df_loss_factors["component"], df_loss_factors["k"], color="tab:blue")
+        # Define file name and save to csv
+        filename = f'{ANALYSIS_DIRECTORY}/{df.file_name}'
+        df_loss_factors.to_csv(f'{filename}.csv', index=False)
 
-    ax.set_ylabel("Loss Factor K")
-    ax.set_title("Loss Factors for Components")
-    ax.set_xticklabels(df_loss_factors["component"], rotation=45, ha="right")
+        # Plot results
+        fig, ax = plt.subplots(figsize=(FIG_WIDTH, FIG_HEIGHT))
+        ax.bar(df["bar_name"], df["value"], color="tab:blue")
 
-    plt.tight_layout()
-    plt.savefig(filename, dpi=FIG_DPI, bbox_inches="tight")
-    plt.close()
+        ax.set_ylabel(df['ylabel'])
+        ax.set_title(df['heading'])
+        ax.set_xticklabels(df["component"], rotation=45, ha="right")
+
+        plt.tight_layout()
+        plt.savefig(filename, dpi=FIG_DPI, bbox_inches="tight")
+        plt.close()
 
 
 def process_overview_data(dfs, density):
-
     # Specify the fields that should be evaluated
     fields = ['U_mag', 'p_at']
 
@@ -301,6 +309,7 @@ def main():
         calculate_actual_pressures(df, density)
         graph_flow_profiles(df)
     process_overview_data(flow_data, density)
+
 
 if __name__ == "__main__":
     main()
