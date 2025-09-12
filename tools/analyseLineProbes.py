@@ -80,6 +80,7 @@ def calculate_kinematic_dynamic_and_total_pressures(df):
     if 'U_mag' in df.columns and "p_ks" in df.columns: 
         df['p_kd'] = 0.5 * df['U_mag'] ** 2
         if not 'p_kt' in df.columns:
+            print('Total pressure field not found. Calculating total pressure')
             df['p_kt'] = df['p_kd'] + df['p_ks']
 
 
