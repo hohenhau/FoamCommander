@@ -246,7 +246,6 @@ def calculate_and_plot_loss_factor(ordered_dfs, density):
     df_velocity_magnitude.attrs['file_name'] = "overview_velocity_magnitude"
 
     for df in [df_pressure_changes, df_loss_factors, df_velocity_magnitude]:
-
         # Define file name and save to csv
         filename = f'{ANALYSIS_DIRECTORY}/{df.attrs.get("file_name")}'
         df.to_csv(f'{filename}.csv', index=False)
@@ -256,6 +255,7 @@ def calculate_and_plot_loss_factor(ordered_dfs, density):
         ax.bar(df["tick_label"], df["value"], color="tab:blue")
         ax.set_ylabel(df.attrs.get("ylabel"))
         ax.set_title(df.attrs.get("heading"))
+        ax.set_xticks(range(len(df)))
         ax.set_xticklabels(df["tick_label"], rotation=45, ha="right")
         plt.tight_layout()
         plt.savefig(filename, dpi=FIG_DPI, bbox_inches="tight")
