@@ -115,7 +115,8 @@ def calculate_actual_pressures(df, density):
 
 def graph_flow_profiles(df):
     # List of fields and their graphing limits
-    fields = {'U_mag': {'x_min': 0, 'x_max': None, 'y_min': 0, 'y_max': None}}
+    fields = {'U_mag': {'x_min': 0, 'x_max': None, 'y_min': 0, 'y_max': None}
+              'p_at': {'x_min': 0, 'x_max': None, 'y_min': 0, 'y_max': None}}
 
     # Get the name of the data frame
     df_title = df.attrs.get("title", "plot")
@@ -139,7 +140,7 @@ def graph_flow_profiles(df):
         plt.title(f"{df_title}")
         plt.grid(True)
 
-        filename = f"{ANALYSIS_DIRECTORY}/profiles_{df_title}_{field}.png"
+        filename = f"{ANALYSIS_DIRECTORY}/profiles_{field}_{df_title}.png"
         plt.savefig(filename, dpi=FIG_DPI, bbox_inches="tight")
         plt.close()
 
