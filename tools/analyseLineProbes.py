@@ -115,7 +115,7 @@ def calculate_actual_pressures(df, density):
 
 def graph_flow_profiles(df):
     # List of fields and their graphing limits
-    fields = {'U_mag': {'x_min': 0, 'x_max': None, 'y_min': 0, 'y_max': None}
+    fields = {'U_mag': {'x_min': 0, 'x_max': None, 'y_min': 0, 'y_max': None},
               'p_at': {'x_min': 0, 'x_max': None, 'y_min': 0, 'y_max': None}}
 
     # Get the name of the data frame
