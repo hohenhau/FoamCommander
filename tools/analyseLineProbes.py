@@ -241,7 +241,7 @@ def calculate_and_plot_loss_factor(ordered_dfs, density):
 
         # Define file name and save to csv
         filename = f'{ANALYSIS_DIRECTORY}/{df.file_name}'
-        df_loss_factors.to_csv(f'{filename}.csv', index=False)
+        df_loss_factors.to_csv(f'{df['file_name']}.csv', index=False)
 
         # Plot results
         fig, ax = plt.subplots(figsize=(FIG_WIDTH, FIG_HEIGHT))
