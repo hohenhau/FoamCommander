@@ -222,8 +222,8 @@ def calculate_and_plot_loss_factor(ordered_dfs, density):
         delta_p = df_upstream['p_at'].mean() - df_downstream['p_at'].mean()
         u_mag = df_upstream['U_mag'].mean()
         k = abs(delta_p / (0.5 * density * u_mag ** 2))
-        pressure_changes.append({"bar_name": title, "value": delta_p})
-        loss_factors.append({"bar_name": title, "value": k})
+        pressure_changes.append({"tick_label": title, "value": delta_p})
+        loss_factors.append({"tick_label": title, "value": k})
 
     # Turn pressure changes into a dataframe
     df_pressure_changes = pd.DataFrame(pressure_changes)
@@ -249,7 +249,7 @@ def calculate_and_plot_loss_factor(ordered_dfs, density):
 
         ax.set_ylabel(df.attrs.get("ylabel"))
         ax.set_title(df.attrs.get("heading"))
-        ax.set_xticklabels(df["component"], rotation=45, ha="right")
+        ax.set_xticklabels(df["tick_label"], rotation=45, ha="right")
 
         plt.tight_layout()
         plt.savefig(filename, dpi=FIG_DPI, bbox_inches="tight")
