@@ -227,21 +227,21 @@ def calculate_and_plot_loss_factor(ordered_dfs, density):
 
     # Turn pressure changes into a dataframe
     df_pressure_changes = pd.DataFrame(pressure_changes)
-    df_pressure_changes.attrs['heading'] = "Loss Factor K"
-    df_pressure_changes.attrs['y_label'] = "Loss Factor K"
-    df_pressure_changes.attrs['file_name'] = "overview_loss_factors"
+    df_pressure_changes.attrs['heading'] = "Pressure Change (Pa)"
+    df_pressure_changes.attrs['ylabel'] = "Pressure Change (Pa)"
+    df_pressure_changes.attrs['file_name'] = "overview_pressure_changes"
 
-    # Turn pressure changes into a dataframe
+    # Turn loss factor into a dataframe
     df_loss_factors = pd.DataFrame(loss_factors)
-    df_loss_factors.attrs['heading'] = "Pressure Change (Pa)"
-    df_loss_factors.attrs['ylabel'] = "Pressure Change (Pa)"
-    df_loss_factors.attrs['file_name'] = "overview_pressure_changes"
+    df_loss_factors.attrs['heading'] = "Loss Factor K"
+    df_loss_factors.attrs['ylabel'] = "Loss Factor K"
+    df_loss_factors.attrs['file_name'] = "overview_loss_factors"
 
     for df in [df_pressure_changes, df_loss_factors]:
 
         # Define file name and save to csv
         filename = f'{ANALYSIS_DIRECTORY}/{df.attrs.get("file_name")}'
-        df_loss_factors.to_csv(f'{filename}.csv', index=False)
+        df.to_csv(f'{filename}.csv', index=False)
 
         # Plot results
         fig, ax = plt.subplots(figsize=(FIG_WIDTH, FIG_HEIGHT))
