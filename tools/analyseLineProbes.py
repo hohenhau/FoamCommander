@@ -223,7 +223,7 @@ def calculate_and_plot_loss_factor(ordered_dfs, density):
         delta_p = df_upstream['p_at'].mean() - df_downstream['p_at'].mean()
         u_mag = df_upstream['U_mag'].mean()
         k = abs(delta_p / (0.5 * density * u_mag ** 2))
-        velocity_magnitude = u_mag
+        velocity_magnitude.append(u_mag)
         pressure_changes.append({"bar_name": title, "value": delta_p})
         loss_factors.append({"bar_name": title, "value": k})
 
