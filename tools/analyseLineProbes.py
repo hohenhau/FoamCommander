@@ -240,15 +240,15 @@ def calculate_and_plot_loss_factor(ordered_dfs, density):
     for df in [df_pressure_changes, df_loss_factors]:
 
         # Define file name and save to csv
-        filename = f'{ANALYSIS_DIRECTORY}/{df.file_name}'
-        df_loss_factors.to_csv(f'{df['file_name']}.csv', index=False)
+        filename = f'{ANALYSIS_DIRECTORY}/{df.attrs.get("file_name")}'
+        df_loss_factors.to_csv(f'{filename}.csv', index=False)
 
         # Plot results
         fig, ax = plt.subplots(figsize=(FIG_WIDTH, FIG_HEIGHT))
         ax.bar(df["bar_name"], df["value"], color="tab:blue")
 
-        ax.set_ylabel(df['ylabel'])
-        ax.set_title(df['heading'])
+        ax.set_ylabel(df.attrs.get("ylabel"))
+        ax.set_title(df.attrs.get("heading"))
         ax.set_xticklabels(df["component"], rotation=45, ha="right")
 
         plt.tight_layout()
