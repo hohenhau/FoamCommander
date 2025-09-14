@@ -1,0 +1,2 @@
+# Convert internal faces to baffles
+createBaffles -overwrite 2>&1 | tee log.createBaffles;
