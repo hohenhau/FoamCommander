@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Convert internal faces to baffles
-createBaffles -overwrite 2>&1 | tee log.createNCC;
+createBaffles -overwrite 2>&1 | tee log.createBaffles;
 
 # Split the newly created baffles
 splitBaffles -overwrite 2>&1 | tee -a log.createNCC;
