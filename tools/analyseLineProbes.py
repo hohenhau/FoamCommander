@@ -339,7 +339,7 @@ def main():
             calculate_kinematic_dynamic_and_total_pressures(df)
             calculate_actual_pressures(df, density)
             graph_flow_profiles(df, analysis_directory)
-            process_overview_data(analysis_directory, flow_data, density)
+        process_overview_data(analysis_directory, flow_data, density)
 
 
 if __name__ == "__main__":
