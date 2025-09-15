@@ -3,12 +3,13 @@ import numpy as np
 import os
 import pandas as pd
 import re
+import sys
 
 # ----- Define various constants ------------------------------------------------------------------------------------ #
 
 # Set the target directory
 BASE_DIRECTORY = os.getcwd()
-ANALYSIS_DIRECTORY = os.path.join(BASE_DIRECTORY, 'analysis')
+SAMPLE_DIRECTORY = os.path.join(BASE_DIRECTORY, 'postProcessing/sampleDict')
 
 # Specify names to be used in the plots
 FIELD_NAMES = {
@@ -31,9 +32,16 @@ FIG_DPI = 300
 
 # ----- Calculate point data ---------------------------------------------------------------------------------------- #
 
+def check_directory_exists(sample_directory):
+    if not os.path.isdir(sample_directory):
+        error_directory = sample_directory.split('/')[-2] + '/' + sample_directory.split('/')[-1]
+        sys.exit(f'The directory {error_directory} could not be found')
+
+def get_timestep_directories(sample_directory):
+    return [name for name in os.listdir(sample_directory) if os.path.isdir(sample_directory)]
+
 def create_directory(path: str) -> None:
     """Ensure that a directory exists. If it does not exist, create it."""
-
     if not os.path.exists(path):
         os.makedirs(path)
         print(f"Directory created: {path}")
@@ -63,7 +71,6 @@ def load_csv_files_into_pandas(directory):
             if field in df.columns:
                 print(f"Loaded {name}")
 
-
         flow_data.append(df)
 
     return flow_data
@@ -81,17 +88,14 @@ def calculate_velocity_magnitude(df):
 
 
 def calculate_kinematic_dynamic_and_total_pressures(df):
-    if 'U_mag' in df.columns and "p_ks" in df.columns: 
+    if 'U_mag' in df.columns and "p_ks" in df.columns:
         df['p_kd'] = 0.5 * df['U_mag'] ** 2
         if not 'p_kt' in df.columns:
             print('Total pressure field not found. Calculating total pressure')
             df['p_kt'] = df['p_kd'] + df['p_ks']
 
 
-def get_density(df):
-    if "p_ks" not in df.columns:
-        return None
-
+def get_density():
     print("To calculate actual pressures, please enter the fluid density. For reference:")
     print("Density of water is: 999.19 (15°C), 998.29 (20°C), 997.13 (25°C), 995.71 (30°C)")
     print("Density of air is:   1.2250 (15°C), 1.2041 (20°C), 1.1839 (25°C), 1.1644 (30°C)")
@@ -107,7 +111,7 @@ def get_density(df):
         return density
     except ValueError:
         print("Invalid input. Please enter a numeric value or press Enter to skip.")
-        return get_density(df)
+        return get_density()
 
 
 def calculate_actual_pressures(df, density):
@@ -121,7 +125,7 @@ def calculate_actual_pressures(df, density):
             df[actual_name] = df[kinematic_pressure] * density
 
 
-def graph_flow_profiles(df):
+def graph_flow_profiles(df, directory):
     # List of fields and their graphing limits
     fields = {'U_mag': {'x_min': 0, 'x_max': None, 'y_min': 0, 'y_max': None},
               'p_as': {'x_min': 0, 'x_max': None, 'y_min': None, 'y_max': None},
@@ -149,7 +153,7 @@ def graph_flow_profiles(df):
         plt.title(f"{df_title}")
         plt.grid(True)
 
-        filename = f"{ANALYSIS_DIRECTORY}/profiles_{field}_{df_title}.png"
+        filename = f"{directory}/profiles_{field}_{df_title}.png"
         plt.savefig(filename, dpi=FIG_DPI, bbox_inches="tight")
         plt.close()
 
@@ -201,7 +205,12 @@ def plot_line_values(df, field, suffix, filename, plot_title):
     plt.close()
 
 
-def calculate_and_plot_loss_factor(ordered_dfs, density):
+def calculate_and_plot_loss_factor(analysis_directory, ordered_dfs, density):
+
+    # Only run if density is present
+    if density is None:
+        print('Cannot compute loss factor without density. Continuing...')
+        return
     # Initiate upstream and downstream titles
     ordered_dict = dict()
     upstream_titles = set()
@@ -257,7 +266,7 @@ def calculate_and_plot_loss_factor(ordered_dfs, density):
 
     for df in [df_pressure_changes, df_loss_factors, df_velocity_magnitude]:
         # Define file name and save to csv
-        filename = f'{ANALYSIS_DIRECTORY}/{df.attrs.get("file_name")}'
+        filename = f'{analysis_directory}/{df.attrs.get("file_name")}'
         df.to_csv(f'{filename}.csv', index=False)
 
         # Plot results
@@ -272,7 +281,7 @@ def calculate_and_plot_loss_factor(ordered_dfs, density):
         plt.close()
 
 
-def process_overview_data(dfs, density):
+def process_overview_data(analysis_directory, dfs, density):
     # Specify the fields that should be evaluated
     fields = ['U_mag', 'p_at']
 
@@ -302,29 +311,34 @@ def process_overview_data(dfs, density):
 
             if dfs:
                 line_values = calculate_line_values(dfs, fields)
-                line_values.to_csv(f'{ANALYSIS_DIRECTORY}/overview_{kind}_probes.csv', index=False)
+                line_values.to_csv(f'{analysis_directory}/overview_{kind}_probes.csv', index=False)
 
                 for field in fields:
-                    filename = f'{ANALYSIS_DIRECTORY}/overview_{kind}_probes_{field}_{suffix}.png'
+                    filename = f'{analysis_directory}/overview_{kind}_probes_{field}_{suffix}.png'
                     plot_title = f'{kind.capitalize()} Probes - {metric} ({FIELD_NAMES.get(field, field)})'
                     plot_line_values(line_values, field, suffix, filename, plot_title)
 
     if ordered_dfs:
-        calculate_and_plot_loss_factor(ordered_dfs, density)
+        calculate_and_plot_loss_factor(analysis_directory, ordered_dfs, density)
 
 
 # ----- Main function ----------------------------------------------------------------------------------------------- #
 
 def main():
-    flow_data = load_csv_files_into_pandas(BASE_DIRECTORY)
-    create_directory(ANALYSIS_DIRECTORY)
-    density = get_density(flow_data[0])
-    for df in flow_data:
-        calculate_velocity_magnitude(df)
-        calculate_kinematic_dynamic_and_total_pressures(df)
-        calculate_actual_pressures(df, density)
-        graph_flow_profiles(df)
-    process_overview_data(flow_data, density)
+    check_directory_exists(SAMPLE_DIRECTORY)
+    density = get_density()
+
+    for timestep_directory in get_timestep_directories(SAMPLE_DIRECTORY):
+
+        flow_data = load_csv_files_into_pandas(timestep_directory)
+        analysis_directory = os.path.join(timestep_directory, 'analysis')
+        create_directory(analysis_directory)
+        for df in flow_data:
+            calculate_velocity_magnitude(df)
+            calculate_kinematic_dynamic_and_total_pressures(df)
+            calculate_actual_pressures(df, density)
+            graph_flow_profiles(df, analysis_directory)
+            process_overview_data(analysis_directory, flow_data, density)
 
 
 if __name__ == "__main__":
