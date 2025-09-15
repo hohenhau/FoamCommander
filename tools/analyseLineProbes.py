@@ -36,8 +36,8 @@ def check_directory_exists(directory):
         error_directory = directory.split('/')[-2] + '/' + directory.split('/')[-1]
         sys.exit(f'The directory {error_directory} could not be found')
 
-def get_timestep_directories(parent_dir):
-    return [os.path.join(parent_dir, sub_dir) for sub_dir in os.listdir(parent_dir)]
+def get_timestep_directories(p_dir):
+    return [os.path.join(p_dir, c_dir) for c_dir in os.listdir(p_dir) if os.path.isdir(os.path.join(p_dir, c_dir))]
 
 def create_directory(path: str) -> None:
     """Ensure that a directory exists. If it does not exist, create it."""
@@ -83,7 +83,7 @@ def calculate_velocity_magnitude(df):
         col = available[0]
         df['U_mag'] = df[col].abs()
     elif len(available) >= 2:
-        df['U_mag'] = np.sqrt(sum(df[col] ** 2 for col in available))
+        df['U_mag'] = np.sqrt((df[available] ** 2).sum(axis=1))
 
 
 def calculate_kinematic_dynamic_and_total_pressures(df):
@@ -296,7 +296,7 @@ def process_overview_data(analysis_directory, dfs, density):
             label = match.group(2)
             ordered_dfs.append((num, df, label))
         else:
-            unordered_dfs.append((df_title, df, df_title))
+            unordered_dfs.append((None, df, df_title))
 
     # Sort the ordered data frames numerically and the unordered data frames alphabetically
     ordered_dfs.sort(key=lambda x: x[0])
