@@ -37,7 +37,7 @@ def check_directory_exists(directory):
         sys.exit(f'The directory {error_directory} could not be found')
 
 def get_timestep_directories(p_dir):
-    return [os.path.join(p_dir, c_dir) for c_dir in os.listdir(p_dir) if os.path.isdir(os.path.join(p_dir, c_dir))]
+    return sorted([os.path.join(p_dir, dir) for dir in os.listdir(p_dir) if os.path.isdir(os.path.join(p_dir, dir))])
 
 def create_directory(path: str) -> None:
     """Ensure that a directory exists. If it does not exist, create it."""
