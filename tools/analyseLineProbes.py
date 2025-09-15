@@ -8,8 +8,7 @@ import sys
 # ----- Define various constants ------------------------------------------------------------------------------------ #
 
 # Set the target directory
-BASE_DIRECTORY = os.getcwd()
-SAMPLE_DIRECTORY = os.path.join(BASE_DIRECTORY, 'postProcessing/sampleDict')
+SAMPLE_DIRECTORY = os.path.join(os.getcwd(), 'postProcessing/sampleDict')
 
 # Specify names to be used in the plots
 FIELD_NAMES = {
@@ -32,13 +31,13 @@ FIG_DPI = 300
 
 # ----- Calculate point data ---------------------------------------------------------------------------------------- #
 
-def check_directory_exists(sample_directory):
-    if not os.path.isdir(sample_directory):
-        error_directory = sample_directory.split('/')[-2] + '/' + sample_directory.split('/')[-1]
+def check_directory_exists(directory):
+    if not os.path.isdir(directory):
+        error_directory = directory.split('/')[-2] + '/' + directory.split('/')[-1]
         sys.exit(f'The directory {error_directory} could not be found')
 
-def get_timestep_directories(sample_directory):
-    return [name for name in os.listdir(sample_directory) if os.path.isdir(sample_directory)]
+def get_timestep_directories(parent_dir):
+    return [os.path.join(parent_dir, sub_dir) for sub_dir in os.listdir(parent_dir)]
 
 def create_directory(path: str) -> None:
     """Ensure that a directory exists. If it does not exist, create it."""
