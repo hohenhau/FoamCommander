@@ -166,6 +166,8 @@ def calculate_line_values(dfs, fields):
     for _, df, label in dfs:
         stats = {'title': label}
         for field in fields:
+            if field not in df.columns:
+                continue
             mean_val = df[field].mean()
             std_val = df[field].std()
             stats[f'{field}_avg'] = mean_val
