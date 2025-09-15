@@ -298,7 +298,7 @@ def process_overview_data(analysis_directory, dfs, density):
             label = match.group(2)
             ordered_dfs.append((num, df, label))
         else:
-            unordered_dfs.append((None, df, df_title))
+            unordered_dfs.append((df_title, df, df_title))
 
     # Sort the ordered data frames numerically and the unordered data frames alphabetically
     ordered_dfs.sort(key=lambda x: x[0])
