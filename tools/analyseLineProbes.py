@@ -253,7 +253,7 @@ def calculate_and_plot_loss_factor(analysis_directory, ordered_dfs, density):
 
     plot_labels = [
         (actual_pressure_changes, "Pressure Change (Pa)", "actual_pressure_changes"),
-        (kinematic_pressure_changes, "Pressure Change", "kinematic_pressure_changes"),
+        (kinematic_pressure_changes, "Kinematic Pressure Change", "kinematic_pressure_changes"),
         (loss_factors, "Loss Factor K", "loss_factors"),
         (velocity_magnitude, "Velocity Magnitude (m/s)", "velocity_magnitude")
     ]
