@@ -252,10 +252,10 @@ def calculate_and_plot_loss_factor(analysis_directory, ordered_dfs, density):
             loss_factors.append({"tick_label": title, "value": k})
 
     plot_labels = [
-        (actual_pressure_changes, "Pressure Change (Pa)", "overview_actual_pressure_changes"),
-        (kinematic_pressure_changes, "Pressure Change", "overview_kinematic_pressure_changes"),
-        (loss_factors, "Loss Factor K", "overview_loss_factors"),
-        (velocity_magnitude, "Velocity Magnitude (m/s)", "overview_velocity_magnitude")
+        (actual_pressure_changes, "Pressure Change (Pa)", "actual_pressure_changes"),
+        (kinematic_pressure_changes, "Pressure Change", "kinematic_pressure_changes"),
+        (loss_factors, "Loss Factor K", "loss_factors"),
+        (velocity_magnitude, "Velocity Magnitude (m/s)", "velocity_magnitude")
     ]
 
     plot_dfs = list()
@@ -268,10 +268,11 @@ def calculate_and_plot_loss_factor(analysis_directory, ordered_dfs, density):
 
     for df in plot_dfs:
         # Define file name and save to csv
-        filename = f'{analysis_directory}/{df.attrs.get("file_name")}'
-        df.to_csv(f'{filename}.csv', index=False)
+        filename_table = f'{analysis_directory}/overview_table_{df.attrs.get("file_name")}'
+        df.to_csv(f'{filename_table}.csv', index=False)
 
         # Plot results
+        filename_plot = f'{analysis_directory}/overview_plot_{df.attrs.get("file_name")}'
         fig, ax = plt.subplots(figsize=(FIG_WIDTH, FIG_HEIGHT))
         ax.bar(df["tick_label"], df["value"], color="tab:blue")
         ax.set_ylabel(df.attrs.get("ylabel"))
@@ -279,7 +280,7 @@ def calculate_and_plot_loss_factor(analysis_directory, ordered_dfs, density):
         ax.set_xticks(range(len(df)))
         ax.set_xticklabels(df["tick_label"], rotation=45, ha="right")
         plt.tight_layout()
-        plt.savefig(filename, dpi=FIG_DPI, bbox_inches="tight")
+        plt.savefig(filename_plot, dpi=FIG_DPI, bbox_inches="tight")
         plt.close()
 
 
