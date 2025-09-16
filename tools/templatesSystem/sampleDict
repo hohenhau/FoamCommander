@@ -37,30 +37,19 @@ fields              (U p);                 // Fields to be included
 
 
 // Define base parameters for probe geometries
-X_PLANE     0.0;  // Shared x-Plane for vertical probes
-Y_PLANE    -9.9;  // Shared Y-Plane for horizontal probes
-Z_PLANE     0.0;  // Shared Z-Plane for vertical probes
-NUM_POINTS 1000;  // Number of points across a line probe
+T  lineUniform;  // Type of point distribution
+A  distance;     // Coordinate output. Can be [x, y, z, xyz, distance]
+X  0.0;          // Shared x-Plane for vertical probes
+Y  -9.9;         // Shared Y-Plane for horizontal probes
+Z  0.0;          // Shared Z-Plane for vertical probes
+N  1000;         // Number of points across a line probe
 
 // Define the geometry of the line probes
 sets
 (
-    horizontal_Name_DS
-    {
-        type lineUniform;
-        axis distance;
-        start   (0.0 $Y_PLANE 0.0);
-        end     (0.0 $Y_PLANE 1.0);
-        nPoints $NUM_POINTS;
-    }
-    vertical_Name_US
-    {
-        type lineUniform;
-        axis distance;
-        start   ($X_PLANE 0.0 0.0);
-        end     ($X_PLANE 0.0 1.0);
-        nPoints $NUM_POINTS;
-    }
+    _01_Sample_A_DS      {type $T; axis $A; start ( 25.950 $Y -17.000); end ( 25.950 $Y  -5.833); nPoints $N;}
+    _02_Sample_A_US      {type $T; axis $A; start ( 25.950 $Y -17.000); end ( 25.950 $Y  -5.833); nPoints $N;}
+    _Unorderd_A_US       {type $T; axis $A; start ( 25.950 $Y -17.000); end ( 25.950 $Y  -5.833); nPoints $N;}
 );
 
 // ************************************************************************* //
