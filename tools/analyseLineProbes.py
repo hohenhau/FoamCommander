@@ -333,7 +333,7 @@ def process_overview_data(analysis_directory, dfs, density):
 
                 for field in fields:
                     filename = f'{analysis_directory}/overview_{kind}_probes_{field}_{suffix}.png'
-                    plot_title = f'{metric} ({FIELD_NAMES.get(field, field)})'
+                    plot_title = f'{metric} {FIELD_NAMES.get(field, field)}'
                     plot_line_values(line_values, field, suffix, filename, plot_title)
 
     if ordered_dfs:
