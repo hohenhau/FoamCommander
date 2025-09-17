@@ -3,6 +3,7 @@ import numpy as np
 import os
 import pandas as pd
 import re
+import subprocess
 import sys
 
 # ----- Define various constants ------------------------------------------------------------------------------------ #
@@ -340,14 +341,21 @@ def process_overview_data(analysis_directory, dfs, density):
         calculate_and_plot_loss_factor(analysis_directory, ordered_dfs, density)
 
 
+def compress_sample_dict():
+    cwd = os.getcwd()
+    try:
+        os.chdir(SAMPLE_DIRECTORY)
+        subprocess.run(["foco", "compress"], check=True)
+    finally:
+        os.chdir(cwd)
+
+
 # ----- Main function ----------------------------------------------------------------------------------------------- #
 
 def main():
     check_directory_exists(SAMPLE_DIRECTORY)
     density = get_density()
-
     for timestep_directory in get_timestep_directories(SAMPLE_DIRECTORY):
-
         flow_data = load_csv_files_into_pandas(timestep_directory)
         analysis_directory = os.path.join(timestep_directory, 'analysis')
         create_directory(analysis_directory)
@@ -357,7 +365,7 @@ def main():
             calculate_actual_pressures(df, density)
             graph_flow_profiles(df, analysis_directory)
         process_overview_data(analysis_directory, flow_data, density)
-
+    compress_sample_dict()
 
 if __name__ == "__main__":
     main()
