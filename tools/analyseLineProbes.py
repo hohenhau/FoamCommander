@@ -21,11 +21,11 @@ FIELD_NAMES = {
     'p_ad': 'Dynamic Pressure (Pa)'}
 
 # Specify the dimensions of the plots
-FIG_WIDTH_MM = 80
-FIG_HEIGHT_MM = 80
+FIG_WIDTH_PROFILE_MM = 80
+FIG_HEIGHT_PROFILE_MM = 80
+FIG_WIDTH_OVERVIEW_MM = 160
+FIG_HEIGHT_OVERVIEW_MM = 80
 INCHES_TO_MM = 25.4
-FIG_WIDTH = FIG_WIDTH_MM / INCHES_TO_MM
-FIG_HEIGHT = FIG_HEIGHT_MM / INCHES_TO_MM
 FIG_DPI = 300
 
 
@@ -157,7 +157,7 @@ def graph_flow_profiles(df, directory):
             print('WARNING: No distance or y-coordinate provided.')
             continue
 
-        plt.figure(figsize=(FIG_WIDTH, FIG_HEIGHT))
+        plt.figure(figsize=(FIG_WIDTH_PROFILE_MM/INCHES_TO_MM, FIG_HEIGHT_PROFILE_MM/INCHES_TO_MM))
         plt.plot(x, y, label=field)
 
         plt.xlabel(x_label)
@@ -208,7 +208,7 @@ def plot_line_values(df, field, suffix, filename, plot_title):
     x = np.arange(len(labels))
     values = df[column_name]
 
-    fig, ax = plt.subplots(figsize=(FIG_WIDTH, FIG_HEIGHT))
+    fig, ax = plt.subplots(figsize=(FIG_WIDTH_OVERVIEW_MM/INCHES_TO_MM, FIG_HEIGHT_OVERVIEW_MM/INCHES_TO_MM))
     ax.bar(x, values, label=FIELD_NAMES.get(field, field))
 
     ax.set_xticks(x)
@@ -288,7 +288,7 @@ def calculate_and_plot_loss_factor(analysis_directory, ordered_dfs, density):
 
         # Plot results
         filename_plot = f'{analysis_directory}/overview_plot_{df.attrs.get("file_name")}'
-        fig, ax = plt.subplots(figsize=(FIG_WIDTH, FIG_HEIGHT))
+        fig, ax = plt.subplots(figsize=(FIG_WIDTH_OVERVIEW_MM/INCHES_TO_MM, FIG_HEIGHT_OVERVIEW_MM/INCHES_TO_MM))
         ax.bar(df["tick_label"], df["value"], color="tab:blue")
         ax.set_ylabel(df.attrs.get("y_label"))
         ax.set_title(df.attrs.get("heading"))
@@ -323,9 +323,9 @@ def process_overview_data(analysis_directory, dfs, density):
 
     for dfs, kind in [(ordered_dfs, 'ordered'), (unordered_dfs, 'unordered')]:
         for metric, suffix in [
-            ('Averages', 'avg'),
-            ('Standard Deviations', 'std'),
-            ('Coefficient of Variation', 'cov')]:
+            ('Average', 'avg'),
+            ('Standard Deviation of', 'std'),
+            ('Coefficient of Variation of', 'cov')]:
 
             if dfs:
                 line_values = calculate_line_values(dfs, fields)
@@ -333,7 +333,7 @@ def process_overview_data(analysis_directory, dfs, density):
 
                 for field in fields:
                     filename = f'{analysis_directory}/overview_{kind}_probes_{field}_{suffix}.png'
-                    plot_title = f'{kind.capitalize()} Probes - {metric} ({FIELD_NAMES.get(field, field)})'
+                    plot_title = f'{metric} ({FIELD_NAMES.get(field, field)})'
                     plot_line_values(line_values, field, suffix, filename, plot_title)
 
     if ordered_dfs:
