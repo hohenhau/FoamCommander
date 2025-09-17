@@ -168,7 +168,8 @@ def graph_flow_profiles(df, directory):
         if coordinate == "y":
             x, y = y, x
             x_label, y_label = y_label, x_label
-            x_lim, y_lim = y_lim, x_lim
+            x_lim = y_lim
+            y_lim = (y.min(), 0))
         
         plt.figure(figsize=(FIG_WIDTH_PROFILE_MM/INCHES_TO_MM, FIG_HEIGHT_PROFILE_MM/INCHES_TO_MM))
         plt.plot(x, y, label=field)
