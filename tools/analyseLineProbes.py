@@ -393,7 +393,6 @@ def main():
             calculate_actual_pressures(df, density)
             plot_flow_profiles(df, PROFILE_FIELDS, analysis_directory)
 
-
         location_stats = calculate_location_stats(flow_data_dfs)
         ordered_dfs, unordered_dfs = categorise_ordered_and_unordered_probes(flow_data_dfs)
         component_pairs = find_component_pairs(ordered_dfs, density)
