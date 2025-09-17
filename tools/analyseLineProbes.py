@@ -37,8 +37,10 @@ def check_directory_exists(directory):
         error_directory = directory.split('/')[-2] + '/' + directory.split('/')[-1]
         sys.exit(f'The directory {error_directory} could not be found')
 
+
 def get_timestep_directories(p_dir):
     return sorted([os.path.join(p_dir, dir) for dir in os.listdir(p_dir) if os.path.isdir(os.path.join(p_dir, dir))])
+
 
 def create_directory(path: str) -> None:
     """Ensure that a directory exists. If it does not exist, create it."""
@@ -149,29 +151,29 @@ def graph_flow_profiles(df, directory):
         else:
             print("WARNING: No distance or y-coordinate provided.")
             continue
-        
+
         x = df[coordinate]
         y = df[field]
         x_label = coordinate_label
         y_label = field_name
-        
+
         # Use provided limits, otherwise fallback to data min/max
         x_min = fields[field]["min_pos"] if fields[field]["min_pos"] is not None else x.min()
         x_max = fields[field]["max_pos"] if fields[field]["max_pos"] is not None else x.max()
         y_min = fields[field]["min_val"] if fields[field]["min_val"] is not None else y.min()
         y_max = fields[field]["max_val"] if fields[field]["max_val"] is not None else y.max()
-        
+
         x_lim = (x_min, x_max)
         y_lim = (y_min, y_max)
-        
+
         # Swap axes if using depth
         if coordinate == "y":
             x, y = y, x
             x_label, y_label = y_label, x_label
             x_lim = y_lim
             y_lim = (y.min(), 0)
-        
-        plt.figure(figsize=(FIG_WIDTH_PROFILE_MM/INCHES_TO_MM, FIG_HEIGHT_PROFILE_MM/INCHES_TO_MM))
+
+        plt.figure(figsize=(FIG_WIDTH_PROFILE_MM / INCHES_TO_MM, FIG_HEIGHT_PROFILE_MM / INCHES_TO_MM))
         plt.plot(x, y, label=field)
 
         plt.xlabel(x_label)
@@ -209,34 +211,46 @@ def calculate_line_values(dfs, fields):
     return pd.DataFrame(results)
 
 
-def plot_line_values(df, field, suffix, filename, plot_title):
-    # Only plot CoV for U_mag
-    if suffix == 'cov' and field != 'U_mag':
-        return
-
+def plot_collective_values_on_vertical_bar_graph(df, field, suffix, filename, plot_title):
     column_name = f'{field}_{suffix}'
-    if column_name not in df.columns:
+    # Ensure column name exits and only plot CoV for U_mag
+    if (column_name not in df.columns) or (suffix == 'cov' and field != 'U_mag'):
         return
-
     labels = df['title']
     x = np.arange(len(labels))
     values = df[column_name]
-
-    fig, ax = plt.subplots(figsize=(FIG_WIDTH_OVERVIEW_MM/INCHES_TO_MM, FIG_HEIGHT_OVERVIEW_MM/INCHES_TO_MM))
+    fig, ax = plt.subplots(figsize=(FIG_WIDTH_OVERVIEW_MM / INCHES_TO_MM, FIG_HEIGHT_OVERVIEW_MM / INCHES_TO_MM))
     ax.bar(x, values, label=FIELD_NAMES.get(field, field))
-
     ax.set_xticks(x)
     ax.set_xticklabels(labels, rotation=80, ha="right")
     ax.set_ylabel(suffix.upper())
     ax.set_title(plot_title)
-
     plt.tight_layout()
     plt.savefig(filename, dpi=FIG_DPI, bbox_inches='tight')
     plt.close()
 
 
-def calculate_and_plot_loss_factor(analysis_directory, ordered_dfs, density):
+def plot_collective_values_on_horizontal_bar_graph(df, field, suffix, filename, plot_title):
+    column_name = f'{field}_{suffix}'
+    # Ensure column name exits and only plot CoV for U_mag
+    if (column_name not in df.columns) or (suffix == 'cov' and field != 'U_mag'):
+        return
+    labels = df["title"]
+    values = df[column_name]
+    y = np.arange(len(labels))
+    fig, ax = plt.subplots(figsize=(FIG_WIDTH_OVERVIEW_MM / INCHES_TO_MM,  FIG_WIDTH_OVERVIEW_MM / INCHES_TO_MM))
+    ax.barh(y, values, label=FIELD_NAMES.get(field, field))
+    ax.set_yticks(y)
+    ax.set_yticklabels(labels)
+    ax.invert_yaxis()  # optional: keep first item at the top
+    ax.set_xlabel(suffix.upper())
+    ax.set_title(plot_title)
+    plt.tight_layout()
+    plt.savefig(filename, dpi=FIG_DPI, bbox_inches="tight")
+    plt.close()
 
+
+def calculate_and_plot_loss_factor(analysis_directory, ordered_dfs, density):
     # Only run if density is present
     if density is None:
         print('Cannot compute loss factor without density. Continuing...')
@@ -302,7 +316,7 @@ def calculate_and_plot_loss_factor(analysis_directory, ordered_dfs, density):
 
         # Plot results
         filename_plot = f'{analysis_directory}/overview_plot_{df.attrs.get("file_name")}'
-        fig, ax = plt.subplots(figsize=(FIG_WIDTH_OVERVIEW_MM/INCHES_TO_MM, FIG_HEIGHT_OVERVIEW_MM/INCHES_TO_MM))
+        fig, ax = plt.subplots(figsize=(FIG_WIDTH_OVERVIEW_MM / INCHES_TO_MM, FIG_HEIGHT_OVERVIEW_MM / INCHES_TO_MM))
         ax.bar(df["tick_label"], df["value"], color="tab:blue")
         ax.set_ylabel(df.attrs.get("y_label"))
         ax.set_title(df.attrs.get("heading"))
@@ -347,8 +361,10 @@ def process_overview_data(analysis_directory, dfs, density):
 
                 for field in fields:
                     filename = f'{analysis_directory}/overview_{kind}_probes_{field}_{suffix}.png'
-                    plot_title = f'{metric} {FIELD_NAMES.get(field, field)}'
-                    plot_line_values(line_values, field, suffix, filename, plot_title)
+                    plot_title = f'{metric} v {FIELD_NAMES.get(field, field)}'
+                    plot_collective_values_on_vertical_bar_graph(line_values, field, suffix, filename, plot_title)
+                    plot_title = f'{metric} h {FIELD_NAMES.get(field, field)}'
+                    plot_collective_values_on_horizontal_bar_graph(line_values, field, suffix, filename, plot_title)
 
     if ordered_dfs:
         calculate_and_plot_loss_factor(analysis_directory, ordered_dfs, density)
@@ -379,6 +395,7 @@ def main():
             graph_flow_profiles(df, analysis_directory)
         process_overview_data(analysis_directory, flow_data, density)
     compress_sample_dict()
+
 
 if __name__ == "__main__":
     main()
