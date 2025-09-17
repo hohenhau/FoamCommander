@@ -21,7 +21,7 @@ FIELD_NAMES = {
     'p_ad': 'Dynamic Pressure (Pa)'}
 
 # Specify the dimensions of the plots
-FIG_WIDTH_MM = 160
+FIG_WIDTH_MM = 80
 FIG_HEIGHT_MM = 80
 INCHES_TO_MM = 25.4
 FIG_WIDTH = FIG_WIDTH_MM / INCHES_TO_MM
@@ -126,9 +126,9 @@ def calculate_actual_pressures(df, density):
 
 def graph_flow_profiles(df, directory):
     # List of fields and their graphing limits
-    fields = {'U_mag': {'x_min': 0, 'x_max': None, 'y_min': 0, 'y_max': None},
-              'p_as': {'x_min': 0, 'x_max': None, 'y_min': None, 'y_max': None},
-              'p_at': {'x_min': 0, 'x_max': None, 'y_min': 0, 'y_max': None}}
+    fields = {'U_mag': {'min_pos': 0, 'max_pos': None, 'min_val': 0, 'max_val': None},
+              'p_as': {'min_pos': 0, 'max_pos': None, 'min_val': None, 'max_val': None},
+              'p_at': {'min_pos': 0, 'max_pos': None, 'min_val': 0, 'max_val': None}}
 
     # Get the name of the data frame
     df_title = df.attrs.get("title", "plot")
@@ -139,16 +139,31 @@ def graph_flow_profiles(df, directory):
 
         field_name = FIELD_NAMES.get(field, field)
 
-        x = df['distance']
-        y = df[field]
+        if 'distance' in df.columns:
+            x = df['distance']
+            y = df[field]
+            x_label = 'Distance (m)'
+            y_label = field_name
+            x_lim = (fields[field]['min_pos'], fields[field]['max_pos']) # maybe use max(x)
+            y_lim = (fields[field]['min_val'], fields[field]['max_val'])
+        elif 'y' in df.columns:
+            x = df[field]
+            y = df['y']
+            x_label = field_name
+            y_label = 'Depth (m)'
+            x_lim = (fields[field]['min_val'], fields[field]['max_val'])
+            y_lim = (fields[field]['min_pos'], 0)
+        else:
+            print('WARNING: No distance or y-coordinate provided.')
+            continue
 
         plt.figure(figsize=(FIG_WIDTH, FIG_HEIGHT))
         plt.plot(x, y, label=field)
 
-        plt.xlabel("Distance")
-        plt.ylabel(field_name)
-        plt.xlim(fields[field]['x_min'], max(x))
-        plt.ylim(fields[field]['y_min'], fields[field]['y_max'])
+        plt.xlabel(x_label)
+        plt.ylabel(y_label)
+        plt.xlim(x_lim)
+        plt.ylim(y_lim)
         plt.title(f"{df_title}")
         plt.grid(True)
 
@@ -262,7 +277,7 @@ def calculate_and_plot_loss_factor(analysis_directory, ordered_dfs, density):
     for value_dicts, heading, file_name in plot_labels:
         df = pd.DataFrame(value_dicts)
         df.attrs['heading'] = heading
-        df.attrs['ylabel'] = heading
+        df.attrs['y_label'] = heading
         df.attrs['file_name'] = file_name
         plot_dfs.append(df)
 
@@ -275,7 +290,7 @@ def calculate_and_plot_loss_factor(analysis_directory, ordered_dfs, density):
         filename_plot = f'{analysis_directory}/overview_plot_{df.attrs.get("file_name")}'
         fig, ax = plt.subplots(figsize=(FIG_WIDTH, FIG_HEIGHT))
         ax.bar(df["tick_label"], df["value"], color="tab:blue")
-        ax.set_ylabel(df.attrs.get("ylabel"))
+        ax.set_ylabel(df.attrs.get("y_label"))
         ax.set_title(df.attrs.get("heading"))
         ax.set_xticks(range(len(df)))
         ax.set_xticklabels(df["tick_label"], rotation=45, ha="right")
