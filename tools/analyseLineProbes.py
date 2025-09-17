@@ -140,24 +140,36 @@ def graph_flow_profiles(df, directory):
 
         field_name = FIELD_NAMES.get(field, field)
 
-        if 'distance' in df.columns:
-            x = df['distance']
-            y = df[field]
-            x_label = 'Distance (m)'
-            y_label = field_name
-            x_lim = (fields[field]['min_pos'], fields[field]['max_pos']) # maybe use max(x)
-            y_lim = (fields[field]['min_val'], fields[field]['max_val'])
-        elif 'y' in df.columns:
-            x = df[field]
-            y = df['y']
-            x_label = field_name
-            y_label = 'Depth (m)'
-            x_lim = (fields[field]['min_val'], fields[field]['max_val'])
-            y_lim = (fields[field]['min_pos'], 0)
+        if "distance" in df.columns:
+            coordinate = "distance"
+            coordinate_label = "Distance (m)"
+        elif "y" in df.columns:
+            coordinate = "y"
+            coordinate_label = "Depth (m)"
         else:
-            print('WARNING: No distance or y-coordinate provided.')
+            print("WARNING: No distance or y-coordinate provided.")
             continue
-
+        
+        x = df[coordinate]
+        y = df[field]
+        x_label = coordinate_label
+        y_label = field_name
+        
+        # Use provided limits, otherwise fallback to data min/max
+        x_min = fields[field]["min_pos"] if fields[field]["min_pos"] is not None else x.min()
+        x_max = fields[field]["max_pos"] if fields[field]["max_pos"] is not None else x.max()
+        y_min = fields[field]["min_val"] if fields[field]["min_val"] is not None else y.min()
+        y_max = fields[field]["max_val"] if fields[field]["max_val"] is not None else y.max()
+        
+        x_lim = (x_min, x_max)
+        y_lim = (y_min, y_max)
+        
+        # Swap axes if using depth
+        if coordinate == "y":
+            x, y = y, x
+            x_label, y_label = y_label, x_label
+            x_lim, y_lim = y_lim, x_lim
+        
         plt.figure(figsize=(FIG_WIDTH_PROFILE_MM/INCHES_TO_MM, FIG_HEIGHT_PROFILE_MM/INCHES_TO_MM))
         plt.plot(x, y, label=field)
 
