@@ -98,7 +98,24 @@ def load_csv_files_into_pandas(directory:str) -> list[pd.DataFrame]:
     return flow_data
 
 
-def compress_sample_dict() -> None:
+def delete_sample_dir_analysis() -> None:
+    """Deletes the current analysis folders in sampleDict"""
+    cwd = os.getcwd()
+    try:
+        os.chdir(SAMPLE_DIRECTORY)
+        subprocess.run(["rm", "sampleDict.7z"], check=True)
+    finally:
+        os.chdir(cwd)
+    time_step_dirs = get_timestep_directories(SAMPLE_DIRECTORY)
+    for time_step_dir in time_step_dirs:
+        try:
+            os.chdir(time_step_dir)
+            subprocess.run(["rm", "-r", "analysis"], check=True)
+        finally:
+            os.chdir(cwd)
+
+
+def compress_sample_dir() -> None:
     """Compress the sampleDict folder for easy export"""
     cwd = os.getcwd()
     try:
@@ -383,6 +400,7 @@ def plot_horizontal_bar_graph(labels, values, title: str, x_label: str, filename
 def main():
     check_directory_exists(SAMPLE_DIRECTORY)
     density = get_density()
+    delete_sample_dir_analysis()
     for timestep_directory in get_timestep_directories(SAMPLE_DIRECTORY):
         flow_data_dfs = load_csv_files_into_pandas(timestep_directory)
         analysis_directory = os.path.join(timestep_directory, 'analysis')
@@ -399,7 +417,7 @@ def main():
         component_stats = calculate_cross_component_stats(location_stats, component_pairs, density, COMPONENT_FIELDS)
         plot_and_save_location_data(location_stats, LOCATION_FIELDS, FIELD_NAMES)
         plot_and_save_component_data(component_stats, COMPONENT_FIELDS, FIELD_NAMES)
-    compress_sample_dict()
+    compress_sample_dir()
 
 
 if __name__ == "__main__":
