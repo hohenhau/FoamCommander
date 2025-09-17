@@ -226,7 +226,7 @@ def plot_line_values(df, field, suffix, filename, plot_title):
     ax.bar(x, values, label=FIELD_NAMES.get(field, field))
 
     ax.set_xticks(x)
-    ax.set_xticklabels(labels, rotation=45, ha="right")
+    ax.set_xticklabels(labels, rotation=60, ha="right")
     ax.set_ylabel(suffix.upper())
     ax.set_title(plot_title)
 
