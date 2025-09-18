@@ -339,7 +339,7 @@ def calculate_cross_component_stats(location_stats: dict, component_pairs: set, 
     return component_stats
 
 
-def plot_and_save_location_data(location_stats: dict, selected_fields: set, field_names: dict):
+def plot_and_save_location_data(location_stats: dict, selected_fields: set, field_names: dict, directory:str):
     """Takes the location statistics and plots them on a bar graph and saves them as a CSV"""
     file_name_start = 'plot_overview_locations'
     locations = list(location_stats.keys())
@@ -356,16 +356,18 @@ def plot_and_save_location_data(location_stats: dict, selected_fields: set, fiel
                     values.append(location_vals[field][suffix])
             # Plot current combination of field and suffix values for all locations
             plot_df[f'{field}_{suffix}'] = values
-            file_name = f'{file_name_start}_{field}_{suffix}.png'
             prefix = field_names.get(suffix, f'{suffix} of')
             title = f'{prefix} {field_name}'
-            plot_horizontal_bar_graph(locations, values, title, field_name, file_name)
-
+            file_name = f'{file_name_start}_{field}_{suffix}.png'
+            file_location = os.path.join(directory, file_name)
+            plot_horizontal_bar_graph(locations, values, title, field_name, file_location)
     # Save entire data frame to a CSV file
-    plot_df.to_csv(f'{file_name_start}.csv', index=False)
+    file_name = f'{file_name_start}.csv'
+    file_location = os.path.join(directory, file_name)
+    plot_df.to_csv(file_location, index=False)
 
 
-def plot_and_save_component_data(component_stats: dict, selected_fields: set, field_names: dict):
+def plot_and_save_component_data(component_stats: dict, selected_fields: set, field_names: dict, directory:str):
     """Takes the Component statistics and plots them on a bar graph and saves them as a CSV"""
     file_name_start = 'plot_overview_components'
     components = list(component_stats.keys())
@@ -381,13 +383,18 @@ def plot_and_save_component_data(component_stats: dict, selected_fields: set, fi
                 values.append(component_vals[field])
         # Plot current field values for all components
         plot_df[field] = values
-        file_name = f'{file_name_start}_{field}.png'
-        plot_horizontal_bar_graph(components, values, field_name, field_name, file_name)
+        file_name = f'{directory}/{file_name_start}_{field}.png'
+        file_location = os.path.join(directory, file_name)
+        plot_horizontal_bar_graph(components, values, field_name, field_name, file_location)
+    # Save entire data frame to a CSV file
+    file_name = f'{file_name_start}.csv'
+    file_location = os.path.join(directory, file_name)
+    plot_df.to_csv(file_location, index=False)
 
 
 # ----- Plot location data ---------------------------------------------------------------------------------------- #
 
-def plot_vertical_bar_graph(labels, values, title: str, y_label: str, filename: str):
+def plot_vertical_bar_graph(labels, values, title: str, y_label: str, file_location: str):
     """Creates a standard bar graph with vertically oriented bars"""
     x = np.arange(len(labels))
     fig, ax = plt.subplots(figsize=(FIG_WIDTH_OVERVIEW_MM / INCHES_TO_MM, FIG_HEIGHT_OVERVIEW_MM / INCHES_TO_MM))
@@ -397,11 +404,11 @@ def plot_vertical_bar_graph(labels, values, title: str, y_label: str, filename: 
     ax.set_ylabel(y_label)
     ax.set_title(title)
     plt.tight_layout()
-    plt.savefig(filename, dpi=FIG_DPI, bbox_inches='tight')
+    plt.savefig(file_location, dpi=FIG_DPI, bbox_inches='tight')
     plt.close()
 
 
-def plot_horizontal_bar_graph(labels, values, title: str, x_label: str, filename: str):
+def plot_horizontal_bar_graph(labels, values, title: str, x_label: str, file_location: str):
     """Creates a standard bar graph with horizontally oriented bars"""
     y = np.arange(len(labels))
     fig, ax = plt.subplots(figsize=(FIG_WIDTH_OVERVIEW_MM / INCHES_TO_MM, FIG_HEIGHT_OVERVIEW_MM / INCHES_TO_MM))
@@ -411,7 +418,7 @@ def plot_horizontal_bar_graph(labels, values, title: str, x_label: str, filename
     ax.set_xlabel(x_label)
     ax.set_title(title)
     plt.tight_layout()
-    plt.savefig(filename, dpi=FIG_DPI, bbox_inches="tight")
+    plt.savefig(file_location, dpi=FIG_DPI, bbox_inches="tight")
     plt.close()
 
 
@@ -435,8 +442,8 @@ def main():
         ordered_dfs, unordered_dfs = categorise_ordered_and_unordered_probes(flow_data_dfs)
         component_pairs = find_component_pairs(ordered_dfs, density)
         component_stats = calculate_cross_component_stats(location_stats, component_pairs, density, COMPONENT_FIELDS)
-        plot_and_save_location_data(location_stats, LOCATION_FIELDS, FIELD_NAMES)
-        plot_and_save_component_data(component_stats, COMPONENT_FIELDS, FIELD_NAMES)
+        plot_and_save_location_data(location_stats, LOCATION_FIELDS, FIELD_NAMES, analysis_directory)
+        plot_and_save_component_data(component_stats, COMPONENT_FIELDS, FIELD_NAMES, analysis_directory)
     compress_sample_dir()
 
 
