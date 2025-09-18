@@ -42,8 +42,9 @@ FIELD_NAMES = {
 # Specific fields to be graphed as flow profiles along with their graphing limits
 PROFILE_FIELDS = {
     'U_mag': {'min_pos': 0, 'max_pos': None, 'min_val': 0, 'max_val': None},
+    # 'p_at': {'min_pos': 0, 'max_pos': None, 'min_val': 0, 'max_val': None},
     'p_as': {'min_pos': 0, 'max_pos': None, 'min_val': None, 'max_val': None},
-    'p_at': {'min_pos': 0, 'max_pos': None, 'min_val': 0, 'max_val': None}}
+}
 
 # Specify which collective plots should be graphed
 LOCATION_FIELDS = {'U_mag', 'p_at'}
@@ -410,8 +411,11 @@ def plot_vertical_bar_graph(labels, values, title: str, y_label: str, file_locat
 
 def plot_horizontal_bar_graph(labels, values, title: str, x_label: str, file_location: str):
     """Creates a standard bar graph with horizontally oriented bars"""
+    num_items = len(values)
+    fig_width = FIG_WIDTH_OVERVIEW_MM / INCHES_TO_MM
+    fig_height = num_items * 8 / INCHES_TO_MM
     y = np.arange(len(labels))
-    fig, ax = plt.subplots(figsize=(FIG_WIDTH_OVERVIEW_MM / INCHES_TO_MM, FIG_HEIGHT_OVERVIEW_MM / INCHES_TO_MM))
+    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
     ax.barh(y, values, color="tab:blue")
     ax.set_yticks(y)
     ax.set_yticklabels(labels)
