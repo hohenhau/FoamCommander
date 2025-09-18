@@ -266,13 +266,13 @@ def categorise_ordered_and_unordered_probes(dfs: list[pd.DataFrame]) -> tuple[li
     return ordered_dfs, unordered_dfs
 
 
-def calculate_location_stats(probe_dfs: list[pd.DataFrame]) -> dict:
+def calculate_location_stats(probe_dfs: list[tuple]) -> dict:
     """
     Calculate collective statistics (avg, std, cov) for each probe and each field.
     Returns a nested dict: {"ProbeName": {"FieldName": {"avg": ..., "std": ..., "cov": ...}}}
     """
     location_stats = {}
-    for df in probe_dfs:
+    for _, df, probe_name in probe_dfs:
         # ensure probe entry exists
         probe_name = df.attrs.get("title", "title")
         lookup_name = strip_probe_number(probe_name)
