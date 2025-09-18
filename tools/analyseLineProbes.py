@@ -21,12 +21,12 @@ FIELD_NAMES = {
     'p_as': 'Static Pressure (Pa)',
     'p_at': 'Total Pressure (Pa)',
     'p_ad': 'Dynamic Pressure (Pa)',
-    'delta_ks': 'Change in Kinematic Static Pressure',
-    'delta_kt': 'Change in Kinematic Total Pressure',
-    'delta_kd': 'Change in Kinematic Dynamic Pressure',
-    'delta_as': 'Change in Static Pressure (Pa)',
-    'delta_at': 'Change in Total Pressure (Pa)',
-    'delta_ad': 'Change in Dynamic Pressure (Pa)',
+    'delta_p_ks': 'Change in Kinematic Static Pressure',
+    'delta_p_kt': 'Change in Kinematic Total Pressure',
+    'delta_p_kd': 'Change in Kinematic Dynamic Pressure',
+    'delta_p_as': 'Change in Static Pressure (Pa)',
+    'delta_p_at': 'Change in Total Pressure (Pa)',
+    'delta_p_ad': 'Change in Dynamic Pressure (Pa)',
     'k_factor': 'Loss Factor K',
     'distance': 'Distance (m)',
     'x': 'X-coordinate (m)',
@@ -320,6 +320,7 @@ def find_component_pairs(dfs: list[pd.DataFrame], density: float) -> list[tuple[
         upstream_full_name = upstream_components[name]
         downstream_full_name = downstream_components[name]
         paired_components.append((upstream_full_name, downstream_full_name))
+    paired_components = sorted(paired_components, key=lambda x: x[0])
     return paired_components
 
 
@@ -328,7 +329,9 @@ def calculate_cross_component_stats(location_stats: dict, pairs: list[tuple[str,
     """Calculates cross component statistics such as pressure change or loss factor"""
     component_stats = dict()
     for us_key, ds_key in pairs:
-        component = us_key.replace(us_key.split("_")[-1], '')
+        _, component, _ = strip_probe_number_and_name(us_key)
+        ending = component.split("_")[-1]
+        component = component.replace(f'_{ending}','')
         component_stats[component] = dict()
         delta_p_kt = location_stats[us_key]['p_kt']['avg'] - location_stats[ds_key]['p_kt']['avg']
         component_stats[component]['delta_p_kt'] = delta_p_kt
@@ -429,6 +432,7 @@ def plot_horizontal_bar_graph(labels, values, title: str, x_label: str, file_loc
     ax.set_yticklabels(labels)
     ax.set_xlabel(x_label)
     ax.set_title(title)
+    ax.invert_yaxis()  # Reverse the order so the first label is at the top
     plt.tight_layout()
     plt.savefig(file_location, dpi=FIG_DPI, bbox_inches="tight")
     plt.close()
