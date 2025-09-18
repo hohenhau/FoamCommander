@@ -46,7 +46,7 @@ PROFILE_FIELDS = {
     'p_at': {'min_pos': 0, 'max_pos': None, 'min_val': 0, 'max_val': None}}
 
 # Specify which collective plots should be graphed
-LOCATION_FIELDS = {'U_mag', 'p_at'}
+LOCATION_FIELDS = {'U_mag', 'p'}
 
 # Specify which changing fields should be graphed
 COMPONENT_FIELDS = {'k_factor', 'delta_at'}
@@ -126,8 +126,11 @@ def compress_sample_dir() -> None:
     try:
         os.chdir(SAMPLE_DIRECTORY)
         subprocess.run(["foco", "compress"], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f'Could not compress {SAMPLE_DIRECTORY}')
     finally:
         os.chdir(cwd)
+
 
 
 # ----- Calculate point data ---------------------------------------------------------------------------------------- #
@@ -374,6 +377,8 @@ def plot_and_save_component_data(component_stats: dict, selected_fields: set, fi
             if field not in component_vals:
                 print(f'WARNING: field {field} not found at {component}')
                 values.append(np.nan)
+            else:
+                values.append(component_vals[field])
         # Plot current field values for all components
         plot_df[field] = values
         file_name = f'{file_name_start}_{field}.png'
