@@ -5,6 +5,7 @@ import numpy as np
 import os
 import pandas as pd
 import re
+import shutil
 import subprocess
 import sys
 
@@ -100,20 +101,23 @@ def load_csv_files_into_pandas(directory:str) -> list[pd.DataFrame]:
 
 def delete_sample_dir_analysis() -> None:
     """Deletes the current analysis folders in sampleDict"""
-    cwd = os.getcwd()
-    try:
-        os.chdir(SAMPLE_DIRECTORY)
-        subprocess.run(["rm", "sampleDict.7z"], check=True)
-    finally:
-        os.chdir(cwd)
+    sample_dict_file = os.path.join(SAMPLE_DIRECTORY, "sampleDict.7z")
+    if os.path.exists(sample_dict_file):
+        try:
+            os.remove(sample_dict_file)
+            print(f"Deleted {sample_dict_file}")
+        except OSError as e:
+            print(f"Error deleting file {sample_dict_file}: {e}")
+
     time_step_dirs = get_timestep_directories(SAMPLE_DIRECTORY)
     for time_step_dir in time_step_dirs:
-        try:
-            os.chdir(time_step_dir)
-            subprocess.run(["rm", "-r", "analysis"], check=True)
-        finally:
-            os.chdir(cwd)
-
+        analysis_path = os.path.join(time_step_dir, "analysis")
+        if os.path.isdir(analysis_path):
+            try:
+                shutil.rmtree(analysis_path)
+                print(f"Deleted analysis directory in {time_step_dir}")
+            except OSError as e:
+                print(f"Error deleting directory {analysis_path}: {e}")
 
 def compress_sample_dir() -> None:
     """Compress the sampleDict folder for easy export"""
