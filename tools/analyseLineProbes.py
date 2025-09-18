@@ -307,8 +307,8 @@ def calculate_cross_component_stats(location_stats: dict, component_pairs: set, 
     component_stats = dict()
     for component in component_pairs:
         component_stats[component] = dict()
-        us_key = f"{component}_us"
-        ds_key = f"{component}_ds"
+        us_key = f"{component}_US"
+        ds_key = f"{component}_DS"
         component_stats[component]['delta_p_kt'] = location_stats[us_key]['p_kt'] - location_stats[ds_key]['p_kt']
         component_stats[component]['U_mag'] = location_stats[us_key]['U_mag']
         if 'p_at' not in location_stats[us_key] or 'p_at' not in location_stats[ds_key]:
