@@ -1,5 +1,3 @@
-from typing import Any, Optional
-
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -12,7 +10,7 @@ import sys
 # ----- Define various constants ------------------------------------------------------------------------------------ #
 
 # Set the target directory
-SAMPLE_DIRECTORY = os.path.join(os.getcwd(), 'postProcessing/sampleDict')
+SAMPLE_DIRECTORY = '/Users/alex/Downloads/sampleDict' # os.path.join(os.getcwd(), 'postProcessing/sampleDict')
 
 # Specify names to be used in the plots
 FIELD_NAMES = {
@@ -262,9 +260,8 @@ def categorise_ordered_and_unordered_probes(dfs: list[pd.DataFrame]) -> tuple[li
     """Split probes into ordered (numerically) and unordered (alphabetically), returning them in sorted order."""
     ordered_dfs, unordered_dfs = list(), list()
     for df in dfs:
-        probe_number = df.attrs.get("probe_number")
-        probe_name = df.attrs.get("probe_name")
-
+        probe_number = df.attrs.get("number")
+        probe_name = df.attrs.get("name")
         if probe_number is not None:
             ordered_dfs.append((probe_number, df))
         else:
@@ -311,10 +308,11 @@ def find_component_pairs(dfs: list[pd.DataFrame], density: float) -> list[tuple[
         probe_number_and_name = df.attrs.get("number_and_name")
         probe_name = df.attrs.get("name")
         ending = probe_number_and_name.split("_")[-1]
+        stem = probe_name.replace(f'_{ending}', "")
         if ending.upper() == "US":
-            upstream_components[probe_name] = probe_number_and_name
+            upstream_components[stem] = probe_number_and_name
         elif ending.upper() == "DS":
-            downstream_components[probe_name] = probe_number_and_name
+            downstream_components[stem] = probe_number_and_name
     # Find the intersection of the keys (the core probe names).
     paired_components = list()
     common_names = set(upstream_components.keys()).intersection(downstream_components.keys())
