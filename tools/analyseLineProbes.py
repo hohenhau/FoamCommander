@@ -69,7 +69,7 @@ def check_directory_exists(directory) -> None:
         sys.exit(f'The directory {error_directory} could not be found')
 
 
-def get_timestep_directories(p_dir:str) -> list[str]:
+def get_timestep_directories(p_dir: str) -> list[str]:
     """Get all the time step directories within the sampleDict directory"""
     return sorted([os.path.join(p_dir, dir) for dir in os.listdir(p_dir) if os.path.isdir(os.path.join(p_dir, dir))])
 
@@ -83,7 +83,7 @@ def create_directory(path: str) -> None:
         print(f"Directory already exists: {path}")
 
 
-def load_csv_files_into_pandas(directory:str) -> list[pd.DataFrame]:
+def load_csv_files_into_pandas(directory: str) -> list[pd.DataFrame]:
     """Import the probe data stored in various CSV files"""
     files = os.listdir(directory)
     files = [os.path.join(directory, file) for file in files if file.endswith(".csv") and 'overview' not in file]
@@ -119,6 +119,7 @@ def delete_sample_dir_analysis() -> None:
             except OSError as e:
                 print(f"Error deleting directory {analysis_path}: {e}")
 
+
 def compress_sample_dir() -> None:
     """Compress the sampleDict folder for easy export"""
     cwd = os.getcwd()
@@ -149,7 +150,7 @@ def get_density():
         return get_density()
 
 
-def calculate_velocity_magnitude(df:pd.DataFrame):
+def calculate_velocity_magnitude(df: pd.DataFrame):
     """Calculate the velocity magnitude given a pandas DataFrame containing velocity components"""
     components = ['U_x', 'U_y', 'U_z']
     available = [col for col in components if col in df.columns]
@@ -160,7 +161,7 @@ def calculate_velocity_magnitude(df:pd.DataFrame):
         df['U_mag'] = np.sqrt((df[available] ** 2).sum(axis=1))
 
 
-def calculate_kinematic_dynamic_and_total_pressures(df:pd.DataFrame):
+def calculate_kinematic_dynamic_and_total_pressures(df: pd.DataFrame):
     """Calculate the kinematic dynamic and kinematic total pressure given a pandas dataFrame"""
     if 'U_mag' in df.columns and "p_ks" in df.columns:
         df['p_kd'] = 0.5 * df['U_mag'] ** 2
@@ -169,7 +170,7 @@ def calculate_kinematic_dynamic_and_total_pressures(df:pd.DataFrame):
             df['p_kt'] = df['p_kd'] + df['p_ks']
 
 
-def calculate_actual_pressures(df:pd.DataFrame, density:float):
+def calculate_actual_pressures(df: pd.DataFrame, density: float):
     """Calculate the actual pressure given density and kinematic pressures"""
     if density is None:
         return
@@ -182,7 +183,7 @@ def calculate_actual_pressures(df:pd.DataFrame, density:float):
 
 # ----- Plot point data --------------------------------------------------------------------------------------------- #
 
-def plot_flow_profiles(df:pd.DataFrame, fields:dict, directory:str):
+def plot_flow_profiles(df: pd.DataFrame, fields: dict, directory: str):
     # Get the name of the data frame
     df_title = df.attrs.get("title", "plot")
 
@@ -234,14 +235,15 @@ def plot_flow_profiles(df:pd.DataFrame, fields:dict, directory:str):
 
 # ----- Process collective data ------------------------------------------------------------------------------------- #
 
-def calculate_location_stats(probe_dfs:list[pd.DataFrame]) -> dict:
+def calculate_location_stats(probe_dfs: list[pd.DataFrame]) -> dict:
     """
     Calculate collective statistics (avg, std, cov) for each probe and each field.
     Returns a nested dict: {"ProbeName": {"FieldName": {"avg": ..., "std": ..., "cov": ...}}}
     """
     location_stats = {}
-    for _, df, probe_name in probe_dfs:
+    for df in probe_dfs:
         # ensure probe entry exists
+        probe_name = df.attrs.get("title", "title")
         if probe_name not in location_stats:
             location_stats[probe_name] = {}
         for field in df.columns:
@@ -255,7 +257,7 @@ def calculate_location_stats(probe_dfs:list[pd.DataFrame]) -> dict:
     return location_stats
 
 
-def categorise_ordered_and_unordered_probes(dfs:list[pd.DataFrame]) -> tuple[list[Any], list[Any]]:
+def categorise_ordered_and_unordered_probes(dfs: list[pd.DataFrame]) -> tuple[list[Any], list[Any]]:
     """Calculates the change across specific upstream and downstream probes"""
     # Specify the pattern that is used to differentiate between ordered an unordered probes
     pattern = re.compile(r"^_?0*(\d+)_?(.*)")
@@ -275,7 +277,7 @@ def categorise_ordered_and_unordered_probes(dfs:list[pd.DataFrame]) -> tuple[lis
     return ordered_dfs, unordered_dfs
 
 
-def find_component_pairs(dfs:list[tuple[any, pd.DataFrame, str]], density:float) -> set[str]:
+def find_component_pairs(dfs: list[tuple[any, pd.DataFrame, str]], density: float) -> set[str]:
     """Pairs up line probes (i.e. Vanes_US and Vanes_DS) to determine the changes across them"""
     # Only run if density is present
     if density is None:
@@ -300,7 +302,7 @@ def find_component_pairs(dfs:list[tuple[any, pd.DataFrame, str]], density:float)
     return component_pairs
 
 
-def calculate_cross_component_stats(location_stats:dict, component_pairs:set, density:float, fields:set) -> dict:
+def calculate_cross_component_stats(location_stats: dict, component_pairs: set, density: float, fields: set) -> dict:
     """Calculates cross component statisitcs such as pressure change or loss factor"""
     component_stats = dict()
     for component in component_pairs:
@@ -315,17 +317,17 @@ def calculate_cross_component_stats(location_stats:dict, component_pairs:set, de
         delta_p_at = location_stats[us_key]['p_at'] - location_stats[ds_key]['p_at']
         component_stats[component]['delta_p_at'] = delta_p_at
         component_stats[component]['k_factor'] = abs(delta_p_at / (0.5 * density * u_mag ** 2))
-        
+
         for field in fields:
             if field not in location_stats[us_key] or field not in location_stats[ds_key] or field == 'U_mag':
                 continue
             component_stats[component][f'delta_{field}'] = location_stats[us_key][field] - location_stats[ds_key][
                 field]
-            
+
     return component_stats
 
 
-def plot_and_save_location_data(location_stats:dict, selected_fields:set, field_names:dict):
+def plot_and_save_location_data(location_stats: dict, selected_fields: set, field_names: dict):
     """Takes the location statistics and plots them on a bar graph and saves them as a CSV"""
     file_name_start = 'plot_overview_locations'
     locations = list(location_stats.keys())
@@ -335,11 +337,11 @@ def plot_and_save_location_data(location_stats:dict, selected_fields:set, field_
         for suffix in ['avg', 'std', 'cov']:
             values = list()
             for location, location_vals in location_stats.items():
-                    if field not in location_vals:
-                        print(f'WARNING: field {field} not found at {location}')
-                        values.append(np.nan)
-                    else:
-                        values.append(location_vals[field][suffix])
+                if field not in location_vals:
+                    print(f'WARNING: field {field} not found at {location}')
+                    values.append(np.nan)
+                else:
+                    values.append(location_vals[field][suffix])
             # Plot current combination of field and suffix values for all locations
             plot_df[f'{field}_{suffix}'] = values
             file_name = f'{file_name_start}_{field}_{suffix}.png'
@@ -351,7 +353,7 @@ def plot_and_save_location_data(location_stats:dict, selected_fields:set, field_
     plot_df.to_csv(f'{file_name_start}.csv', index=False)
 
 
-def plot_and_save_component_data(component_stats:dict, selected_fields:set, field_names:dict):
+def plot_and_save_component_data(component_stats: dict, selected_fields: set, field_names: dict):
     """Takes the Component statistics and plots them on a bar graph and saves them as a CSV"""
     file_name_start = 'plot_overview_components'
     components = list(component_stats.keys())
@@ -371,7 +373,7 @@ def plot_and_save_component_data(component_stats:dict, selected_fields:set, fiel
 
 # ----- Plot location data ---------------------------------------------------------------------------------------- #
 
-def plot_vertical_bar_graph(labels, values, title:str, y_label:str, filename:str):
+def plot_vertical_bar_graph(labels, values, title: str, y_label: str, filename: str):
     """Creates a standard bar graph with vertically oriented bars"""
     x = np.arange(len(labels))
     fig, ax = plt.subplots(figsize=(FIG_WIDTH_OVERVIEW_MM / INCHES_TO_MM, FIG_HEIGHT_OVERVIEW_MM / INCHES_TO_MM))
