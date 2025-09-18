@@ -46,10 +46,10 @@ PROFILE_FIELDS = {
     'p_at': {'min_pos': 0, 'max_pos': None, 'min_val': 0, 'max_val': None}}
 
 # Specify which collective plots should be graphed
-LOCATION_FIELDS = {'U_mag', 'p'}
+LOCATION_FIELDS = {'U_mag', 'p_at'}
 
 # Specify which changing fields should be graphed
-COMPONENT_FIELDS = {'k_factor', 'delta_at'}
+COMPONENT_FIELDS = {'k_factor', 'delta_p_at'}
 
 # Specify the dimensions of the plots
 FIG_WIDTH_PROFILE_MM = 80
