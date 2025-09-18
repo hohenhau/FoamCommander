@@ -43,7 +43,7 @@ FIELD_NAMES = {
 PROFILE_FIELDS = {
     'U_mag': {'min_pos': 0, 'max_pos': None, 'min_val': 0, 'max_val': None},
     # 'p_at': {'min_pos': 0, 'max_pos': None, 'min_val': 0, 'max_val': None},
-    'p_as': {'min_pos': 0, 'max_pos': None, 'min_val': None, 'max_val': None},
+    # 'p_as': {'min_pos': 0, 'max_pos': None, 'min_val': None, 'max_val': None},
 }
 
 # Specify which collective plots should be graphed
