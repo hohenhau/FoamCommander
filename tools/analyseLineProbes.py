@@ -12,7 +12,7 @@ import sys
 # ----- Define various constants ------------------------------------------------------------------------------------ #
 
 # Set the target directory
-SAMPLE_DIRECTORY = "/Users/alex/Downloads/sampleDict" # os.path.join(os.getcwd(), 'postProcessing/sampleDict')
+SAMPLE_DIRECTORY = os.path.join(os.getcwd(), 'postProcessing/sampleDict')
 
 # Specify names to be used in the plots
 FIELD_NAMES = {
