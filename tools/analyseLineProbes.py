@@ -246,29 +246,6 @@ def strip_probe_number(probe_name:str) -> str:
     return match.group(2) if match else probe_name
 
 
-def calculate_location_stats(probe_dfs: list[pd.DataFrame]) -> dict:
-    """
-    Calculate collective statistics (avg, std, cov) for each probe and each field.
-    Returns a nested dict: {"ProbeName": {"FieldName": {"avg": ..., "std": ..., "cov": ...}}}
-    """
-    location_stats = {}
-    for df in probe_dfs:
-        # ensure probe entry exists
-        probe_name = df.attrs.get("title", "title")
-        probe_name = strip_probe_number(probe_name)
-        if probe_name not in location_stats:
-            location_stats[probe_name] = {}
-        for field in df.columns:
-            # skip coordinates
-            if field in {"x", "y", "z", "xyz", "distance"}:
-                continue
-            avg = df[field].mean()
-            std = df[field].std()
-            cov = std / avg if avg != 0 else np.nan
-            location_stats[probe_name][field] = {"avg": avg, "std": std, "cov": cov}
-    return location_stats
-
-
 def categorise_ordered_and_unordered_probes(dfs: list[pd.DataFrame]) -> tuple[list[Any], list[Any]]:
     """Calculates the change across specific upstream and downstream probes"""
     # Specify the pattern that is used to differentiate between ordered an unordered probes
@@ -287,6 +264,29 @@ def categorise_ordered_and_unordered_probes(dfs: list[pd.DataFrame]) -> tuple[li
     ordered_dfs.sort(key=lambda x: x[0])
     unordered_dfs.sort(key=lambda x: x[0])
     return ordered_dfs, unordered_dfs
+
+
+def calculate_location_stats(probe_dfs: list[pd.DataFrame]) -> dict:
+    """
+    Calculate collective statistics (avg, std, cov) for each probe and each field.
+    Returns a nested dict: {"ProbeName": {"FieldName": {"avg": ..., "std": ..., "cov": ...}}}
+    """
+    location_stats = {}
+    for df in probe_dfs:
+        # ensure probe entry exists
+        probe_name = df.attrs.get("title", "title")
+        lookup_name = strip_probe_number(probe_name)
+        if probe_name not in location_stats:
+            location_stats[probe_name] = {"lookup_name": lookup_name, "fields": {}}
+        for field in df.columns:
+            # skip coordinates
+            if field in {"x", "y", "z", "xyz", "distance"}:
+                continue
+            avg = df[field].mean()
+            std = df[field].std()
+            cov = std / avg if avg != 0 else np.nan
+            location_stats[probe_name][field] = {"avg": avg, "std": std, "cov": cov}
+    return location_stats
 
 
 def find_component_pairs(dfs: list[tuple[any, pd.DataFrame, str]], density: float) -> set[str]:
@@ -340,21 +340,22 @@ def calculate_cross_component_stats(location_stats: dict, component_pairs: set, 
     return component_stats
 
 
-def plot_and_save_location_data(location_stats: dict, selected_fields: set, field_names: dict, directory:str):
+def plot_and_save_location_data(location_stats: dict, selected_fields: set, field_names: dict, directory: str):
     """Takes the location statistics and plots them on a bar graph and saves them as a CSV"""
     file_name_start = 'plot_overview_locations'
-    locations = list(location_stats.keys())
+    locations = list(location_stats.keys())  # original names preserved here
     plot_df = pd.DataFrame({"location": locations})
     for field in selected_fields:
         field_name = field_names.get(field, field)
         for suffix in ['avg', 'std', 'cov']:
-            values = list()
+            values = []
             for location, location_vals in location_stats.items():
-                if field not in location_vals:
+                fields = location_vals["fields"]
+                if field not in fields:
                     print(f'WARNING: field {field} not found at {location}')
                     values.append(np.nan)
                 else:
-                    values.append(location_vals[field][suffix])
+                    values.append(fields[field][suffix])
             # Plot current combination of field and suffix values for all locations
             plot_df[f'{field}_{suffix}'] = values
             prefix = field_names.get(suffix, f'{suffix} of')
@@ -368,14 +369,15 @@ def plot_and_save_location_data(location_stats: dict, selected_fields: set, fiel
     plot_df.to_csv(file_location, index=False)
 
 
-def plot_and_save_component_data(component_stats: dict, selected_fields: set, field_names: dict, directory:str):
+def plot_and_save_component_data(component_stats: dict, selected_fields: set, field_names: dict, directory: str):
     """Takes the Component statistics and plots them on a bar graph and saves them as a CSV"""
     file_name_start = 'plot_overview_components'
+    # Preserve original component names as they appear in component_stats
     components = list(component_stats.keys())
     plot_df = pd.DataFrame({"component": components})
     for field in selected_fields:
         field_name = field_names.get(field, field)
-        values = list()
+        values = []
         for component, component_vals in component_stats.items():
             if field not in component_vals:
                 print(f'WARNING: field {field} not found at {component}')
@@ -384,7 +386,7 @@ def plot_and_save_component_data(component_stats: dict, selected_fields: set, fi
                 values.append(component_vals[field])
         # Plot current field values for all components
         plot_df[field] = values
-        file_name = f'{directory}/{file_name_start}_{field}.png'
+        file_name = f'{file_name_start}_{field}.png'
         file_location = os.path.join(directory, file_name)
         plot_horizontal_bar_graph(components, values, field_name, field_name, file_location)
     # Save entire data frame to a CSV file
@@ -442,8 +444,9 @@ def main():
             calculate_actual_pressures(df, density)
             plot_flow_profiles(df, PROFILE_FIELDS, analysis_directory)
 
-        location_stats = calculate_location_stats(flow_data_dfs)
         ordered_dfs, unordered_dfs = categorise_ordered_and_unordered_probes(flow_data_dfs)
+        flow_data_dfs = ordered_dfs + unordered_dfs
+        location_stats = calculate_location_stats(flow_data_dfs)
         component_pairs = find_component_pairs(ordered_dfs, density)
         component_stats = calculate_cross_component_stats(location_stats, component_pairs, density, COMPONENT_FIELDS)
         plot_and_save_location_data(location_stats, LOCATION_FIELDS, FIELD_NAMES, analysis_directory)
