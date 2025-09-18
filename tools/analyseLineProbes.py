@@ -97,7 +97,7 @@ def load_csv_files_into_pandas(directory: str, probe_numbers_and_names: list[str
     for probe_number_and_name in probe_numbers_and_names:
         probe_path = os.path.join(directory, probe_number_and_name)
         print(f'Processing file: {probe_number_and_name.split("/")[-1]}')
-        df = pd.read_csv(probe_number_and_name)
+        df = pd.read_csv(probe_path)
         probe_number_and_name = os.path.splitext(os.path.basename(probe_path))[0].lstrip('_')
         probe_number, probe_name, match = strip_probe_number_and_name(probe_number_and_name)
         df.attrs['number_and_name'] = probe_number_and_name
