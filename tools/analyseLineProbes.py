@@ -84,20 +84,30 @@ def create_directory(path: str) -> None:
         print(f"Directory already exists: {path}")
 
 
-def load_csv_files_into_pandas(directory: str) -> list[pd.DataFrame]:
+def get_list_of_probe_names(directory: str) -> list[str]:
     """Import the probe data stored in various CSV files"""
     files = os.listdir(directory)
-    files = [os.path.join(directory, file) for file in files if file.endswith(".csv") and 'overview' not in file]
-    flow_data = list()
-    for file in files:
-        print(f'Processing file: {file.split("/")[-1]}')
-        df = pd.read_csv(file)
-        df.attrs['title'] = os.path.splitext(os.path.basename(file))[0].lstrip('_')
+    probe_names = [file for file in files if file.endswith(".csv") and 'overview' not in file]
+    return probe_names
+
+
+def load_csv_files_into_pandas(directory: str, probe_numbers_and_names: list[str]) -> list[pd.DataFrame]:
+    """Import the probe data stored in various probe CSV files"""
+    dfs = list()
+    for probe_number_and_name in probe_numbers_and_names:
+        probe_path = os.path.join(directory, probe_number_and_name)
+        print(f'Processing file: {probe_number_and_name.split("/")[-1]}')
+        df = pd.read_csv(probe_number_and_name)
+        probe_number_and_name = os.path.splitext(os.path.basename(probe_path))[0].lstrip('_')
+        probe_number, probe_name, match = strip_probe_number_and_name(probe_number_and_name)
+        df.attrs['number_and_name'] = probe_number_and_name
+        df.attrs['number'] = probe_number if match else None
+        df.attrs['name'] = probe_name
         # Rename the pressure columns to show it is actually kinematic static pressure
         df.rename(columns={"p": "p_ks"}, inplace=True)
         df.rename(columns={"total(p)": "p_kt"}, inplace=True)
-        flow_data.append(df)
-    return flow_data
+        dfs.append(df)
+    return dfs
 
 
 def delete_sample_dir_analysis() -> None:
@@ -132,6 +142,12 @@ def compress_sample_dir() -> None:
     finally:
         os.chdir(cwd)
 
+
+def strip_probe_number_and_name(probe_name:str) -> tuple[str, str, bool]:
+    """Strips the numbers from ordered probes"""
+    pattern = re.compile(r"^_?0*(\d+)_?(.*)")
+    match = pattern.match(probe_name)
+    return (match.group(1), match.group(2), True) if match else ('', probe_name, False)
 
 
 # ----- Calculate point data ---------------------------------------------------------------------------------------- #
@@ -188,9 +204,8 @@ def calculate_actual_pressures(df: pd.DataFrame, density: float):
 # ----- Plot point data --------------------------------------------------------------------------------------------- #
 
 def plot_flow_profiles(df: pd.DataFrame, fields: dict, directory: str):
-    # Get the name of the data frame
-    df_title = df.attrs.get("title", "plot")
-
+    """Plot the flow profiles for various flow fields from a pandas DataFrame"""
+    # Process the various output fields
     for field in fields.keys():
         # Ensure the field and a coordinate system is present
         if field not in df.columns:
@@ -222,15 +237,19 @@ def plot_flow_profiles(df: pd.DataFrame, fields: dict, directory: str):
             x_lim = y_lim
             y_lim = (y.min(), 0)
 
+        # Get the name of the data frame
+        df_number_and_name = df.attrs.get("number_and_name", "plot")
+
+        # Plot the profile data
         plt.figure(figsize=(FIG_WIDTH_PROFILE_MM / INCHES_TO_MM, FIG_HEIGHT_PROFILE_MM / INCHES_TO_MM))
         plt.plot(x, y, label=field)
         plt.xlabel(x_label)
         plt.ylabel(y_label)
         plt.xlim(x_lim)
         plt.ylim(y_lim)
-        plt.title(f"{df_title}")
+        plt.title(f"{df_number_and_name}")
         plt.grid(True)
-        filename = f"{directory}/profiles_{field}_{df_title}.png"
+        filename = f"{directory}/profiles_{field}_{df_number_and_name}.png"
         plt.savefig(filename, dpi=FIG_DPI, bbox_inches="tight")
         plt.close()
 
@@ -239,45 +258,37 @@ def plot_flow_profiles(df: pd.DataFrame, fields: dict, directory: str):
 
 # ----- Process collective data ------------------------------------------------------------------------------------- #
 
-def strip_probe_number(probe_name:str) -> str:
-    """Strips the numbers from ordered probes"""
-    pattern = re.compile(r"^_?0*(\d+)_?(.*)")
-    match = pattern.match(probe_name)
-    return match.group(2) if match else probe_name
-
-
-def categorise_ordered_and_unordered_probes(dfs: list[pd.DataFrame]) -> tuple[list[Any], list[Any]]:
-    """Calculates the change across specific upstream and downstream probes"""
-    # Specify the pattern that is used to differentiate between ordered an unordered probes
-    pattern = re.compile(r"^_?0*(\d+)_?(.*)")
+def categorise_ordered_and_unordered_probes(dfs: list[pd.DataFrame]) -> tuple[list[pd.DataFrame], list[pd.DataFrame]]:
+    """Split probes into ordered (numerically) and unordered (alphabetically), returning them in sorted order."""
     ordered_dfs, unordered_dfs = list(), list()
     for df in dfs:
-        df_title = df.attrs.get("title", "plot")
-        match = pattern.match(df_title)
-        if match:
-            num = int(match.group(1))
-            label = match.group(2)
-            ordered_dfs.append((num, df, label))
+        probe_number = df.attrs.get("probe_number")
+        probe_name = df.attrs.get("probe_name")
+
+        if probe_number is not None:
+            ordered_dfs.append((probe_number, df))
         else:
-            unordered_dfs.append((df_title, df, df_title))
-    # Sort the ordered data frames numerically and the unordered data frames alphabetically by their name
+            unordered_dfs.append((probe_name, df))
+    # Sort in place
     ordered_dfs.sort(key=lambda x: x[0])
     unordered_dfs.sort(key=lambda x: x[0])
+    # Strip away the key, return only DataFrames
+    ordered_dfs = [df for _, df in ordered_dfs]
+    unordered_dfs = [df for _, df in unordered_dfs]
     return ordered_dfs, unordered_dfs
 
 
-def calculate_location_stats(probe_dfs: list[tuple]) -> dict:
+def calculate_location_stats(dfs: list[pd.DataFrame]) -> dict:
     """
     Calculate collective statistics (avg, std, cov) for each probe and each field.
     Returns a nested dict: {"ProbeName": {"FieldName": {"avg": ..., "std": ..., "cov": ...}}}
     """
     location_stats = {}
-    for _, df, probe_name in probe_dfs:
+    for df in dfs:
         # ensure probe entry exists
-        probe_name = df.attrs.get("title", "title")
-        lookup_name = strip_probe_number(probe_name)
-        if probe_name not in location_stats:
-            location_stats[probe_name] = {"lookup_name": lookup_name, "fields": {}}
+        probe_number_and_name = df.attrs.get("number_and_name")
+        if probe_number_and_name not in location_stats:
+            location_stats[probe_number_and_name] = {}
         for field in df.columns:
             # skip coordinates
             if field in {"x", "y", "z", "xyz", "distance"}:
@@ -285,42 +296,42 @@ def calculate_location_stats(probe_dfs: list[tuple]) -> dict:
             avg = df[field].mean()
             std = df[field].std()
             cov = std / avg if avg != 0 else np.nan
-            location_stats[probe_name][field] = {"avg": avg, "std": std, "cov": cov}
+            location_stats[probe_number_and_name][field] = {"avg": avg, "std": std, "cov": cov}
     return location_stats
 
 
-def find_component_pairs(dfs: list[tuple[any, pd.DataFrame, str]], density: float) -> set[str]:
+def find_component_pairs(dfs: list[pd.DataFrame], density: float) -> list[tuple[str, str]]:
     """Pairs up line probes (i.e. Vanes_US and Vanes_DS) to determine the changes across them"""
-    # Only run if density is present
     if density is None:
         print('Cannot compute loss factor without density. Continuing...')
-        return set()
-    # Initiate upstream and downstream titles
-    ordered_dict = dict()
-    upstream_component = set()
-    downstream_component = set()
-    # Create a dictionary and sets of upstream and downstream data frames
-    for _, df, df_title in dfs:
-        ending = df_title.split("_")[-1]
-        stem = df_title.replace(f"_{ending}", "")
-        if ending.lower() == "us":
-            upstream_component.add(stem)
-            ordered_dict[f'{stem}_us'] = df
-        elif ending.lower() == "ds":
-            downstream_component.add(stem)
-            ordered_dict[f'{stem}_ds'] = df
-    # Find the data frames which form an upstream and downstream pair
-    component_pairs = upstream_component.intersection(downstream_component)
-    return component_pairs
+        return []
+    # Map the probe stem to the full name for later retrieval
+    upstream_components, downstream_components = dict(), dict()
+    for df in dfs:
+        probe_number_and_name = df.attrs.get("number_and_name")
+        probe_name = df.attrs.get("name")
+        ending = probe_number_and_name.split("_")[-1]
+        if ending.upper() == "US":
+            upstream_components[probe_name] = probe_number_and_name
+        elif ending.upper() == "DS":
+            downstream_components[probe_name] = probe_number_and_name
+    # Find the intersection of the keys (the core probe names).
+    paired_components = list()
+    common_names = set(upstream_components.keys()).intersection(downstream_components.keys())
+    for name in common_names:
+        upstream_full_name = upstream_components[name]
+        downstream_full_name = downstream_components[name]
+        paired_components.append((upstream_full_name, downstream_full_name))
+    return paired_components
 
 
-def calculate_cross_component_stats(location_stats: dict, component_pairs: set, density: float, fields: set) -> dict:
-    """Calculates cross component statisitcs such as pressure change or loss factor"""
+def calculate_cross_component_stats(location_stats: dict, pairs: list[tuple[str, str]], density: float,
+                                    fields: set) -> dict:
+    """Calculates cross component statistics such as pressure change or loss factor"""
     component_stats = dict()
-    for component in component_pairs:
+    for us_key, ds_key in pairs:
+        component = us_key.replace(us_key.split("_")[-1], '')
         component_stats[component] = dict()
-        us_key = f"{component}_US"
-        ds_key = f"{component}_DS"
         delta_p_kt = location_stats[us_key]['p_kt']['avg'] - location_stats[ds_key]['p_kt']['avg']
         component_stats[component]['delta_p_kt'] = delta_p_kt
         component_stats[component]['U_mag'] = location_stats[us_key]['U_mag']['avg']
@@ -336,26 +347,24 @@ def calculate_cross_component_stats(location_stats: dict, component_pairs: set, 
                 continue
             component_stats[component][f'delta_{field}'] = location_stats[us_key][field] - location_stats[ds_key][
                 field]
-
     return component_stats
 
 
-def plot_and_save_location_data(location_stats: dict, selected_fields: set, field_names: dict, directory: str):
+def plot_and_save_location_data(location_stats: dict, selected_fields: set, field_names: dict, directory:str):
     """Takes the location statistics and plots them on a bar graph and saves them as a CSV"""
     file_name_start = 'plot_overview_locations'
-    locations = list(location_stats.keys())  # original names preserved here
+    locations = list(location_stats.keys())
     plot_df = pd.DataFrame({"location": locations})
     for field in selected_fields:
         field_name = field_names.get(field, field)
         for suffix in ['avg', 'std', 'cov']:
-            values = []
+            values = list()
             for location, location_vals in location_stats.items():
-                fields = location_vals["fields"]
-                if field not in fields:
+                if field not in location_vals:
                     print(f'WARNING: field {field} not found at {location}')
                     values.append(np.nan)
                 else:
-                    values.append(fields[field][suffix])
+                    values.append(location_vals[field][suffix])
             # Plot current combination of field and suffix values for all locations
             plot_df[f'{field}_{suffix}'] = values
             prefix = field_names.get(suffix, f'{suffix} of')
@@ -369,15 +378,14 @@ def plot_and_save_location_data(location_stats: dict, selected_fields: set, fiel
     plot_df.to_csv(file_location, index=False)
 
 
-def plot_and_save_component_data(component_stats: dict, selected_fields: set, field_names: dict, directory: str):
+def plot_and_save_component_data(component_stats: dict, selected_fields: set, field_names: dict, directory:str):
     """Takes the Component statistics and plots them on a bar graph and saves them as a CSV"""
     file_name_start = 'plot_overview_components'
-    # Preserve original component names as they appear in component_stats
     components = list(component_stats.keys())
     plot_df = pd.DataFrame({"component": components})
     for field in selected_fields:
         field_name = field_names.get(field, field)
-        values = []
+        values = list()
         for component, component_vals in component_stats.items():
             if field not in component_vals:
                 print(f'WARNING: field {field} not found at {component}')
@@ -386,7 +394,7 @@ def plot_and_save_component_data(component_stats: dict, selected_fields: set, fi
                 values.append(component_vals[field])
         # Plot current field values for all components
         plot_df[field] = values
-        file_name = f'{file_name_start}_{field}.png'
+        file_name = f'{directory}/{file_name_start}_{field}.png'
         file_location = os.path.join(directory, file_name)
         plot_horizontal_bar_graph(components, values, field_name, field_name, file_location)
     # Save entire data frame to a CSV file
@@ -435,9 +443,12 @@ def main():
     density = get_density()
     delete_sample_dir_analysis()
     for timestep_directory in get_timestep_directories(SAMPLE_DIRECTORY):
-        flow_data_dfs = load_csv_files_into_pandas(timestep_directory)
+        # Carry out directory and file management and fetch relevant files
         analysis_directory = os.path.join(timestep_directory, 'analysis')
         create_directory(analysis_directory)
+        probe_names = get_list_of_probe_names(timestep_directory)
+        # Process the data across individual porbes
+        flow_data_dfs = load_csv_files_into_pandas(timestep_directory, probe_names)
         for df in flow_data_dfs:
             calculate_velocity_magnitude(df)
             calculate_kinematic_dynamic_and_total_pressures(df)
