@@ -12,7 +12,7 @@ import sys
 # ----- Define various constants ------------------------------------------------------------------------------------ #
 
 # Set the target directory
-SAMPLE_DIRECTORY = os.path.join(os.getcwd(), 'postProcessing/sampleDict')
+SAMPLE_DIRECTORY = "/Users/alex/Downloads/sampleDict" # os.path.join(os.getcwd(), 'postProcessing/sampleDict')
 
 # Specify names to be used in the plots
 FIELD_NAMES = {
@@ -46,7 +46,7 @@ PROFILE_FIELDS = {
     'p_at': {'min_pos': 0, 'max_pos': None, 'min_val': 0, 'max_val': None}}
 
 # Specify which collective plots should be graphed
-LOCATION_FIELDS = {'U_mag', 'delta_at'}
+LOCATION_FIELDS = {'U_mag', 'p_at'}
 
 # Specify which changing fields should be graphed
 COMPONENT_FIELDS = {'k_factor', 'delta_at'}
@@ -235,6 +235,13 @@ def plot_flow_profiles(df: pd.DataFrame, fields: dict, directory: str):
 
 # ----- Process collective data ------------------------------------------------------------------------------------- #
 
+def strip_probe_number(probe_name:str) -> str:
+    """Strips the numbers from ordered probes"""
+    pattern = re.compile(r"^_?0*(\d+)_?(.*)")
+    match = pattern.match(probe_name)
+    return match.group(2) if match else probe_name
+
+
 def calculate_location_stats(probe_dfs: list[pd.DataFrame]) -> dict:
     """
     Calculate collective statistics (avg, std, cov) for each probe and each field.
@@ -244,6 +251,7 @@ def calculate_location_stats(probe_dfs: list[pd.DataFrame]) -> dict:
     for df in probe_dfs:
         # ensure probe entry exists
         probe_name = df.attrs.get("title", "title")
+        probe_name = strip_probe_number(probe_name)
         if probe_name not in location_stats:
             location_stats[probe_name] = {}
         for field in df.columns:
@@ -309,12 +317,13 @@ def calculate_cross_component_stats(location_stats: dict, component_pairs: set, 
         component_stats[component] = dict()
         us_key = f"{component}_US"
         ds_key = f"{component}_DS"
-        component_stats[component]['delta_p_kt'] = location_stats[us_key]['p_kt'] - location_stats[ds_key]['p_kt']
-        component_stats[component]['U_mag'] = location_stats[us_key]['U_mag']
+        delta_p_kt = location_stats[us_key]['p_kt']['avg'] - location_stats[ds_key]['p_kt']['avg']
+        component_stats[component]['delta_p_kt'] = delta_p_kt
+        component_stats[component]['U_mag'] = location_stats[us_key]['U_mag']['avg']
         if 'p_at' not in location_stats[us_key] or 'p_at' not in location_stats[ds_key]:
             continue
-        u_mag = location_stats[us_key]['U_mag']
-        delta_p_at = location_stats[us_key]['p_at'] - location_stats[ds_key]['p_at']
+        u_mag = location_stats[us_key]['U_mag']['avg']
+        delta_p_at = location_stats[us_key]['p_at']['avg'] - location_stats[ds_key]['p_at']['avg']
         component_stats[component]['delta_p_at'] = delta_p_at
         component_stats[component]['k_factor'] = abs(delta_p_at / (0.5 * density * u_mag ** 2))
 
