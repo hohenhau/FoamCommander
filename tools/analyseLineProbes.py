@@ -263,7 +263,7 @@ def categorise_ordered_and_unordered_probes(dfs: list[pd.DataFrame]) -> tuple[li
         probe_number = df.attrs.get("number")
         probe_name = df.attrs.get("name")
         if probe_number is not None:
-            ordered_dfs.append((probe_number, df))
+            ordered_dfs.append((int(probe_number), df))
         else:
             unordered_dfs.append((probe_name, df))
     # Sort in place
