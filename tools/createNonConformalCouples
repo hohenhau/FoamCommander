@@ -1,0 +1,2 @@
+# Create Non-Conformal Couples from baffles
+createNonConformalCouples -overwrite 2>&1 | tee -a log.createNCC;
