@@ -30,7 +30,7 @@ def initialisation():
 def get_patch_type_from_patch_name(input_patch_name: str):
     """Determine the boundary type based the patch name. Needed for: 0/fields (e.g. 0/U)"""
     # Define the common and additional boundary types
-    common_patches = ['inlet', 'outlet', 'cyclic', 'empty', 'movingWallVelocity', 'MRFnoSlip', 'slip', 'symmetry']
+    common_patches = ['patch', 'inlet', 'outlet', 'cyclic', 'empty', 'movingWallVelocity', 'MRFnoSlip', 'slip', 'symmetry']
     common_patch_types = {boundary: boundary for boundary in common_patches}
     common_patch_types['atmosphere'] = 'inletOutlet'
     common_patch_types['mirror'] = 'symmetry'
