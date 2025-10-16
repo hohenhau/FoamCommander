@@ -31,7 +31,7 @@ patches
         name mirrorMax;               // name of new patch
         patchInfo {type symmetry;}    // type of new patch
         constructFrom patches;        // Options {'patches', 'set'}
-        patches (minY);               // name of old patches (can be blockmesh patches)
+        patches (maxY);               // name of old patches (can be blockmesh patches)
     }
 );
 
