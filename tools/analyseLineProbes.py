@@ -397,6 +397,7 @@ def plot_and_save_component_data(component_stats: dict, selected_fields: set, fi
     file_name_start = 'plot_overview_components'
     components = list(component_stats.keys())
     if not components:
+        print('No components found. Proceeding...')
         return
     plot_df = pd.DataFrame({"component": components})
     for field in selected_fields:
