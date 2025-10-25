@@ -33,8 +33,9 @@ FIELD_NAMES = {
     'k_factor': 'Loss Factor K',
     'distance': 'Distance (m)',
     'x': 'X-coordinate (m)',
-    'y': 'Depth (m)',
+    'y': 'Y-coordinate (m)',
     'z': 'Z-coordinate (m)',
+    'depth': 'Depth (m)',
     'avg': 'Average',
     'std': 'Standard Deviation of',
     'cov': 'Coefficient of Variation of'
