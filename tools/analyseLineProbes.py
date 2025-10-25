@@ -396,6 +396,8 @@ def plot_and_save_component_data(component_stats: dict, selected_fields: set, fi
     """Takes the Component statistics and plots them on a bar graph and saves them as a CSV"""
     file_name_start = 'plot_overview_components'
     components = list(component_stats.keys())
+    if not components:
+        return
     plot_df = pd.DataFrame({"component": components})
     for field in selected_fields:
         field_name = field_names.get(field, field)
