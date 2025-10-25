@@ -21,6 +21,7 @@ FIELD_NAMES = {
     'p_as': 'Static Pressure (Pa)',
     'p_at': 'Total Pressure (Pa)',
     'p_ad': 'Dynamic Pressure (Pa)',
+    'pol_ang': 'Polar angles of Velocity (deg)',
     'delta_p_ks': 'Change in Kinematic Static Pressure',
     'delta_p_kt': 'Change in Kinematic Total Pressure',
     'delta_p_kd': 'Change in Kinematic Dynamic Pressure',
@@ -45,7 +46,7 @@ PROFILE_FIELDS = {
 }
 
 # Specify which collective plots should be graphed
-LOCATION_FIELDS = {'U_mag', 'p_at'}
+LOCATION_FIELDS = {'U_mag', 'p_at', 'pol_ang'}
 
 # Specify which changing fields should be graphed
 COMPONENT_FIELDS = {'k_factor', 'delta_p_at'}
@@ -462,6 +463,7 @@ def main():
         flow_data_dfs = load_csv_files_into_pandas(timestep_directory, probe_names)
         for df in flow_data_dfs:
             calculate_velocity_magnitude(df)
+            calculate_polar_velocity_angles_in_degrees(df)
             calculate_kinematic_dynamic_and_total_pressures(df)
             calculate_actual_pressures(df, density)
             plot_flow_profiles(df, PROFILE_FIELDS, analysis_directory)
