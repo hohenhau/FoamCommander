@@ -21,7 +21,9 @@ FIELD_NAMES = {
     'p_as': 'Static Pressure (Pa)',
     'p_at': 'Total Pressure (Pa)',
     'p_ad': 'Dynamic Pressure (Pa)',
-    'pol_ang': 'Polar angles of Velocity (deg)',
+    'pol_ang_xy': 'Polar angles of Velocity (deg) in XY',
+    'pol_ang_xz': 'Polar angles of Velocity (deg) in XZ',
+    'pol_ang_yz': 'Polar angles of Velocity (deg) in YZ',
     'delta_p_ks': 'Change in Kinematic Static Pressure',
     'delta_p_kt': 'Change in Kinematic Total Pressure',
     'delta_p_kd': 'Change in Kinematic Dynamic Pressure',
@@ -46,7 +48,7 @@ PROFILE_FIELDS = {
 }
 
 # Specify which collective plots should be graphed
-LOCATION_FIELDS = {'U_mag', 'p_at', 'pol_ang'}
+LOCATION_FIELDS = {'U_mag', 'p_at', 'pol_ang_xy'}
 
 # Specify which changing fields should be graphed
 COMPONENT_FIELDS = {'k_factor', 'delta_p_at'}
@@ -186,7 +188,7 @@ def calculate_polar_velocity_angles_in_degrees(df: pd.DataFrame):
     for a, b in [(x_str, y_str), (x_str, z_str), (y_str, z_str)]:
         vel_a, vel_b = f'U_{a}', f'U_{b}'
         if vel_a in df.columns and vel_b in df.columns:
-            df[f'polar_angle_{a}{b}'] = np.degrees(np.arctan2(df[vel_b], df[vel_a]))
+            df[f'pol_ang_{a}{b}'] = np.degrees(np.arctan2(df[vel_b], df[vel_a]))
 
 
 def calculate_kinematic_dynamic_and_total_pressures(df: pd.DataFrame):
