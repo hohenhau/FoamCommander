@@ -179,6 +179,15 @@ def calculate_velocity_magnitude(df: pd.DataFrame):
         df['U_mag'] = np.sqrt((df[available] ** 2).sum(axis=1))
 
 
+def calculate_polar_velocity_angles_in_degrees(df: pd.DataFrame):
+    """Calculate the polar angle of various velocity planes"""
+    x_str, y_str, z_str = 'x', 'y', 'z'
+    for a, b in [(x_str, y_str), (x_str, z_str), (y_str, z_str)]:
+        vel_a, vel_b = f'U_{a}', f'U_{b}'
+        if vel_a in df.columns and vel_b in df.columns:
+            df[f'polar_angle_{a}{b}'] = np.degrees(np.arctan2(df[vel_b], df[vel_a]))
+
+
 def calculate_kinematic_dynamic_and_total_pressures(df: pd.DataFrame):
     """Calculate the kinematic dynamic and kinematic total pressure given a pandas dataFrame"""
     if 'U_mag' in df.columns and "p_ks" in df.columns:
