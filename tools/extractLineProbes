@@ -1,0 +1,2 @@
+# Extract line probes from sampleDict
+foamPostProcess -func sampleDict -latestTime 2>&1 | tee -a log.sampleDict;
