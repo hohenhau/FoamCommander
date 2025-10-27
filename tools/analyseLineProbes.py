@@ -234,12 +234,11 @@ def plot_flow_profiles(df: pd.DataFrame, fields: dict, directory: str):
         y_label = FIELD_NAMES.get(field, field)
 
         # Use provided limits, otherwise fallback to data min/max
-        padding = 0.05
-        y_range = y.max() - y.min()
+        padding = 0.05 * max(abs(y.max()), abs(y.min()))
         x_min = fields[field]["min_pos"] if fields[field]["min_pos"] is not None else x.min()
         x_max = fields[field]["max_pos"] if fields[field]["max_pos"] is not None else x.max()
-        y_min = fields[field]["min_val"] if fields[field]["min_val"] is not None else y.min() - y_range * padding
-        y_max = fields[field]["max_val"] if fields[field]["max_val"] is not None else y.max() + y_range * padding
+        y_min = fields[field]["min_val"] if fields[field]["min_val"] is not None else y.min() - padding
+        y_max = fields[field]["max_val"] if fields[field]["max_val"] is not None else y.max() + padding
         x_lim = (x_min, x_max)
         y_lim = (y_min, y_max)
 
