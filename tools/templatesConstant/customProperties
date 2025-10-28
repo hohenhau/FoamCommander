@@ -1,0 +1,42 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  www.openfoam.org
+    \\  /    A nd           | Version:  User generated
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      customProperties;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+// Base directory. Ensures that the simulation uses the correct properties
+directory  path/to/base/directory/;
+
+// Atmospheric pressure. Used to estimate boundary conditions and variables
+atmospheres  1.000;  // 1 atmosphere = 101,325 Pascals
+
+// Temperature in Celsius. Used to estimate boundary conditions and variables
+temperature  20.00;  // Temperature in Celsius
+
+// Kinematic viscosity of the fluid. Must be specified if fluid is unspecified
+nu  None;  // 'None' or a floating point number
+
+// Type of fluid. Used to calculate nu. Unused if nu is specified
+fluid  None;  // Options: {None, air, water}
+
+// Flow type used to estimate boundary conditions. 
+flowType  internal;  // Options: {internal, external}
+
+// Hydraulic diameter. Most be specified if flowType is internal
+hydraulicDiameter  1.000;  // Hydraulic diameter for internal flows 
+
+
+// ************************************************************************* //
