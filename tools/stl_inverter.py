@@ -23,7 +23,7 @@ def invert_stl_normals(input_path):
         print(f"Error: File '{input_path}' does not exist.")
         return False
     
-    # Check if file has .stl extension (case insensitive)
+    # Check if file has .stl extension (case-insensitive)
     if not input_path.lower().endswith(('.stl')):
         print(f"Error: '{input_path}' is not an STL file. File must have .stl extension.")
         return False

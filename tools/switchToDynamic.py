@@ -3,12 +3,13 @@
 import os
 import subprocess
 import sys
-import re
+
 
 def find_latest_timestep(directory):
     """Finds the largest numerical directory name inside a given directory."""
     timesteps = [d for d in os.listdir(directory) if d.replace('.', '', 1).isdigit() and float(d) > 0]
     return max(timesteps, key=float) if timesteps else None
+
 
 def switch_to_ncc():
   # Check if constant/triSurface exists

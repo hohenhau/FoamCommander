@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""Uses 7zip Compresses all files in a directory with the exception of processor folders"""
+"""Uses 7zip Compresses all files in a directory except for processor folders"""
 
 import os
 import subprocess

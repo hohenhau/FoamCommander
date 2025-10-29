@@ -5,9 +5,9 @@ import glob
 import shutil
 import sys
 
-def is_time_dir(dirname):
+def is_time_dir(dir_name):
     """Check if directory name is a time value (number or floating point)"""
-    return re.match(r'^[0-9]+(\.[0-9]+)?$', dirname) is not None
+    return re.match(r'^[0-9]+(\.[0-9]+)?$', dir_name) is not None
 
 def get_latest_time(proc_dir='processor0'):
     """Get the latest time directory from a reference processor directory"""

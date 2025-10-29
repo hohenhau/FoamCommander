@@ -3,8 +3,6 @@
 """Updates the 'dimensions' field from [] to [0 0 0 0 0 0 0] for ParaView compatibility"""
 
 import os
-import struct
-import numpy as np
 
 # Global Variables
 DESIRED_FIELDS = {'yPlus', 'Co'}
@@ -28,7 +26,7 @@ def update_dimensions(file_path: str):
     if start_index == -1:
         print(f"No 'dimensions' field found in {file_path}")
         return
-    # We need to know where the ']' corresponding to the 'dimensions' field is
+    # We need to know where the "]" corresponding to the 'dimensions' field is
     end_index = data.find(b'];', start_index)
     if end_index == -1:
         print(f"No closing '];' found for dimensions field in {file_path}")

@@ -1,1 +1,1 @@
-# Place holder to allow other files to access this folder
+# Placeholder to allow other files to access this folder

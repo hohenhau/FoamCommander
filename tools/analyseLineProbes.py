@@ -139,7 +139,7 @@ def compress_sample_dir() -> None:
     try:
         os.chdir(SAMPLE_DIRECTORY)
         subprocess.run(["foco", "compress"], check=True)
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         print(f'Could not compress {SAMPLE_DIRECTORY}')
     finally:
         os.chdir(cwd)
@@ -466,7 +466,7 @@ def main():
         analysis_directory = os.path.join(timestep_directory, 'analysis')
         create_directory(analysis_directory)
         probe_names = get_list_of_probe_names(timestep_directory)
-        # Process the data across individual porbes
+        # Process the data across individual probes
         flow_data_dfs = load_csv_files_into_pandas(timestep_directory, probe_names)
         for df in flow_data_dfs:
             calculate_velocity_magnitude(df)

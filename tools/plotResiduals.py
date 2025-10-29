@@ -7,7 +7,6 @@ Plots and CSV files are saved in the OpenFOAM standard 'postProcessing' director
 
 import re
 import matplotlib.pyplot as plt
-import numpy as np
 import os
 import sys
 import argparse
