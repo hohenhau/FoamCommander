@@ -112,11 +112,12 @@ class FlowMetrics:
     def calc_specific_turb_dissipation_rate(
             self,
             turb_kinetic_energy: float | None=None,
-            turbulent_length_scale: float | None=None) -> float:
+            turb_length_scale: float | None=None) -> float:
         """Calculates specific turbulent dissipation rate from turbulent kinetic energy and turbulent length scale"""
         model_function = 0.09
         turb_kinetic_energy = self.turb_kinetic_energy.value if turb_kinetic_energy is None else turb_kinetic_energy
-        return turb_kinetic_energy ** 0.5 / (model_function ** (1 / 4) * turbulent_length_scale)
+        turb_length_scale = self.turb_length_scale.value if turb_length_scale is None else turb_length_scale
+        return turb_kinetic_energy ** 0.5 / (model_function ** (1 / 4) * turb_length_scale)
 
 
     def calc_turb_viscosity_epsilon(
