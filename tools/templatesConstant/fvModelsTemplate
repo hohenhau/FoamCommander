@@ -31,7 +31,8 @@ FoamFile
         // EXAMPLE: F_openfoam = 2 x F_literature / density
         // FORMULATION: mu * D * U_component + 0.5 * rho * F * U_mag * U_component
         // Negative D terms are multiplied by -1 & 3e21 to create directional blockage
-        d   (3.0e6 -1e4 -1e4);  // (x y z) Darcy (viscous) term - proportional to velocity
+        // Values below are based on 7mm tube diameter hexagonally arranged honeycomb
+        d   (4.0e4 -1e4 -1e4);  // (x y z) Darcy (viscous) term - proportional to velocity
         f   (5.3e0    0    0);  // (x y z) Forchheimer (inertial) term - prop. to velocity^2
         coordinateSystem {#include "standardCoordinateSystem"}
     }
