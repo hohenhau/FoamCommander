@@ -123,7 +123,6 @@ addLayersControls
 
     // Advanced settings for the layer addition ---------------------------- //
 
-    // Static analysis of starting mesh
     featureAngle 100;              // was 100 | when not to extrude surface (0 = flat 90 = perpendicular faces
     slipFeatureAngle 30;           // was 30  | Angle above which mesh is allowed to slip at non-patch sides
     nRelaxIter 3;                  // was 3   | Max. snapping relaxation iterations (good mesh shouldnt reach this)
