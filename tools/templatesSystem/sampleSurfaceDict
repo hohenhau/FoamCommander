@@ -1,0 +1,100 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  www.openfoam.org
+    \\  /    A nd           | Version:  User generated
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      sampleSurfaceDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Execute with:
+// foamPostProcess -dict system/sampleSurfaceDict -latestTime
+
+    flowRate_Plane_II
+    {
+        type            surfaceFieldValue;
+        libs            ("libfieldFunctionObjects.so");
+        writeFields     false;
+
+        regionType      sampledSurface;
+        operation       areaNormalIntegrate;    // volumetric flow rate
+
+        fields          (U);
+
+        sampledSurfaceDict
+        {
+            type        triSurfaceMesh;
+            surface     "channel_II.stl";
+            source      cells;
+            interpolate true;
+        }
+    }
+
+    flowRate_Plane_MI
+    {
+        type            surfaceFieldValue;
+        libs            ("libfieldFunctionObjects.so");
+        writeFields     false;
+
+        regionType      sampledSurface;
+        operation       areaNormalIntegrate;
+        fields          (U);
+
+        sampledSurfaceDict
+        {
+            type        triSurfaceMesh;
+            surface     "channel_MI.stl";
+            source      cells;
+            interpolate true;
+        }
+    }
+
+    flowRate_Plane_MO
+    {
+        type            surfaceFieldValue;
+        libs            ("libfieldFunctionObjects.so");
+        writeFields     false;
+
+        regionType      sampledSurface;
+        operation       areaNormalIntegrate;
+        fields          (U);
+
+        sampledSurfaceDict
+        {
+            type        triSurfaceMesh;
+            surface     "channel_MO.stl";
+            source      cells;
+            interpolate true;
+        }
+    }
+
+    flowRate_Plane_OO
+    {
+        type            surfaceFieldValue;
+        libs            ("libfieldFunctionObjects.so");
+        writeFields     false;
+
+        regionType      sampledSurface;
+        operation       areaNormalIntegrate;
+        fields          (U);
+
+        sampledSurfaceDict
+        {
+            type        triSurfaceMesh;
+            surface     "channel_OO.stl";
+            source      cells;
+            interpolate true;
+        }
+    }
+
+// ************************************************************************* //
