@@ -4,7 +4,10 @@ import sys
 from utilities.parseArgs import detect_and_parse_arguments
 from utilities.classFlowMetrics import FlowMetrics
 
-def estimate_internal_fields(args=None):
+
+# TODO: Change this to use focoProperties
+
+def estimate_flow_metrics(args=None):
     """
     Creates flow metrics for CFD simulation. Uses arguments passed externally if available,
     otherwise calls detect_and_parse_arguments to get arguments.
@@ -23,4 +26,4 @@ def estimate_internal_fields(args=None):
 
 
 if __name__ == "__main__":
-    estimate_internal_fields()
+    estimate_flow_metrics()

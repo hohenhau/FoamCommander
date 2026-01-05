@@ -154,6 +154,8 @@ def strip_probe_number_and_name(probe_name:str) -> tuple[str, str, bool]:
 
 # ----- Calculate point data ---------------------------------------------------------------------------------------- #
 
+# TODO: Convert these to grab from the focoProperties
+
 def get_density():
     """Get the user input for fluid density to carry out pressure calculations for real pressure"""
     print("To calculate actual pressures, please enter the fluid density. For reference:")
