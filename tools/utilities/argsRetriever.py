@@ -2,6 +2,17 @@ from classFoamDictEditor import ClassFoamDictEditor
 from classFlowMetrics import FlowMetrics
 
 
+def get_positive_metric_input(prompt: str):
+    while True:
+        try:
+            metric = float(input(prompt))
+            if metric <= 0:
+                raise ValueError("Value must be positive")
+            return metric
+        except ValueError as e:
+            print(f"Invalid input: {e}")
+
+
 def check_or_add_custom_properties(dictionary: dict, key: str, message: str) -> dict:
     if key not in dictionary:
         print(message)

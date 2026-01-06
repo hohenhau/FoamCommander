@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+from argsRetriever import get_positive_metric_input
+
 class FlowMetric:
     """A class to define the attributes of a flow metric"""
     def __init__(self, name: str, symbol: str, value: float = None, unit: str = None, prompt: str = None):
@@ -15,16 +17,19 @@ class FlowMetrics:
 
     def __init__(self, args=None):
         # Initialize all metrics as FlowMetric objects
-        self.hydraulic_diameter = FlowMetric("Hydraulic Diameter", "D_h")
-        self.free_stream_velocity = FlowMetric("Freestream Velocity", "U_inf")
-        self.kinematic_viscosity = FlowMetric("Kinematic Viscosity", "nu")
-        self.reynolds_number = FlowMetric("Reynolds Number", "Re")
-        self.turb_intensity = FlowMetric("Turbulence Intensity", "I")
-        self.turb_kinetic_energy = FlowMetric("Turbulence Kinetic Energy", "k")
-        self.turb_length_scale = FlowMetric("Turbulence Length Scale", "l_t")
-        self.turb_dissipation_rate = FlowMetric("Turbulence Dissipation Rate", "epsilon")
-        self.specific_dissipation = FlowMetric("Specific Dissipation Rate", "omega")
-        self.turb_viscosity = FlowMetric("Turbulent Viscosity", "nu_t")
+        self.hydraulic_diameter =    FlowMetric(name="Hydraulic Diameter", symbol="D_h", unit="m")
+        self.free_stream_velocity =  FlowMetric(name="Freestream Velocity", symbol="U_inf", unit="m/s")
+        self.kinematic_viscosity =   FlowMetric(name="Kinematic Viscosity", symbol="nu", unit="m²/s")
+        self.reynolds_number =       FlowMetric(name="Reynolds Number", symbol="Re", unit="dimensionless")
+        self.turb_intensity =        FlowMetric(name="Turbulence Intensity", symbol="I", unit="dimensionless")
+        self.turb_kinetic_energy =   FlowMetric(name="Turbulence Kinetic Energy", symbol="k", unit="m²/s²")
+        self.turb_length_scale =     FlowMetric(name="Turbulence Length Scale", symbol="l_t", unit="m")
+        self.turb_dissipation_rate = FlowMetric(name="Turbulence Dissipation Rate", symbol="epsilon", unit="m²/s²")
+        self.specific_dissipation =  FlowMetric(name="Specific Dissipation Rate", symbol="omega", unit="1/s")
+        self.turb_viscosity =        FlowMetric(name="Turbulent Viscosity", symbol="nu_t", unit="m²/s")
+
+        self.kinematic_viscosity.prompt = ("Typical values for kinematic viscosity (m²/s):\n"
+                                           "  - Water: 0.000001\n  - Air: 0.0000148")
 
         if args is not None:
             self.initialise_user_arguments(args)
@@ -43,20 +48,6 @@ class FlowMetrics:
         self.turb_dissipation_rate.value  = args.turb_dissipation_rate
         self.specific_dissipation.value   = args.specific_dissipation
         self.turb_viscosity.value         = args.turb_viscosity
-
-
-    def collect_inputs(self):
-        """Get input values for any missing flow metrics"""
-
-        if self.hydraulic_diameter.value is None:
-            self.hydraulic_diameter.value = self.get_positive_metric("Enter the hydraulic diameter (m): ")
-
-        if self.free_stream_velocity.value is None:
-            self.free_stream_velocity.value = self.get_positive_metric("Enter the free stream velocity (m/s): ")
-
-        if self.kinematic_viscosity.value is None:
-            print("Typical values for Kinematic viscosity (m²/s):\n  - Water: 0.000001\n  - Air: 0.0000148")
-            self.kinematic_viscosity.value = self.get_positive_metric("Enter the kinematic viscosity (m²/s): ")
 
 
     def perform_boundary_calculations(self):
@@ -85,47 +76,51 @@ class FlowMetrics:
 
 
     @staticmethod
-    def prioritise_vals(func_arg: float | None, flow_metric: FlowMetric | None):
+    def retrieve_vals(func_arg: float | None, class_arg: FlowMetric | None):
+        """Method to prioritise and retrieve flow metrics"""
         if func_arg is not None:
             return func_arg
-        elif flow_metric is not None and flow_metric.value is not None:
-            return flow_metric.value
+        elif class_arg is not None and class_arg.value is not None:
+            return class_arg.value
         else:
-            print(flow_metric.prompt)
-        return None
+            if class_arg.prompt is not None:
+                print(class_arg.prompt)
+            return get_positive_metric_input(prompt=f"Enter the {class_arg.description} ({class_arg.unit}): ")
 
 
     def calc_reynolds_number(
             self,
-            length:float | None = None,
-            velocity: float | None = None,
+            turb_length_scale:float | None = None,
+            free_stream_velocity: float | None = None,
             kinematic_viscosity:float | None = None) -> float:
         """Calculates the Reynolds Number from kinematic_viscosity, velocity, and length scale"""
-        length = self.prioritise_vals(func_arg=length, val_class=self.hydraulic_diameter.value)
-        length = self.hydraulic_diameter.value if length is None else length
-        velocity = self.free_stream_velocity.value if velocity is None else velocity
-        kinematic_viscosity = self.kinematic_viscosity.value if kinematic_viscosity is None else kinematic_viscosity
-        return length * velocity / kinematic_viscosity
+        turb_length_scale = self.retrieve_vals(func_arg=turb_length_scale, class_arg=self.turb_length_scale)
+        free_stream_velocity = self.retrieve_vals(func_arg=free_stream_velocity, class_arg=self.free_stream_velocity)
+        kinematic_viscosity = self.retrieve_vals(func_arg=kinematic_viscosity, class_arg=self.kinematic_viscosity)
+        return turb_length_scale * free_stream_velocity / kinematic_viscosity
 
 
     def calc_turb_intensity(self, reynolds_number:float | None=None) -> float:
         """Calculates the turbulent intensity from the Reynold's number"""
         turb_coefficient = 0.16
-        reynolds_number = self.reynolds_number.value if reynolds_number is None else reynolds_number
+        reynolds_number = self.retrieve_vals(func_arg=reynolds_number, class_arg=self.reynolds_number)
         return turb_coefficient * reynolds_number ** (-1 / 8)
 
 
-    def calc_turb_kinetic_energy(self, velocity:float | None=None, turb_intensity:float | None=None) -> float:
+    def calc_turb_kinetic_energy(
+            self,
+            free_stream_velocity:float | None=None,
+            turb_intensity:float | None=None) -> float:
         """Calculates the turbulent kinetic energy from velocity and turbulent intensity"""
-        velocity = self.free_stream_velocity.value if velocity is None else velocity
-        turb_intensity = self.turb_intensity.value if turb_intensity is None else turb_intensity
-        return (3 / 2) * (velocity * turb_intensity) ** 2
+        free_stream_velocity = self.retrieve_vals(func_arg=free_stream_velocity, class_arg=self.free_stream_velocity)
+        turb_intensity = self.retrieve_vals(func_arg=turb_intensity, class_arg=self.turb_intensity)
+        return (3 / 2) * (free_stream_velocity * turb_intensity) ** 2
 
 
     def calc_turb_length_scale(self, hydraulic_diameter: float | None=None) -> float:
         """Calculates the turbulent length scale from the hydraulic diameter"""
         coefficient_for_pipe_flow = 0.07
-        hydraulic_diameter = self.hydraulic_diameter.value if hydraulic_diameter is None else hydraulic_diameter
+        hydraulic_diameter = self.retrieve_vals(func_arg=hydraulic_diameter, class_arg=self.hydraulic_diameter)
         return hydraulic_diameter * coefficient_for_pipe_flow
 
 
@@ -135,8 +130,8 @@ class FlowMetrics:
             turb_length_scale: float | None=None) -> float:
         """Calculates turbulent dissipation rate from turbulent kinetic energy and turbulent length scale"""
         model_function = 0.09
-        turb_kinetic_energy = self.turb_kinetic_energy.value if turb_kinetic_energy is None else turb_kinetic_energy
-        turb_length_scale = self.turb_length_scale.value if turb_length_scale is None else turb_length_scale
+        turb_kinetic_energy = self.retrieve_vals(func_arg=turb_kinetic_energy, class_arg=self.turb_kinetic_energy)
+        turb_length_scale = self.retrieve_vals(func_arg=turb_length_scale, class_arg=self.turb_length_scale)
         return model_function ** (3 / 4) * turb_kinetic_energy ** (3 / 2) / turb_length_scale
 
 
@@ -146,8 +141,8 @@ class FlowMetrics:
             turb_length_scale: float | None=None) -> float:
         """Calculates specific turbulent dissipation rate from turbulent kinetic energy and turbulent length scale"""
         model_function = 0.09
-        turb_kinetic_energy = self.turb_kinetic_energy.value if turb_kinetic_energy is None else turb_kinetic_energy
-        turb_length_scale = self.turb_length_scale.value if turb_length_scale is None else turb_length_scale
+        turb_kinetic_energy = self.retrieve_vals(func_arg=turb_kinetic_energy, class_arg=self.turb_kinetic_energy)
+        turb_length_scale = self.retrieve_vals(func_arg=turb_length_scale, class_arg=self.turb_length_scale)
         return turb_kinetic_energy ** 0.5 / (model_function ** (1 / 4) * turb_length_scale)
 
 
@@ -157,8 +152,8 @@ class FlowMetrics:
             turb_dis_rate: float | None=None) -> float:
         """Calculates turbulent viscosity from turbulent kinetic energy and turbulent dissipation rate"""
         model_function = 0.09
-        turb_kinetic_energy = self.turb_kinetic_energy.value if turb_kinetic_energy is None else turb_kinetic_energy
-        turb_dis_rate = self.turb_dissipation_rate.value if turb_dis_rate is None else turb_dis_rate
+        turb_kinetic_energy = self.retrieve_vals(func_arg=turb_kinetic_energy, class_arg=self.turb_kinetic_energy)
+        turb_dis_rate = self.retrieve_vals(func_arg=turb_dis_rate, class_arg=self.turb_dis_rate)
         return model_function * turb_kinetic_energy ** 2 / turb_dis_rate
 
 
@@ -216,15 +211,3 @@ class FlowMetrics:
 
         # Kinematic viscosity
         return mu / rho
-
-
-    @staticmethod
-    def get_positive_metric(prompt: str):
-        while True:
-            try:
-                metric = float(input(prompt))
-                if metric <= 0:
-                    raise ValueError("Value must be positive")
-                return metric
-            except ValueError as e:
-                print(f"Invalid input: {e}")
