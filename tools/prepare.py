@@ -25,7 +25,7 @@ if __name__ == "__main__":
     stl_formatter.format_stl_files()
     flow_metrics = estimate_flow_metrics(arguments)
     patch_names = load_stl_files(TRI_SURFACE_DIR)
-    generate_all_zero_files(patch_names, TEMPLATE_SYSTEM_DIR, ZERO_DIR, flow_metrics)
+    generate_all_zero_files(patch_names, TEMPLATE_BOUNDARY_DIR, ZERO_DIR, flow_metrics)
 
     generate_dict(patch_names, 'snappyHexMeshTemplate', TEMPLATE_SYSTEM_DIR,
                   'snappyHexMeshDict', SYSTEM_DIR, replace_snappy_hex_mesh_dict)
