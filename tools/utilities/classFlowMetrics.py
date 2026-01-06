@@ -65,12 +65,15 @@ class FlowMetrics:
 
 
     def __repr__(self):
-        """Custom print method for easy visualization of results"""
-        print('\nResulting flow metrics:')
-        return "\n".join(
-            f"{attr} ({getattr(self, attr).symbol}): {float('%.*g' % (3, getattr(self, attr).value))}"
-            for attr in vars(self) if isinstance(getattr(self, attr), FlowMetric)
-        )
+        """Custom string representation for easy visualization of results"""
+        lines = []
+        for attr in vars(self):
+            metric = getattr(self, attr)
+            if isinstance(metric, FlowMetric):
+                # Handle None values to avoid TypeError during formatting
+                formatted_val = "None" if metric.value is None else f"{metric.value: .3g}"
+                lines.append(f"{attr} ({metric.symbol}): {formatted_val}")
+        return "\n".join(lines)
 
     # ------------------- Calculation Methods -------------------
 
