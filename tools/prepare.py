@@ -2,7 +2,7 @@
 
 import stl_formatter
 from estimateInternalFields import estimate_flow_metrics
-from utilities.parseArgs import detect_and_parse_arguments
+from utilities.argsParser import detect_and_parse_arguments
 from utilities.prepareGenerator import *
 from utilities.prepareInitiator import *
 
@@ -21,7 +21,7 @@ CONSTANT_DIR = os.path.join(CURRENT_DIR, "constant")
 if __name__ == "__main__":
     print(f"\nPreparing case in directory: {CURRENT_DIR}")
     initialisation(TRI_SURFACE_DIR, ZERO_DIR)
-    arguments = detect_and_parse_arguments(sys)
+    arguments = detect_and_parse_arguments()
     stl_formatter.format_stl_files()
     flow_metrics = estimate_flow_metrics(arguments)
     patch_names = load_stl_files(TRI_SURFACE_DIR)

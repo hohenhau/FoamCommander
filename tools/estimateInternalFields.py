@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sys
-from utilities.parseArgs import detect_and_parse_arguments
+from utilities.argsParser import detect_and_parse_arguments
 from utilities.classFlowMetrics import FlowMetrics
 
 

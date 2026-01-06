@@ -2,7 +2,7 @@ import argparse
 import subprocess
 
 
-def detect_and_parse_arguments(sys):
+def detect_and_parse_arguments():
     """Parse command line arguments with custom validation and allow unknown arguments."""
 
     # Instantiate the parser with RawTextHelpFormatter to customize help message
@@ -45,3 +45,14 @@ def run_script_with_arguments(args, script_name):
     if result.returncode != 0:
         print("Error:", result.stderr)
     return result
+
+
+def get_positive_metric_input(prompt: str):
+    while True:
+        try:
+            metric = float(input(prompt))
+            if metric <= 0:
+                raise ValueError("Value must be positive")
+            return metric
+        except ValueError as e:
+            print(f"Invalid input: {e}")

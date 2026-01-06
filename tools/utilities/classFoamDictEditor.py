@@ -13,7 +13,7 @@ class ClassFoamDictEditor:
 
 
     @staticmethod
-    def parse_values(value:str):
+    def parse_values(value:str) -> bool | int | float | str | None:
         """Parses the value into None, a boolean, a float, an int, or a str"""
         if value.lower() in ("none", "na"):
             return None
@@ -30,7 +30,7 @@ class ClassFoamDictEditor:
         return value
 
 
-    def load_dict_entries(self):
+    def load_dict_entries(self) -> dict:
         # Get the text from the OpenFOAM dictionary
         text = self.foam_dict.read_text()
         # Remove /* block */ comments (multi-line safe)
@@ -96,3 +96,13 @@ class ClassFoamDictEditor:
             raise KeyError(f"Key '{key}' not found in dictionary")
         # Write output file back
         self.foam_dict.write_text("\n".join(new_lines) + "\n")
+
+
+    @staticmethod
+    def load_nu_from_transport_properties():
+        pass
+
+
+    @staticmethod
+    def overwrite_nu_in_transport_properties():
+        pass
