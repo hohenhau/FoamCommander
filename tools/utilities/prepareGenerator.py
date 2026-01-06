@@ -1,5 +1,5 @@
 import os
-from prepareReplacer import *
+from .prepareReplacer import *
 from .classFlowMetrics import FlowMetric, FlowMetrics
 
 
