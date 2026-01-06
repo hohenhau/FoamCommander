@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sys
-from .argsRetriever import get_positive_metric_input, get_valid_text_input
+from .userInputParser import get_positive_metric_input, get_valid_text_input
 
 class FlowMetric:
     """A class to define the attributes of a flow metric"""

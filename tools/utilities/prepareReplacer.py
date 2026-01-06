@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import re
 
 def get_patch_type_from_patch_name(input_patch_name: str):
