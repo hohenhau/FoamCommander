@@ -33,7 +33,7 @@ class FlowMetrics:
         self.turb_spec_dissip_rate = FlowMetric(name="Specific Dissipation Rate", symbol="omega", unit="1/s")
         self.turb_viscosity =        FlowMetric(name="Turbulent Viscosity", symbol="nu_t", unit="m²/s")
 
-        self.fluid_type.prompt = "Supported Fluids are: [water, air]"
+        self.fluid_type.prompt = "Supported Fluids are: water, air"
         self.freestream_pressure.prompt = "Typical atmospheric pressure is 101325 Pa"
         self.kinematic_viscosity.prompt = "Typical kinematic viscosity (m/s) is: \n- Water: 0.000001\n- Air: 0.0000148"
 
@@ -95,9 +95,8 @@ class FlowMetrics:
         else:
             if flow_metric.prompt is not None:
                 print(flow_metric.prompt)
-            user_input = get_positive_metric_input(prompt=f"Enter the {flow_metric.name} ({flow_metric.unit}): ")
-            flow_metric.value = user_input
-            return user_input
+            flow_metric.value = get_positive_metric_input(prompt=f"Enter the {flow_metric.name} ({flow_metric.unit}): ")
+            return flow_metric.value
 
 
     @staticmethod
@@ -110,9 +109,8 @@ class FlowMetrics:
         else:
             if flow_metric.prompt is not None:
                 print(flow_metric.prompt)
-            user_input = get_valid_text_input(prompt=f"Enter the {flow_metric.name}: ").lower()
-            flow_metric.kind = user_input
-            return user_input
+            flow_metric.kind = get_valid_text_input(prompt=f"Enter the {flow_metric.name}: ").lower()
+            return flow_metric.kind
 
 
     # ------------------- Calculation Methods -------------------
@@ -124,7 +122,7 @@ class FlowMetrics:
         """Calculates the kinematic viscosity based on the type of fluid and temperature"""
         fluid_type = self.choose_kind(func_arg=fluid_type, flow_metric=self.fluid_type)
         temperature = self.choose_val(func_arg=temperature, flow_metric=self.temperature)
-        if fluid_type.lower == "water":
+        if fluid_type.lower() == "water":
             kinematic_viscosity = self.calc_kinematic_viscosity_water(temperature)
         elif fluid_type.lower() == "air":
             freestream_pressure = self.choose_val(func_arg=freestream_pressure, flow_metric=self.freestream_pressure)
