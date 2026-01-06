@@ -1,0 +1,100 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  www.openfoam.org
+    \\  /    A nd           | Version:  User generated
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      sampleSurfaceDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Execute with:
+// foamPostProcess -dict system/sampleSurfaceDict -latestTime
+
+flowRate_Plane_A
+{
+    type            surfaceFieldValue;
+    libs            ("libfieldFunctionObjects.so");
+    writeFields     false;
+
+    regionType      sampledSurface;
+    operation       areaNormalIntegrate;    // volumetric flow rate
+
+    fields          (U);
+
+    sampledSurfaceDict
+    {
+        type        triSurfaceMesh;
+        surface     "channel_A.stl";
+        source      cells;
+        interpolate true;
+    }
+}
+
+flowRate_Plane_B
+{
+    type            surfaceFieldValue;
+    libs            ("libfieldFunctionObjects.so");
+    writeFields     false;
+
+    regionType      sampledSurface;
+    operation       areaNormalIntegrate;
+    fields          (U);
+
+    sampledSurfaceDict
+    {
+        type        triSurfaceMesh;
+        surface     "channel_B.stl";
+        source      cells;
+        interpolate true;
+    }
+}
+
+flowRate_Plane_C
+{
+    type            surfaceFieldValue;
+    libs            ("libfieldFunctionObjects.so");
+    writeFields     false;
+
+    regionType      sampledSurface;
+    operation       areaNormalIntegrate;
+    fields          (U);
+
+    sampledSurfaceDict
+    {
+        type        triSurfaceMesh;
+        surface     "channel_C.stl";
+        source      cells;
+        interpolate true;
+    }
+}
+
+flowRate_Plane_D
+{
+    type            surfaceFieldValue;
+    libs            ("libfieldFunctionObjects.so");
+    writeFields     false;
+
+    regionType      sampledSurface;
+    operation       areaNormalIntegrate;
+    fields          (U);
+
+    sampledSurfaceDict
+    {
+        type        triSurfaceMesh;
+        surface     "channel_D.stl";
+        source      cells;
+        interpolate true;
+    }
+}
+
+// ************************************************************************* //
