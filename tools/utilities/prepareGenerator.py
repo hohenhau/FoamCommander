@@ -126,7 +126,7 @@ def generate_all_zero_files(patch_names: list, template_dir: str, zero_dir: str,
         'omega': {'types': {'wall': 'epsilonWallFunction'},
                   'values': {'inlet': '$internalField', 'wall': 'uniform 1e5'},
                   # value for wall needs to be high (1e5 or 1e6)
-                  'internal_field': fm.specific_dissipation.value},
+                  'internal_field': fm.turb_spec_dissip_rate.value},
 
         'pointDisplacement': {'types': {'inlet': 'fixedValue', 'outlet': 'fixedValue', 'wall': 'fixedValue',
                                         'rotating': 'calculated', 'stationary': 'calculated'},

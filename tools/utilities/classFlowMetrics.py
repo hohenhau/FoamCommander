@@ -1,11 +1,13 @@
 #!/usr/bin/python
 
-from .argsRetriever import get_positive_metric_input
+import sys
+from .argsRetriever import get_positive_metric_input, get_valid_text_input
 
 class FlowMetric:
     """A class to define the attributes of a flow metric"""
-    def __init__(self, name: str, symbol: str, value: float = None, unit: str = None, prompt: str = None):
-        self.description = name
+    def __init__(self, name: str, kind: str = None, symbol: str = None, value: float = None, unit: str = None, prompt: str = None):
+        self.name = name
+        self.kind = kind
         self.symbol = symbol
         self.value = value
         self.unit = unit
@@ -17,19 +19,23 @@ class FlowMetrics:
 
     def __init__(self, args=None):
         # Initialize all metrics as FlowMetric objects
+        self.fluid_type =            FlowMetric(name="Type of Fluid")
         self.hydraulic_diameter =    FlowMetric(name="Hydraulic Diameter", symbol="D_h", unit="m")
-        self.free_stream_velocity =  FlowMetric(name="Freestream Velocity", symbol="U_inf", unit="m/s")
+        self.freestream_velocity =   FlowMetric(name="Freestream Velocity", symbol="U_inf", unit="m/s")
+        self.freestream_pressure =   FlowMetric(name="Freestream Pressure", symbol="P_inf", unit="Pa")
         self.kinematic_viscosity =   FlowMetric(name="Kinematic Viscosity", symbol="nu", unit="m²/s")
         self.reynolds_number =       FlowMetric(name="Reynolds Number", symbol="Re", unit="dimensionless")
+        self.temperature =           FlowMetric(name="Temperature", symbol="T", unit="°C")
         self.turb_intensity =        FlowMetric(name="Turbulence Intensity", symbol="I", unit="dimensionless")
         self.turb_kinetic_energy =   FlowMetric(name="Turbulence Kinetic Energy", symbol="k", unit="m²/s²")
         self.turb_length_scale =     FlowMetric(name="Turbulence Length Scale", symbol="l_t", unit="m")
         self.turb_dissipation_rate = FlowMetric(name="Turbulence Dissipation Rate", symbol="epsilon", unit="m²/s²")
-        self.specific_dissipation =  FlowMetric(name="Specific Dissipation Rate", symbol="omega", unit="1/s")
+        self.turb_spec_dissip_rate = FlowMetric(name="Specific Dissipation Rate", symbol="omega", unit="1/s")
         self.turb_viscosity =        FlowMetric(name="Turbulent Viscosity", symbol="nu_t", unit="m²/s")
 
-        self.kinematic_viscosity.prompt = ("Typical values for kinematic viscosity (m²/s):\n"
-                                           "  - Water: 0.000001\n  - Air: 0.0000148")
+        self.fluid_type.prompt = "Supported Fluids are: [water, air]"
+        self.freestream_pressure.prompt = "Typical atmospheric pressure is 101325 Pa"
+        self.kinematic_viscosity.prompt = "Typical kinematic viscosity (m/s) is: \n- Water: 0.000001\n- Air: 0.0000148"
 
         if args is not None:
             self.initialise_user_arguments(args)
@@ -39,14 +45,14 @@ class FlowMetrics:
     def initialise_user_arguments(self, args):
         # Initialise the user arguments
         self.hydraulic_diameter.value     = args.hydraulic_diameter
-        self.free_stream_velocity.value   = args.free_stream_velocity
+        self.freestream_velocity.value    = args.freestream_velocity
         self.kinematic_viscosity.value    = args.kinematic_viscosity
         self.reynolds_number.value        = args.reynolds_number
         self.turb_intensity.value         = args.turb_intensity
         self.turb_kinetic_energy.value    = args.turb_kinetic_energy
         self.turb_length_scale.value      = args.turb_length_scale
         self.turb_dissipation_rate.value  = args.turb_dissipation_rate
-        self.specific_dissipation.value   = args.specific_dissipation
+        self.turb_spec_dissip_rate.value  = args.turb_spec_dissip_rate
         self.turb_viscosity.value         = args.turb_viscosity
 
 
@@ -57,7 +63,7 @@ class FlowMetrics:
                         (self.turb_kinetic_energy, self.calc_turb_kinetic_energy),
                         (self.turb_length_scale, self.calc_turb_length_scale),
                         (self.turb_dissipation_rate, self.calc_turb_dissipation_rate),
-                        (self.specific_dissipation, self.calc_specific_turb_dissipation_rate),
+                        (self.turb_spec_dissip_rate, self.calc_specific_turb_dissipation_rate),
                         (self.turb_viscosity, self.calc_turb_viscosity_epsilon)]
         for flow_metric, calc_function in calculations:
             if flow_metric.value is None:
@@ -75,8 +81,8 @@ class FlowMetrics:
                 lines.append(f"{attr} ({metric.symbol}): {formatted_val}")
         return "\n".join(lines)
 
-    # ------------------- Calculation Methods -------------------
 
+    # ------------------- Selection Methods -------------------
 
     @staticmethod
     def choose_val(func_arg: float | None, flow_metric: FlowMetric | None):
@@ -88,9 +94,43 @@ class FlowMetrics:
         else:
             if flow_metric.prompt is not None:
                 print(flow_metric.prompt)
-            user_input = get_positive_metric_input(prompt=f"Enter the {flow_metric.description} ({flow_metric.unit}): ")
+            user_input = get_positive_metric_input(prompt=f"Enter the {flow_metric.name} ({flow_metric.unit}): ")
             flow_metric.value = user_input
             return user_input
+
+
+    @staticmethod
+    def choose_kind(func_arg: float | None, flow_metric: FlowMetric | None):
+        """Method to prioritise and retrieve flow metrics"""
+        if func_arg is not None:
+            return func_arg
+        elif flow_metric is not None and flow_metric.kind is not None:
+            return flow_metric.kind
+        else:
+            if flow_metric.prompt is not None:
+                print(flow_metric.prompt)
+            user_input = get_valid_text_input(prompt=f"Enter the {flow_metric.name}: ").lower()
+            flow_metric.kind = user_input
+            return user_input
+
+
+    # ------------------- Calculation Methods -------------------
+
+    def calc_kinematic_viscosity(
+            self, fluid_type: float | None = None,
+            temperature: float | None = None,
+            freestream_pressure: float | None = None) -> float:
+        """Calculates the kinematic viscosity based on the type of fluid and temperature"""
+        fluid_type = self.choose_kind(func_arg=fluid_type, flow_metric=self.fluid_type)
+        temperature = self.choose_val(func_arg=temperature, flow_metric=self.temperature)
+        if fluid_type.lower == "water":
+            kinematic_viscosity = self.calc_kinematic_viscosity_water(temperature)
+        elif fluid_type.lower() == "air":
+            freestream_pressure = self.choose_val(func_arg=freestream_pressure, flow_metric=self.freestream_pressure)
+            kinematic_viscosity = self.calc_kinematic_viscosity_air(temp_c=temperature, press_pa=freestream_pressure)
+        else:
+            sys.exit(f"Invalid fluid type: {fluid_type}")
+        return kinematic_viscosity
 
 
     def calc_reynolds_number(
@@ -100,7 +140,7 @@ class FlowMetrics:
             kinematic_viscosity:float | None = None) -> float:
         """Calculates the Reynolds Number from kinematic_viscosity, velocity, and length scale"""
         hydraulic_diameter = self.choose_val(func_arg=hydraulic_diameter, flow_metric=self.hydraulic_diameter)
-        free_stream_velocity = self.choose_val(func_arg=free_stream_velocity, flow_metric=self.free_stream_velocity)
+        free_stream_velocity = self.choose_val(func_arg=free_stream_velocity, flow_metric=self.freestream_velocity)
         kinematic_viscosity = self.choose_val(func_arg=kinematic_viscosity, flow_metric=self.kinematic_viscosity)
         return  hydraulic_diameter * free_stream_velocity / kinematic_viscosity
 
@@ -117,7 +157,7 @@ class FlowMetrics:
             free_stream_velocity:float | None=None,
             turb_intensity:float | None=None) -> float:
         """Calculates the turbulent kinetic energy from velocity and turbulent intensity"""
-        free_stream_velocity = self.choose_val(func_arg=free_stream_velocity, flow_metric=self.free_stream_velocity)
+        free_stream_velocity = self.choose_val(func_arg=free_stream_velocity, flow_metric=self.freestream_velocity)
         turb_intensity = self.choose_val(func_arg=turb_intensity, flow_metric=self.turb_intensity)
         return (3 / 2) * (free_stream_velocity * turb_intensity) ** 2
 
