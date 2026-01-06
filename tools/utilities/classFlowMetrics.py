@@ -58,7 +58,8 @@ class FlowMetrics:
 
     def perform_boundary_calculations(self):
         """Perform calculations only if the value is missing."""
-        calculations = [(self.reynolds_number, self.calc_reynolds_number),
+        calculations = [(self.kinematic_viscosity, self.calc_kinematic_viscosity),
+                        (self.reynolds_number, self.calc_reynolds_number),
                         (self.turb_intensity, self.calc_turb_intensity),
                         (self.turb_kinetic_energy, self.calc_turb_kinetic_energy),
                         (self.turb_length_scale, self.calc_turb_length_scale),
