@@ -19,7 +19,7 @@ def detect_and_parse_arguments():
     parser.add_argument("-turb_kinetic_energy", type=float, help="Turbulence kinetic energy")
     parser.add_argument("-turb_length_scale", type=float, help="Turbulence length scale")
     parser.add_argument("-turb_dissipation_rate", type=float, help="Turbulence dissipation rate")
-    parser.add_argument("-specific_dissipation", type=float, help="Specific dissipation rate")
+    parser.add_argument("-turb_spec_dissip_rate", type=float, help="Specific dissipation rate")
     parser.add_argument("-turb_viscosity", type=float, help="Turbulent viscosity")
 
     # Use parse_known_args() to ignore any extra arguments
