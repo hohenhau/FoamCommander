@@ -12,7 +12,7 @@ def detect_and_parse_arguments():
 
     # Define only lowercase arguments
     parser.add_argument("-hydraulic_diameter", type=float, help="Hydraulic diameter")
-    parser.add_argument("-free_stream_velocity", type=float, help="Free stream velocity")
+    parser.add_argument("-freestream_velocity", type=float, help="Free stream velocity")
     parser.add_argument("-kinematic_viscosity", type=float, help="Kinematic viscosity")
     parser.add_argument("-reynolds_number", type=float, help="Reynolds number")
     parser.add_argument("-turb_intensity", type=float, help="Turbulence intensity")
