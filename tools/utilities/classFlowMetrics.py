@@ -136,13 +136,13 @@ class FlowMetrics:
     def calc_reynolds_number(
             self,
             hydraulic_diameter:float | None = None,
-            free_stream_velocity: float | None = None,
+            freestream_velocity: float | None = None,
             kinematic_viscosity:float | None = None) -> float:
         """Calculates the Reynolds Number from kinematic_viscosity, velocity, and length scale"""
         hydraulic_diameter = self.choose_val(func_arg=hydraulic_diameter, flow_metric=self.hydraulic_diameter)
-        free_stream_velocity = self.choose_val(func_arg=free_stream_velocity, flow_metric=self.freestream_velocity)
+        freestream_velocity = self.choose_val(func_arg=freestream_velocity, flow_metric=self.freestream_velocity)
         kinematic_viscosity = self.choose_val(func_arg=kinematic_viscosity, flow_metric=self.kinematic_viscosity)
-        return  hydraulic_diameter * free_stream_velocity / kinematic_viscosity
+        return  hydraulic_diameter * freestream_velocity / kinematic_viscosity
 
 
     def calc_turb_intensity(self, reynolds_number:float | None=None) -> float:
@@ -154,12 +154,12 @@ class FlowMetrics:
 
     def calc_turb_kinetic_energy(
             self,
-            free_stream_velocity:float | None=None,
+            freestream_velocity:float | None=None,
             turb_intensity:float | None=None) -> float:
         """Calculates the turbulent kinetic energy from velocity and turbulent intensity"""
-        free_stream_velocity = self.choose_val(func_arg=free_stream_velocity, flow_metric=self.freestream_velocity)
+        freestream_velocity = self.choose_val(func_arg=freestream_velocity, flow_metric=self.freestream_velocity)
         turb_intensity = self.choose_val(func_arg=turb_intensity, flow_metric=self.turb_intensity)
-        return (3 / 2) * (free_stream_velocity * turb_intensity) ** 2
+        return (3 / 2) * (freestream_velocity * turb_intensity) ** 2
 
 
     def calc_turb_length_scale(self, hydraulic_diameter: float | None=None) -> float:
