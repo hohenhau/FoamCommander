@@ -76,16 +76,18 @@ class FlowMetrics:
 
 
     @staticmethod
-    def retrieve_vals(func_arg: float | None, class_arg: FlowMetric | None):
+    def choose_val(func_arg: float | None, flow_metric: FlowMetric | None):
         """Method to prioritise and retrieve flow metrics"""
         if func_arg is not None:
             return func_arg
-        elif class_arg is not None and class_arg.value is not None:
-            return class_arg.value
+        elif flow_metric is not None and flow_metric.value is not None:
+            return flow_metric.value
         else:
-            if class_arg.prompt is not None:
-                print(class_arg.prompt)
-            return get_positive_metric_input(prompt=f"Enter the {class_arg.description} ({class_arg.unit}): ")
+            if flow_metric.prompt is not None:
+                print(flow_metric.prompt)
+            user_input = get_positive_metric_input(prompt=f"Enter the {flow_metric.description} ({flow_metric.unit}): ")
+            flow_metric.value = user_input
+            return user_input
 
 
     def calc_reynolds_number(
@@ -94,16 +96,16 @@ class FlowMetrics:
             free_stream_velocity: float | None = None,
             kinematic_viscosity:float | None = None) -> float:
         """Calculates the Reynolds Number from kinematic_viscosity, velocity, and length scale"""
-        turb_length_scale = self.retrieve_vals(func_arg=turb_length_scale, class_arg=self.turb_length_scale)
-        free_stream_velocity = self.retrieve_vals(func_arg=free_stream_velocity, class_arg=self.free_stream_velocity)
-        kinematic_viscosity = self.retrieve_vals(func_arg=kinematic_viscosity, class_arg=self.kinematic_viscosity)
+        turb_length_scale = self.choose_val(func_arg=turb_length_scale, flow_metric=self.turb_length_scale)
+        free_stream_velocity = self.choose_val(func_arg=free_stream_velocity, flow_metric=self.free_stream_velocity)
+        kinematic_viscosity = self.choose_val(func_arg=kinematic_viscosity, flow_metric=self.kinematic_viscosity)
         return turb_length_scale * free_stream_velocity / kinematic_viscosity
 
 
     def calc_turb_intensity(self, reynolds_number:float | None=None) -> float:
         """Calculates the turbulent intensity from the Reynold's number"""
         turb_coefficient = 0.16
-        reynolds_number = self.retrieve_vals(func_arg=reynolds_number, class_arg=self.reynolds_number)
+        reynolds_number = self.choose_val(func_arg=reynolds_number, flow_metric=self.reynolds_number)
         return turb_coefficient * reynolds_number ** (-1 / 8)
 
 
@@ -112,15 +114,15 @@ class FlowMetrics:
             free_stream_velocity:float | None=None,
             turb_intensity:float | None=None) -> float:
         """Calculates the turbulent kinetic energy from velocity and turbulent intensity"""
-        free_stream_velocity = self.retrieve_vals(func_arg=free_stream_velocity, class_arg=self.free_stream_velocity)
-        turb_intensity = self.retrieve_vals(func_arg=turb_intensity, class_arg=self.turb_intensity)
+        free_stream_velocity = self.choose_val(func_arg=free_stream_velocity, flow_metric=self.free_stream_velocity)
+        turb_intensity = self.choose_val(func_arg=turb_intensity, flow_metric=self.turb_intensity)
         return (3 / 2) * (free_stream_velocity * turb_intensity) ** 2
 
 
     def calc_turb_length_scale(self, hydraulic_diameter: float | None=None) -> float:
         """Calculates the turbulent length scale from the hydraulic diameter"""
         coefficient_for_pipe_flow = 0.07
-        hydraulic_diameter = self.retrieve_vals(func_arg=hydraulic_diameter, class_arg=self.hydraulic_diameter)
+        hydraulic_diameter = self.choose_val(func_arg=hydraulic_diameter, flow_metric=self.hydraulic_diameter)
         return hydraulic_diameter * coefficient_for_pipe_flow
 
 
@@ -130,8 +132,8 @@ class FlowMetrics:
             turb_length_scale: float | None=None) -> float:
         """Calculates turbulent dissipation rate from turbulent kinetic energy and turbulent length scale"""
         model_function = 0.09
-        turb_kinetic_energy = self.retrieve_vals(func_arg=turb_kinetic_energy, class_arg=self.turb_kinetic_energy)
-        turb_length_scale = self.retrieve_vals(func_arg=turb_length_scale, class_arg=self.turb_length_scale)
+        turb_kinetic_energy = self.choose_val(func_arg=turb_kinetic_energy, flow_metric=self.turb_kinetic_energy)
+        turb_length_scale = self.choose_val(func_arg=turb_length_scale, flow_metric=self.turb_length_scale)
         return model_function ** (3 / 4) * turb_kinetic_energy ** (3 / 2) / turb_length_scale
 
 
@@ -141,20 +143,20 @@ class FlowMetrics:
             turb_length_scale: float | None=None) -> float:
         """Calculates specific turbulent dissipation rate from turbulent kinetic energy and turbulent length scale"""
         model_function = 0.09
-        turb_kinetic_energy = self.retrieve_vals(func_arg=turb_kinetic_energy, class_arg=self.turb_kinetic_energy)
-        turb_length_scale = self.retrieve_vals(func_arg=turb_length_scale, class_arg=self.turb_length_scale)
+        turb_kinetic_energy = self.choose_val(func_arg=turb_kinetic_energy, flow_metric=self.turb_kinetic_energy)
+        turb_length_scale = self.choose_val(func_arg=turb_length_scale, flow_metric=self.turb_length_scale)
         return turb_kinetic_energy ** 0.5 / (model_function ** (1 / 4) * turb_length_scale)
 
 
     def calc_turb_viscosity_epsilon(
             self,
             turb_kinetic_energy: float | None=None,
-            turb_dis_rate: float | None=None) -> float:
+            turb_dissipation_rate: float | None=None) -> float:
         """Calculates turbulent viscosity from turbulent kinetic energy and turbulent dissipation rate"""
         model_function = 0.09
-        turb_kinetic_energy = self.retrieve_vals(func_arg=turb_kinetic_energy, class_arg=self.turb_kinetic_energy)
-        turb_dis_rate = self.retrieve_vals(func_arg=turb_dis_rate, class_arg=self.turb_dis_rate)
-        return model_function * turb_kinetic_energy ** 2 / turb_dis_rate
+        turb_kinetic_energy = self.choose_val(func_arg=turb_kinetic_energy, flow_metric=self.turb_kinetic_energy)
+        turb_dissipation_rate = self.choose_val(func_arg=turb_dissipation_rate, flow_metric=self.turb_dissipation_rate)
+        return model_function * turb_kinetic_energy ** 2 / turb_dissipation_rate
 
 
     @staticmethod
