@@ -1,6 +1,6 @@
 import os
 from prepareReplacer import *
-from tools.utilities.classFlowMetrics import FlowMetric, FlowMetrics
+from .classFlowMetrics import FlowMetric, FlowMetrics
 
 
 def generate_dict(patch_names, template_name, template_dir, output_name, output_dir, replace_function):

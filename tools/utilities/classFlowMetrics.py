@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from tools.utilities.argsRetriever import get_positive_metric_input
+from .argsRetriever import get_positive_metric_input
 
 class FlowMetric:
     """A class to define the attributes of a flow metric"""

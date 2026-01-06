@@ -1,5 +1,5 @@
-from tools.utilities.classFoamDictEditor import ClassFoamDictEditor
-from tools.utilities.classFlowMetrics import FlowMetrics
+from .classFoamDictEditor import ClassFoamDictEditor
+from .classFlowMetrics import FlowMetrics
 
 
 def get_positive_metric_input(prompt: str):
