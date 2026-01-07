@@ -1,7 +1,37 @@
 #!/usr/bin/python
+from numpy.f2py.auxfuncs import throw_error
+import sys
 
 from .classFoamDictEditor import ClassFoamDictEditor
+from .classFlowMetrics import FlowMetrics, FlowMetric
 from .userInputParser import get_positive_metric_input
+
+
+def initiate_flow_metrics_from_custom_properties(file_path: str):
+
+    custom_properties = ClassFoamDictEditor(file_path).load_dict_entries()
+
+    if custom_properties["flowType"].lower == "external":
+        print("external flows are currently not supported")
+        sys.exit(1)
+
+    # Match the variables to the spelling within the custom dictionary
+    str_fluid_type = "fluidType"
+    str_freestream_velocity = "freestreamVelocity"
+    str_freestream_pressure = "freestreamPressure"
+    str_temperature = "temperature"
+    str_hydraulic_diameter = "hydraulicDiameter"
+
+    # Instantiate the flow metrics and add the values from the custom dictionary
+    flow_metrics = FlowMetrics()
+    flow_metrics.fluid_type.kind = custom_properties[str_fluid_type]
+    flow_metrics.freestream_velocity.value = custom_properties[str_freestream_velocity]
+    flow_metrics.freestream_pressure.value = custom_properties[str_freestream_pressure]
+    flow_metrics.temperature_c.value = custom_properties[str_temperature]
+    flow_metrics.hydraulic_diameter.value = custom_properties[str_hydraulic_diameter]
+
+
+
 
 
 def check_or_add_custom_properties(dictionary: dict, key: str, message: str) -> dict:

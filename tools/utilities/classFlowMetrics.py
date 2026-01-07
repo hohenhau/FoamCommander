@@ -19,19 +19,20 @@ class FlowMetrics:
 
     def __init__(self, args=None):
         # Initialize all metrics as FlowMetric objects
-        self.fluid_type =            FlowMetric(name="Type of Fluid")
-        self.hydraulic_diameter =    FlowMetric(name="Hydraulic Diameter", symbol="D_h", unit="m")
-        self.freestream_velocity =   FlowMetric(name="Freestream Velocity", symbol="U_inf", unit="m/s")
-        self.freestream_pressure =   FlowMetric(name="Freestream Pressure", symbol="P_inf", unit="Pa")
-        self.kinematic_viscosity =   FlowMetric(name="Kinematic Viscosity", symbol="nu", unit="m²/s")
-        self.reynolds_number =       FlowMetric(name="Reynolds Number", symbol="Re", unit="dimensionless")
-        self.temperature =           FlowMetric(name="Temperature", symbol="T", unit="°C")
-        self.turb_intensity =        FlowMetric(name="Turbulence Intensity", symbol="I", unit="dimensionless")
-        self.turb_kinetic_energy =   FlowMetric(name="Turbulence Kinetic Energy", symbol="k", unit="m²/s²")
-        self.turb_length_scale =     FlowMetric(name="Turbulence Length Scale", symbol="l_t", unit="m")
-        self.turb_dissipation_rate = FlowMetric(name="Turbulence Dissipation Rate", symbol="epsilon", unit="m²/s²")
+        self.fluid_type            = FlowMetric(name="Type of Fluid")
+        self.hydraulic_diameter    = FlowMetric(name="Hydraulic Diameter", symbol="D_h", unit="m")
+        self.freestream_velocity   = FlowMetric(name="Freestream Velocity", symbol="U_inf", unit="m/s")
+        self.freestream_pressure   = FlowMetric(name="Freestream Pressure", symbol="P_inf", unit="Pa")
+        self.kinematic_viscosity   = FlowMetric(name="Kinematic Viscosity", symbol="nu", unit="m²/s")
+        self.reynolds_number       = FlowMetric(name="Reynolds Number", symbol="Re", unit="dimensionless")
+        self.temperature_c         = FlowMetric(name="Temperature", symbol="T", unit="°C")
+        self.density               = FlowMetric(name="Density", symbol="⍴", unit="kg/m³")
+        self.turb_intensity        = FlowMetric(name="Turbulence Intensity", symbol="I", unit="dimensionless")
+        self.turb_kinetic_energy   = FlowMetric(name="Turbulence Kinetic Energy", symbol="k", unit="m²/s²")
+        self.turb_length_scale     = FlowMetric(name="Turbulence Length Scale", symbol="l_t", unit="m")
+        self.turb_dissipation_rate = FlowMetric(name="Turbulence Dissipation Rate", symbol="epsilon", unit="m²/s³")
         self.turb_spec_dissip_rate = FlowMetric(name="Specific Dissipation Rate", symbol="omega", unit="1/s")
-        self.turb_viscosity =        FlowMetric(name="Turbulent Viscosity", symbol="nu_t", unit="m²/s")
+        self.turb_viscosity        = FlowMetric(name="Turbulent Viscosity", symbol="nu_t", unit="m²/s")
 
         self.fluid_type.prompt = "Supported Fluids are: water, air"
         self.freestream_pressure.prompt = "Typical atmospheric pressure is 101325 Pa"
@@ -39,7 +40,6 @@ class FlowMetrics:
 
         if args is not None:
             self.initialise_user_arguments(args)
-        self.perform_boundary_calculations()
 
 
     def initialise_user_arguments(self, args):
@@ -58,7 +58,8 @@ class FlowMetrics:
 
     def perform_boundary_calculations(self):
         """Perform calculations only if the value is missing."""
-        calculations = [(self.kinematic_viscosity, self.calc_kinematic_viscosity),
+        calculations = [(self.density, self.calc_density),
+                        (self.kinematic_viscosity, self.calc_kinematic_viscosity),
                         (self.reynolds_number, self.calc_reynolds_number),
                         (self.turb_intensity, self.calc_turb_intensity),
                         (self.turb_kinetic_energy, self.calc_turb_kinetic_energy),
@@ -115,18 +116,35 @@ class FlowMetrics:
 
     # ------------------- Calculation Methods -------------------
 
+
+    def calc_density(
+            self, fluid_type: float | None = None,
+            temperature_c: float | None = None,
+            freestream_pressure: float | None = None) -> float:
+        """Calculates the density of the fluid"""
+        fluid_type = self.choose_kind(func_arg=fluid_type, flow_metric=self.fluid_type)
+        temperature_c = self.choose_val(func_arg=temperature_c, flow_metric=self.temperature_c)
+        if fluid_type.lower() == "water":
+            density = self.calc_density_water(temperature_c)
+        elif fluid_type.lower() == "air":
+            density = self.calc_density_air(temp_c=temperature_c, freestream_pressure=freestream_pressure)
+        else:
+            sys.exit(f"Invalid fluid type: {fluid_type}")
+        return density
+
+
     def calc_kinematic_viscosity(
             self, fluid_type: float | None = None,
-            temperature: float | None = None,
+            temperature_c: float | None = None,
             freestream_pressure: float | None = None) -> float:
         """Calculates the kinematic viscosity based on the type of fluid and temperature"""
         fluid_type = self.choose_kind(func_arg=fluid_type, flow_metric=self.fluid_type)
-        temperature = self.choose_val(func_arg=temperature, flow_metric=self.temperature)
+        temperature_c = self.choose_val(func_arg=temperature_c, flow_metric=self.temperature_c)
         if fluid_type.lower() == "water":
-            kinematic_viscosity = self.calc_kinematic_viscosity_water(temperature)
+            kinematic_viscosity = self.calc_kinematic_viscosity_water(temperature_c)
         elif fluid_type.lower() == "air":
             freestream_pressure = self.choose_val(func_arg=freestream_pressure, flow_metric=self.freestream_pressure)
-            kinematic_viscosity = self.calc_kinematic_viscosity_air(temp_c=temperature, press_pa=freestream_pressure)
+            kinematic_viscosity = self.calc_kinematic_viscosity_air(temp_c=temperature_c, press_pa=freestream_pressure)
         else:
             sys.exit(f"Invalid fluid type: {fluid_type}")
         return kinematic_viscosity
@@ -201,57 +219,71 @@ class FlowMetrics:
         return model_function * turb_kinetic_energy ** 2 / turb_dissipation_rate
 
 
-    @staticmethod
-    def calc_kinematic_viscosity_air(temp_c: float, press_pa: float | None = None,
-                                     press_atmos: float | None = None) -> float:
-        """Compute kinematic viscosity of air (ν) from temperature (C) and pressure (Pa or atmospheres)"""
+    # ------------------- Air Calculation Methods -------------------
 
-        # Validate pressure inputs
-        if press_pa is not None and press_atmos is not None:
-            raise ValueError("Specify pressure in either pascals OR atmospheres, not both.")
-        if press_pa is None and press_atmos is None:
-            raise ValueError("Must specify pressure in either pascals or atmospheres.")
-
-        # Convert pressure if needed
-        if press_atmos is not None:
-            press_pa = press_atmos * 101325.0
-
+    def calc_density_air(self, temp_c: float, freestream_pressure: float | None = None) -> float:
+        # Validate inputs
+        temp_c = self.choose_val(func_arg=temp_c, flow_metric=self.temperature_c)
+        freestream_pressure = self.choose_val(func_arg=freestream_pressure, flow_metric=self.freestream_pressure)
         # Celsius to Kelvin conversion
         c_to_k = 273.15
         temp_k = temp_c + c_to_k
-
         # Specific gas constant for dry air - J/(kg·K)
         r_air = 287.058
+        # Density from ideal gas equation
+        density = freestream_pressure / (r_air * temp_k)
+        return density
 
+        
+    def calc_dynamic_viscosity_air(self, temp_c: float) -> float:
+        """Dynamic viscosity approximation for air (Pa·s)"""
+        # Celsius to Kelvin conversion
+        temp_c = self.choose_val(func_arg=temp_c, flow_metric=self.temperature_c)
+        c_to_k = 273.15
+        temp_k = temp_c + c_to_k
         # Use Sutherland's law for dynamic viscosity and ideal gas relation for density.
         # Sutherland constants for air
         mu_0 = 1.716e-5  # reference dynamic viscosity at temp_0 (Pa·s)
-        temp_0 = c_to_k  # reference temperature (K)
         c_sutherland = 111.0  # Sutherland constant (K)
-
         # Dynamic viscosity via Sutherland's law
-        mu = mu_0 * ((temp_k / temp_0) ** 1.5) * (temp_0 + c_sutherland) / (temp_k + c_sutherland)
+        dynamic_viscosity = mu_0 * ((temp_k / c_to_k) ** 1.5) * (c_to_k + c_sutherland) / (temp_k + c_sutherland)
+        return dynamic_viscosity
 
-        # Density from ideal gas equation
-        rho = press_pa / (r_air * temp_k)
 
+    def calc_kinematic_viscosity_air(self, temp_c: float, press_pa: float | None = None) -> float:
+        """Compute kinematic viscosity of air (ν) from temperature (C) and pressure (Pa)"""
+        # Dynamic viscosity (Pa·s) and density approximation for water (kg/m^3)
+        density = self.calc_density_air(temp_c, press_pa)
+        dynamic_viscosity = self.calc_dynamic_viscosity_air(temp_c)
         # Kinematic viscosity
-        return mu / rho
+        return dynamic_viscosity / density
 
 
-    @staticmethod
-    def calc_kinematic_viscosity_water(temp_c: float) -> float:
-        """Compute kinematic viscosity of liquid water (ν) from temperature (C)"""
+    # ------------------- Water Calculation Methods -------------------
 
-        # Check that the temperature is between 0 and 100 Celsius
+    def calc_density_water(self, temp_c: float) -> float:
+        """Density approximation for water (kg/m^3)"""
+        temp_c = self.choose_val(func_arg=temp_c, flow_metric=self.temperature_c)
+        # Ensure to choose the correct density and check that the temperature is between 0 and 100 Celsius
         if not 0 < temp_c < 100:
             raise ValueError('Temperature must be between 0 and 100')
+        density = 1000 * (1 - (temp_c + 288.9414) / (508929.2 * (temp_c + 68.12963)) * (temp_c - 3.9863) ** 2)
+        return density
 
-        # Dynamic viscosity approximation for water (Pa·s)
-        mu = 2.414e-5 * 10 ** (247.8 / (temp_c + 133.15))
 
-        # Density approximation for water (kg/m^3)
-        rho = 1000 * (1 - (temp_c + 288.9414) / (508929.2 * (temp_c + 68.12963)) * (temp_c - 3.9863) ** 2)
+    def calc_dynamic_viscosity_water(self, temp_c: float) -> float:
+        """Dynamic viscosity approximation for water (Pa·s)"""
+        # Ensure to choose the correct density and check that the temperature is between 0 and 100 Celsius
+        temp_c = self.choose_val(func_arg=temp_c, flow_metric=self.temperature_c)
+        if not 0 < temp_c < 100:
+            raise ValueError('Temperature must be between 0 and 100')
+        dynamic_viscosity = 2.414e-5 * 10 ** (247.8 / (temp_c + 133.15))
+        return dynamic_viscosity
 
-        # Kinematic viscosity
-        return mu / rho
+
+    def calc_kinematic_viscosity_water(self, temp_c: float) -> float:
+        """Compute kinematic viscosity of liquid water (ν) from temperature (C)"""
+        # Dynamic viscosity (Pa·s) and density approximation for water (kg/m^3)
+        dynamic_viscosity = self.calc_dynamic_viscosity_water(temp_c)
+        density = self.calc_density_water(temp_c)
+        return dynamic_viscosity / density

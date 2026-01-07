@@ -2,7 +2,7 @@
 
 import stl_formatter
 from estimateInternalFields import estimate_flow_metrics
-from utilities.argsParser import detect_and_parse_arguments
+from utilities.commandLineArgsParser import detect_and_parse_arguments
 from utilities.prepareGenerator import *
 from utilities.prepareInitiator import *
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sys
-from utilities.argsParser import detect_and_parse_arguments
+from utilities.commandLineArgsParser import detect_and_parse_arguments
 from utilities.classFlowMetrics import FlowMetrics
 
 
@@ -17,7 +17,7 @@ def estimate_flow_metrics(args=None):
     """
     # If args are not passed, use the detect_and_parse_arguments function to retrieve them
     if not args:
-        args = detect_and_parse_arguments(sys)  # This will handle the argument parsing
+        args = detect_and_parse_arguments()  # This will handle the argument parsing
 
     # Create FlowMetrics object using the arguments
     flow_metrics = FlowMetrics(args)
