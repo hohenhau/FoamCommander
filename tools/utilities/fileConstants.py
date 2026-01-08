@@ -18,5 +18,8 @@ PROCESSOR_0_DIR = os.path.join(BASE_DIR, "processor0")
 SAMPLE_DIR = os.path.join(BASE_DIR, "postProcessing", "sampleDict")
 RESIDUALS_DIR = os.path.join(BASE_DIR, "postProcessing", "sampleDict")
 
+# Specify common file paths
+CUSTOM_PROPERTY_FILE_PATH = os.path.join(CONSTANT_DIR, "customProperties")
+
 
 
