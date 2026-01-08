@@ -18,7 +18,7 @@ def overwrite_custom_property_directory():
     # os.path.basename gets the last component (e.g., 'path/to/dir' -> 'dir')
     new_directory = os.path.basename(os.path.normpath(BASE_DIR))
     print(f"Overwriting old directory ({old_directory}) with current directory ({new_directory})")
-    fde.set_value('directory', new_directory)
+    fde.set_value(key='directory', new_value=new_directory)
 
 
 if __name__ == "__main__":

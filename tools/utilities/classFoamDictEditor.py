@@ -90,7 +90,7 @@ class FoamDictEditor:
         """
         self.entries[key] = new_value
         text = self._read_file()
-        pattern = self._get_entry_regex(key)
+        pattern = self._get_entry_regex(self, key)
 
         if not pattern.search(text):
             sys.exit(f"Error: Key '{key}' not found in {self.foam_dict}. Exiting.")
