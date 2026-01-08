@@ -54,7 +54,7 @@ def get_final_path_components(path: str) -> str:
 
 # ----- File Handler ------------------------------------------------------------------------------------------------- #
 
-def check_file_exists(path:str, file_name:str):
+def check_file_exists(path:str):
     """Check if a specified file exists"""
     if not os.path.isfile(path):
         print(f"Error: No file not found at {path}")
@@ -87,7 +87,7 @@ def get_list_of_files(path: str, suffix: str = "", contains: str = "") -> list[s
 def check_and_create_file(file_directory: str, file_name: str, template_file_path: str) -> None:
     """Checks if a file exists and if not, creates if from a template"""
     check_directory_exists(file_directory)
-    check_directory_exists(template_file_path)
+    check_file_exists(template_file_path)
     file_path = os.path.join(file_directory, file_name)
     if not os.path.isfile(file_path):
         shutil.copy2(template_file_path, file_path)
