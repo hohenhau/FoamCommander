@@ -7,10 +7,10 @@ import pandas as pd
 import re
 import shutil
 import subprocess
-import sys
 
 from utilities.fileHandler import check_directory_exists, create_directory, get_list_of_directories
-from utilities.fileConstants import SAMPLE_DIR
+from utilities.classFoamDictEditor import FoamDictEditor
+from utilities.fileConstants import SAMPLE_DIR, CUSTOM_PROPERTY_FILE_PATH
 
 # ----- Define various constants ------------------------------------------------------------------------------------ #
 
@@ -139,6 +139,10 @@ def strip_probe_number_and_name(probe_name:str) -> tuple[str, str, bool]:
 
 def get_density():
     """Get the user input for fluid density to carry out pressure calculations for real pressure"""
+    fde = FoamDictEditor(CUSTOM_PROPERTY_FILE_PATH)
+    density = fde.get_value('density')
+    if density is None:
+        return density
     print("To calculate actual pressures, please enter the fluid density. For reference:")
     print("Density of water is: 999.19 (15°C), 998.29 (20°C), 997.13 (25°C), 995.71 (30°C)")
     print("Density of air is:   1.2250 (15°C), 1.2041 (20°C), 1.1839 (25°C), 1.1644 (30°C)")
