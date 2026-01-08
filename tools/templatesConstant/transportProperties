@@ -41,13 +41,15 @@ BirdCarreauCoeffs  // Only used for non-Newtonian transport Models
 
 /*--------------------------*- Reference Values -*---------------------------*\
 
-nu   nu [ 0 2 -1 0 0 0 0 ] 1.004e-06;    // kinematic viscosity of water at 20C
-nu   nu [ 0 2 -1 0 0 0 0 ] 8.927e-07;    // kinematic viscosity of water at 25C
-nu   nu [ 0 2 -1 0 0 0 0 ] 8.007e-07;    // kinematic viscosity of water at 30C
-
-nu   nu [ 0 2 -1 0 0 0 0 ] 1.271e-05;    // kinematic viscosity of air at 20C
-nu   nu [ 0 2 -1 0 0 0 0 ] 1.295e-05;    // kinematic viscosity of air at 25C
-nu   nu [ 0 2 -1 0 0 0 0 ] 1.319e-05;    // kinematic viscosity of air at 30C
+                Fluid | Temperature (C) | Kinematic viscosity
+                ---------------------------------------------
+                Water |              20 |           1.004e-06
+                Water |              25 |           8.927e-07
+                Water |              30 |           8.007e-07
+                ---------------------------------------------
+                Air   |              20 |           1.271e-05
+                Air   |              25 |           1.295e-05
+                Air   |              30 |           1.319e-05
 
 \*---------------------------------------------------------------------------*/
 
