@@ -41,12 +41,16 @@ def get_list_of_directories(path: str) -> list[str]:
     return sorted([os.path.join(path, dir) for dir in os.listdir(path) if os.path.isdir(os.path.join(path, dir))])
 
 
-def get_final_path_components(path):
-    """Returns the ending of the target path for display purposes"""
+def get_final_path_components(path: str) -> str:
+    """Returns the ending of the target path for display purposes."""
     abs_path = os.path.abspath(path)
     path_parts = abs_path.split(os.sep)
-    extracted_parts = str(*path_parts[-2:])
-    return os.path.join(extracted_parts) if len(path_parts) > 1 else path_parts[-1]
+    relevant_parts = path_parts[-2:] if len(path_parts) > 1 else path_parts[-1:]
+    if not relevant_parts:
+        return ""
+    # Pass the first element as the required 'path' argument, then unpack the rest
+    # This satisfies the (path, *paths) signature requirement
+    return str(os.path.join(relevant_parts[0], *relevant_parts[1:]))
 
 
 # ----- File Handler ------------------------------------------------------------------------------------------------- #
