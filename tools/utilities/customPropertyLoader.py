@@ -13,6 +13,7 @@ def load_and_update_custom_properties() -> FlowMetrics:
 
     # Access and Load custom properties
     file_name = "focoProperties"
+    print(TEMPLATE_CONSTANT_DIR)
     template_file_path = os.path.join(TEMPLATE_CONSTANT_DIR, file_name)
     check_and_create_file(file_directory=CONSTANT_DIR, file_name=file_name, template_file_path=template_file_path)
     file_path = os.path.join(CONSTANT_DIR, file_name)
