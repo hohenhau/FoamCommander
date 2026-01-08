@@ -304,5 +304,9 @@ class FoamDictEditor:
         if not pattern.search(text):
             raise KeyError("Could not locate 'nu' entry in expected format: nu nu [0 2 -1 0 0 0 0] <value>;")
 
-        updated = pattern.sub(rf"\1{new_nu_str}\2", text)
+        # Use a replacement function to avoid backreference issues
+        def replace_func(match):
+            return f"{match.group(1)}{new_nu_str}{match.group(2)}"
+
+        updated = pattern.sub(replace_func, text)
         self._write_file(updated)
