@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import re
 import sys
 from pathlib import Path
@@ -8,6 +6,7 @@ from typing import Optional
 
 class FoamDictEditor:
     """Editor for OpenFOAM dictionary files with support for reading, writing, and deleting entries."""
+
 
     def __init__(self, foam_dict: str | Path):
         """
@@ -25,11 +24,9 @@ class FoamDictEditor:
         if not self.foam_dict.exists():
             raise FileNotFoundError(f"File {self.foam_dict} does not exist")
 
-
     def _read_file(self) -> str:
         """Read and return the contents of the foam dictionary file."""
         return self.foam_dict.read_text()
-
 
     def _write_file(self, content: str) -> None:
         """Write content to the foam dictionary file."""
@@ -37,7 +34,7 @@ class FoamDictEditor:
 
 
     @staticmethod
-    def _get_entry_regex(key: str) -> re.Pattern:
+    def _get_entry_regex( key: str) -> re.Pattern:
         """
         Create a regex pattern for identifying OpenFOAM entries.
 
@@ -77,9 +74,39 @@ class FoamDictEditor:
         return match.group(1).strip() if match else None
 
 
+    @staticmethod
+    def _format_value(value) -> str:
+        """
+        Format a value for writing to the dictionary file.
+
+        Numeric values are formatted to 6 significant figures.
+        Other types are converted to strings.
+
+        Args:
+            value: The value to format
+
+        Returns:
+            Formatted string representation of the value
+        """
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            # Format to 6 significant figures
+            if isinstance(value, int):
+                return str(value)
+            # For floats, use scientific notation with 5 decimal places (6 sig figs total)
+            return f"{value:.5e}"
+        elif isinstance(value, bool):
+            return str(value).lower()
+        elif value is None:
+            return "None"
+        else:
+            return str(value)
+
+
     def set_value(self, key: str, new_value) -> None:
         """
         Replace the value of an existing key, preserving comments and formatting.
+
+        Numeric values are formatted to 6 significant figures.
 
         Args:
             key: The dictionary key to update
@@ -95,8 +122,8 @@ class FoamDictEditor:
         if not pattern.search(text):
             sys.exit(f"Error: Key '{key}' not found in {self.foam_dict}. Exiting.")
 
-        # Convert to string
-        value_str = str(new_value)
+        # Format the value with appropriate precision
+        value_str = self._format_value(new_value)
 
         # Use a replacement function to avoid backreference issues
         def replace_func(match):
@@ -106,9 +133,11 @@ class FoamDictEditor:
         self._write_file(updated)
 
 
-    def add_value(self, key: str, value: str, comment: Optional[str] = None) -> None:
+    def add_value(self, key: str, value, comment: Optional[str] = None) -> None:
         """
         Append a new key-value pair to the end of the dictionary file.
+
+        Numeric values are formatted to 6 significant figures.
 
         Args:
             key: The dictionary key to add
@@ -122,7 +151,9 @@ class FoamDictEditor:
             # Ensure comment ends with newline
             comment_str = comment_str if comment_str.endswith("\n") else f"{comment_str}\n"
 
-        value_str = f"{key} {value};\n"
+        # Format the value with appropriate precision
+        value_formatted = self._format_value(value)
+        value_str = f"{key} {value_formatted};\n"
         text = self._read_file().rstrip()
 
         self._write_file(f"{text}\n\n{comment_str}{value_str}")
@@ -281,6 +312,7 @@ class FoamDictEditor:
         Overwrite the nu value in transportProperties with scientific notation.
 
         Expected format: nu nu [0 2 -1 0 0 0 0] 1.000e-06;
+        The value is formatted to 6 significant figures.
 
         Args:
             new_nu: The new kinematic viscosity value
@@ -290,8 +322,8 @@ class FoamDictEditor:
         """
         text = self._read_file()
 
-        # Format the float to scientific notation with 3 decimal places
-        new_nu_str = f"{new_nu:.3e}"
+        # Format the float to scientific notation with 6 significant figures (5 decimal places)
+        new_nu_str = f"{new_nu:.5e}"
 
         # Pattern matches: nu nu [0 2 -1 0 0 0 0] <value>;
         # Group 1: 'nu nu [0 2 -1 0 0 0 0] '
