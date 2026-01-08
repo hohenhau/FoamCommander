@@ -19,3 +19,7 @@ def overwrite_custom_property_directory():
     new_directory = os.path.basename(os.path.normpath(BASE_DIR))
     print(f"Overwriting old directory {old_directory} with current directory {new_directory}")
     fde.set_value('directory', new_directory)
+
+
+if __name__ == "__main__":
+    overwrite_custom_property_directory()
