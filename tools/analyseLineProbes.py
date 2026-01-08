@@ -140,9 +140,14 @@ def strip_probe_number_and_name(probe_name:str) -> tuple[str, str, bool]:
 def get_density():
     """Get the user input for fluid density to carry out pressure calculations for real pressure"""
     fde = FoamDictEditor(CUSTOM_PROPERTY_FILE_PATH)
-    density = fde.get_value('density')
-    if density is not None:
-        return density
+    raw_density = fde.get_value('density')
+    # Check if the value is a valid number (not None or the string "None")
+    if raw_density is not None and str(raw_density).lower() != "none":
+        try:
+            return float(raw_density)
+        except ValueError:
+            print(f"Warning: Density value '{raw_density}' in config is not a number.")
+    # Fallback to manual input if config is missing or invalid
     print("To calculate actual pressures, please enter the fluid density. For reference:")
     print("Density of water is: 999.19 (15°C), 998.29 (20°C), 997.13 (25°C), 995.71 (30°C)")
     print("Density of air is:   1.2250 (15°C), 1.2041 (20°C), 1.1839 (25°C), 1.1644 (30°C)")
