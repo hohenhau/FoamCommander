@@ -11,8 +11,7 @@ import shutil
 def check_directory_exists(path: str) -> None:
     """Check that the target directory exists"""
     if not os.path.isdir(path):
-        display_path = get_final_path_components(path)
-        sys.exit(f'The directory {display_path} could not be found')
+        sys.exit(f'The directory {path} could not be found')
 
 
 def create_directory(path: str) -> None:
@@ -58,8 +57,7 @@ def get_final_path_components(path: str) -> str:
 def check_file_exists(path:str, file_name:str):
     """Check if a specified file exists"""
     if not os.path.isfile(path):
-        display_path = get_final_path_components(path)
-        print(f"Error: No file not found at {display_path}")
+        print(f"Error: No file not found at {path}")
         sys.exit(1)
 
 
@@ -74,15 +72,14 @@ def get_list_of_files(path: str, suffix: str = "", contains: str = "") -> list[s
            contains.lower() in f.lower() and
            os.path.isfile(os.path.join(path, f))]
     if not files:
-        display_path = get_final_path_components(path)
         if suffix == "" and contains == "":
-            print(f'No files found in {display_path}')
+            print(f'No files found in {path}')
         elif suffix != "" and contains == "":
-            print(f'No {suffix} files found in {display_path}')
+            print(f'No {suffix} files found in {path}')
         elif suffix == "" and contains != "":
-            print(f'No files containing {contains} found in {display_path}')
+            print(f'No files containing {contains} found in {path}')
         else:
-            print(f'No {suffix} files containing {contains} found in {display_path}')
+            print(f'No {suffix} files containing {contains} found in {path}')
         sys.exit(1)  # Terminate program
     return files
 
