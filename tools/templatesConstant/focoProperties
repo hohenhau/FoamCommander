@@ -38,7 +38,7 @@ temperature  None;  // Temperature in Celsius
 // Density in kg/m^3. Used to estimate the pressure loss for line probes
 density  None;  // Density in kg/m^3
 
-// Hydraulic diameter. Must be specified if flowType is internal
+// Hydraulic diameter. Must be specified if flow type is internal
 hydraulicDiameter  None;  // Hydraulic diameter for internal flows
 
 // Kinematic viscosity of the fluid. Must be specified if fluid is unspecified
