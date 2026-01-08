@@ -3,6 +3,7 @@
 import os
 import sys
 import subprocess
+import shutil
 
 
 # ----- Directory Handler -------------------------------------------------------------------------------------------- #
@@ -50,6 +51,14 @@ def get_final_path_components(path):
 
 # ----- File Handler ------------------------------------------------------------------------------------------------- #
 
+def check_file_exists(path:str, file_name:str):
+    """Check if a specified file exists"""
+    if not os.path.isfile(path):
+        display_path = get_final_path_components(path)
+        print(f"Error: No file not found at {display_path}")
+        sys.exit(1)
+
+
 def get_list_of_files(path: str, suffix: str = "", contains: str = "") -> list[str]:
     """Get a list of all files in the target directory matching the suffix."""
     # Check the directory exists
@@ -72,3 +81,13 @@ def get_list_of_files(path: str, suffix: str = "", contains: str = "") -> list[s
             print(f'No {suffix} files containing {contains} found in {display_path}')
         sys.exit(1)  # Terminate program
     return files
+
+
+def check_and_create_file(file_directory: str, file_name: str, template_file_path: str) -> None:
+    """Checks if a file exists and if not, creates if from a template"""
+    check_directory_exists(file_directory)
+    check_directory_exists(template_file_path)
+    file_path = os.path.join(file_directory, file_name)
+    if not os.path.isfile(file_path):
+        shutil.copy2(template_file_path, file_path)
+

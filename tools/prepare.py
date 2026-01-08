@@ -5,6 +5,7 @@ from estimateInternalFields import estimate_flow_metrics
 from utilities.commandLineArgsParser import detect_and_parse_arguments
 from utilities.prepareGenerator import *
 from utilities.prepareInitiator import *
+from utilities.customPropertyLoader import load_and_update_custom_properties
 from utilities.fileConstants import TEMPLATE_BOUNDARY_DIR, TEMPLATE_CONSTANT_DIR, TEMPLATE_SYSTEM_DIR
 from utilities.fileConstants import CURRENT_DIR, TRI_SURFACE_DIR, ZERO_DIR, SYSTEM_DIR, CONSTANT_DIR
 
@@ -14,7 +15,7 @@ if __name__ == "__main__":
     initialisation(TRI_SURFACE_DIR, ZERO_DIR)
     arguments = detect_and_parse_arguments()
     stl_formatter.format_stl_files()
-    flow_metrics = estimate_flow_metrics(arguments)
+    flow_metrics = load_and_update_custom_properties()
     patch_names = load_stl_files(TRI_SURFACE_DIR)
     generate_all_zero_files(patch_names, TEMPLATE_BOUNDARY_DIR, ZERO_DIR, flow_metrics)
 

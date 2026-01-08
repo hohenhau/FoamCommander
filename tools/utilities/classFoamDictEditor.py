@@ -100,11 +100,33 @@ class ClassFoamDictEditor:
         self.foam_dict.write_text("\n".join(new_lines) + "\n")
 
 
-    @staticmethod
-    def load_nu_from_transport_properties():
-        pass
+    def load_nu_from_transport_properties(self) -> float:
+        """Loads the numerical kinematic viscosity (nu) value from transportProperties."""
+        self.load_dict_entries()
+        # OpenFOAM format typically: nu [0 2 -1 0 0 0 0] 1.0e-06
+        raw_value = self.entries.get("nu")
+        if raw_value is None:
+            raise KeyError("Key 'nu' not found in transportProperties")
+        try:
+            # Extract the last token (the magnitude) regardless of notation
+            val_token = str(raw_value).split()[-1]
+            return float(val_token)
+        except (ValueError, IndexError):
+            raise ValueError(f"Could not parse numerical nu value from: {raw_value}")
 
 
-    @staticmethod
-    def overwrite_nu_in_transport_properties():
-        pass
+    def overwrite_nu_in_transport_properties(self, new_nu: float) -> None:
+        """Overwrites the nu value specifically in scientific notation (e.g., 1.000e-06)."""
+        text = self.foam_dict.read_text()
+        # Format the float to scientific notation with 3 decimal places
+        new_nu_str = f"{new_nu:.3e}"
+        # Pattern matches the key 'nu', the optional dimension set, and the existing number
+        # Groups: 1: 'nu' + leading 'nu' + dimensions, 2: trailing whitespace/semicolon
+        pattern = re.compile(r"^(nu\s+nu\s+\[.*?\]\s+)[0-9.eE+-]+(\s*;)", re.MULTILINE)
+        if not pattern.search(text):
+            # Fallback for entries without the repeated 'nu' keyword or dimensions
+            pattern = re.compile(r"^(nu\s+)[0-9.eE+-]+(\s*;)", re.MULTILINE)
+        if not pattern.search(text):
+            raise KeyError("Could not locate 'nu' entry in the dictionary file.")
+        updated = pattern.sub(rf"\1{new_nu_str}\2", text)
+        self.foam_dict.write_text(updated)
