@@ -4,7 +4,7 @@ import sys
 
 from .fileConstants import CONSTANT_DIR, TEMPLATE_CONSTANT_DIR, BASE_DIR
 from .fileHandler import check_and_create_file
-from .classFoamDictEditor import ClassFoamDictEditor
+from .classFoamDictEditor import FoamDictEditor
 from .classFlowMetrics import FlowMetrics
 
 
@@ -16,7 +16,7 @@ def load_and_update_custom_properties() -> FlowMetrics:
     template_file_path = os.path.join(TEMPLATE_CONSTANT_DIR, file_name)
     check_and_create_file(file_directory=CONSTANT_DIR, file_name=file_name, template_file_path=template_file_path)
     file_path = os.path.join(CONSTANT_DIR, file_name)
-    fde = ClassFoamDictEditor(file_path)
+    fde = FoamDictEditor(file_path)
     custom_properties = fde.load_dict_entries()
 
     # Match the variables to the spelling within the custom dictionary
@@ -66,7 +66,7 @@ def load_and_update_custom_properties() -> FlowMetrics:
     template_file_path = os.path.join(TEMPLATE_CONSTANT_DIR, file_name)
     check_and_create_file(file_directory=CONSTANT_DIR, file_name=file_name, template_file_path=template_file_path)
     file_path = os.path.join(CONSTANT_DIR, file_name)
-    fde_nu = ClassFoamDictEditor(file_path)
+    fde_nu = FoamDictEditor(file_path)
     fde_nu.overwrite_nu_in_transport_properties(flow_metrics.kinematic_viscosity.value)
 
     return flow_metrics
