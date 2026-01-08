@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+
 class FoamDictEditor:
     """Editor for OpenFOAM dictionary files with support for reading, writing, and deleting entries."""
 
@@ -36,7 +37,7 @@ class FoamDictEditor:
 
 
     @staticmethod
-    def _get_entry_regex(key: str) -> re.Pattern:
+    def _get_entry_regex(self, key: str) -> re.Pattern:
         """
         Create a regex pattern for identifying OpenFOAM entries.
 
@@ -51,43 +52,10 @@ class FoamDictEditor:
         # Group 1: Leading whitespace and key
         # Value: Matches everything that isn't a semicolon or comment start
         # Group 2: Trailing whitespace, inline comments, and semicolon
-        return re.compile(rf"^(\s*{re.escape(key)}\s+)[^;/]+(.*?;)",re.MULTILINE)
-
-
-    @staticmethod
-    def parse_value(value: str) -> None | bool | int | float | str:
-        """
-        Parse a string value into its appropriate Python type.
-
-        Args:
-            value: The string value to parse
-
-        Returns:
-            Parsed value as None, bool, int, float, or str
-        """
-        value_lower = value.lower()
-
-        # Check for None/NA
-        if value_lower in ("none", "na"):
-            return None
-
-        # Check for boolean values
-        if value_lower in ("true", "yes", "on"):
-            return True
-        if value_lower in ("false", "no", "off"):
-            return False
-
-        # Try to parse as numeric
-        try:
-            # Check if it's an integer (no decimal point or scientific notation)
-            if '.' not in value and 'e' not in value_lower:
-                return int(value)
-            return float(value)
-        except ValueError:
-            pass
-
-        # Return as string if all else fails
-        return value
+        return re.compile(
+            rf"^(\s*{re.escape(key)}\s+)[^;/]+(.*?;)",
+            re.MULTILINE
+        )
 
 
     def get_value(self, key: str) -> Optional[str]:
@@ -101,6 +69,8 @@ class FoamDictEditor:
             The value associated with the key, or None if not found
         """
         text = self._read_file()
+        # \s+ handles multiple whitespaces between key and value
+        # [^;/]+ captures everything up to semicolon or comment
         pattern = re.compile(rf"^\s*{re.escape(key)}\s+([^;/]+)", re.MULTILINE)
         match = pattern.search(text)
 
@@ -199,6 +169,42 @@ class FoamDictEditor:
         return self.get_value(key) is not None
 
 
+    @staticmethod
+    def parse_value(value: str) -> None | bool | int | float | str:
+        """
+        Parse a string value into its appropriate Python type.
+
+        Args:
+            value: The string value to parse
+
+        Returns:
+            Parsed value as None, bool, int, float, or str
+        """
+        value_lower = value.lower()
+
+        # Check for None/NA
+        if value_lower in ("none", "na"):
+            return None
+
+        # Check for boolean values
+        if value_lower in ("true", "yes", "on"):
+            return True
+        if value_lower in ("false", "no", "off"):
+            return False
+
+        # Try to parse as numeric
+        try:
+            # Check if it's an integer (no decimal point or scientific notation)
+            if '.' not in value and 'e' not in value_lower:
+                return int(value)
+            return float(value)
+        except ValueError:
+            pass
+
+        # Return as string if all else fails
+        return value
+
+
     def load_dict_entries(self) -> dict:
         """
         Load and parse all entries from the OpenFOAM dictionary file.
@@ -225,8 +231,9 @@ class FoamDictEditor:
                 continue
 
             # Entry format: "<whitespaces> key <whitespaces> value <whitespaces>;"
-            # Value may be multiple tokens
-            match = re.match(r"([A-Za-z0-9_]+)\s+(.*?)\s*;", line)
+            # \s+ handles multiple whitespaces between key and value
+            # .*? captures the value (non-greedy to stop at semicolon)
+            match = re.match(r"([A-Za-z0-9_]+)\s+(.*?);", line)
             if match:
                 key, value = match.groups()
                 value = value.strip()
