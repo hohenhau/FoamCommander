@@ -95,11 +95,14 @@ class FoamDictEditor:
         if not pattern.search(text):
             sys.exit(f"Error: Key '{key}' not found in {self.foam_dict}. Exiting.")
 
-        # Convert to string and escape backslashes to prevent interpretation as backreferences
+        # Convert to string
         value_str = str(new_value)
-        escaped_value = value_str.replace("\\", r"\\")
-        # \1 is ' key ', \2 is ' // comment ;'
-        updated = pattern.sub(rf"\1{escaped_value} \2", text)
+
+        # Use a replacement function to avoid backreference issues
+        def replace_func(match):
+            return f"{match.group(1)}{value_str} {match.group(2)}"
+
+        updated = pattern.sub(replace_func, text)
         self._write_file(updated)
 
 
