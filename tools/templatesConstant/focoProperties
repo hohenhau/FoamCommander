@@ -18,10 +18,10 @@ FoamFile
 
 
 // Base directory. Ensures that the simulation uses the correct properties
-directory  path/to/base/directory/;
+directory  None;
 
 // Flow type used to estimate boundary conditions.
-flowType  internal;  // Options: {internal, external}
+flowType  internal;
 
 // Type of fluid. Used to calculate nu. Unused if nu is specified
 fluidType  None;  // Options: {None, air, water}
