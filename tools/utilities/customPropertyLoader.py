@@ -36,7 +36,7 @@ def load_and_update_custom_properties() -> FlowMetrics:
     if specified_directory != actual_directory:
         print(f"Directory specified in {file_name} ({specified_directory}) does not match CWD ({actual_directory})")
         sys.exit(1)
-    if custom_properties[str_flow_type].lower != "internal":
+    if custom_properties[str_flow_type].lower.strip(" ") != "internal":
         print(f"{custom_properties[str_flow_type]} flows are unsupported. Only internal flows are currently supported")
         sys.exit(1)
 
