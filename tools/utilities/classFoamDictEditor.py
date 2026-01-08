@@ -37,7 +37,7 @@ class FoamDictEditor:
 
 
     @staticmethod
-    def _get_entry_regex(self, key: str) -> re.Pattern:
+    def _get_entry_regex(key: str) -> re.Pattern:
         """
         Create a regex pattern for identifying OpenFOAM entries.
 
@@ -90,13 +90,15 @@ class FoamDictEditor:
         """
         self.entries[key] = new_value
         text = self._read_file()
-        pattern = self._get_entry_regex(self, key)
+        pattern = self._get_entry_regex(key)
 
         if not pattern.search(text):
             sys.exit(f"Error: Key '{key}' not found in {self.foam_dict}. Exiting.")
 
+        # Escape the new_value to prevent it from being interpreted as a backreference
+        escaped_value = new_value.replace("\\", r"\\")
         # \1 is ' key ', \2 is ' // comment ;'
-        updated = pattern.sub(rf"\1{new_value} \2", text)
+        updated = pattern.sub(rf"\1{escaped_value} \2", text)
         self._write_file(updated)
 
 
