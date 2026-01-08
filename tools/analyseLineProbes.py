@@ -141,7 +141,7 @@ def get_density():
     """Get the user input for fluid density to carry out pressure calculations for real pressure"""
     fde = FoamDictEditor(CUSTOM_PROPERTY_FILE_PATH)
     density = fde.get_value('density')
-    if density is None:
+    if density is not None:
         return density
     print("To calculate actual pressures, please enter the fluid density. For reference:")
     print("Density of water is: 999.19 (15°C), 998.29 (20°C), 997.13 (25°C), 995.71 (30°C)")
