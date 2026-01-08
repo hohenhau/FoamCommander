@@ -18,7 +18,7 @@ FoamFile
 
 
 // Base directory. Ensures that the simulation uses the correct properties
-directory  None;
+directory  basePath;  // Replace with current base path
 
 // Flow type used to estimate boundary conditions.
 flowType  internal;
