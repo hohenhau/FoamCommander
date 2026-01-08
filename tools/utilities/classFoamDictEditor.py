@@ -77,13 +77,13 @@ class FoamDictEditor:
         return match.group(1).strip() if match else None
 
 
-    def set_value(self, key: str, new_value: str) -> None:
+    def set_value(self, key: str, new_value) -> None:
         """
         Replace the value of an existing key, preserving comments and formatting.
 
         Args:
             key: The dictionary key to update
-            new_value: The new value to set
+            new_value: The new value to set (will be converted to string)
 
         Raises:
             SystemExit: If the key is not found in the file
@@ -95,8 +95,9 @@ class FoamDictEditor:
         if not pattern.search(text):
             sys.exit(f"Error: Key '{key}' not found in {self.foam_dict}. Exiting.")
 
-        # Escape the new_value to prevent it from being interpreted as a backreference
-        escaped_value = new_value.replace("\\", r"\\")
+        # Convert to string and escape backslashes to prevent interpretation as backreferences
+        value_str = str(new_value)
+        escaped_value = value_str.replace("\\", r"\\")
         # \1 is ' key ', \2 is ' // comment ;'
         updated = pattern.sub(rf"\1{escaped_value} \2", text)
         self._write_file(updated)
