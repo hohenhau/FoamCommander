@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -7,10 +9,10 @@ import shutil
 import subprocess
 import sys
 
-# ----- Define various constants ------------------------------------------------------------------------------------ #
+from utilities.fileHandler import check_directory_exists, create_directory, get_list_of_directories
+from utilities.fileConstants import SAMPLE_DIR
 
-# Set the target directory
-SAMPLE_DIRECTORY = os.path.join(os.getcwd(), 'postProcessing/sampleDict')
+# ----- Define various constants ------------------------------------------------------------------------------------ #
 
 # Specify names to be used in the plots
 FIELD_NAMES = {
@@ -65,27 +67,6 @@ FIG_DPI = 300
 
 # ----- File Handling ------ ---------------------------------------------------------------------------------------- #
 
-def check_directory_exists(directory) -> None:
-    """Check that the sampleDict directory exists in the postProcessing folder"""
-    if not os.path.isdir(directory):
-        error_directory = directory.split('/')[-2] + '/' + directory.split('/')[-1]
-        sys.exit(f'The directory {error_directory} could not be found')
-
-
-def get_timestep_directories(p_dir: str) -> list[str]:
-    """Get all the time step directories within the sampleDict directory"""
-    return sorted([os.path.join(p_dir, dir) for dir in os.listdir(p_dir) if os.path.isdir(os.path.join(p_dir, dir))])
-
-
-def create_directory(path: str) -> None:
-    """Ensure that a directory exists. If it does not exist, create it."""
-    if not os.path.exists(path):
-        os.makedirs(path)
-        print(f"Directory created: {path}")
-    else:
-        print(f"Directory already exists: {path}")
-
-
 def get_list_of_probe_names(directory: str) -> list[str]:
     """Import the probe data stored in various CSV files"""
     files = os.listdir(directory)
@@ -114,7 +95,7 @@ def load_csv_files_into_pandas(directory: str, probe_numbers_and_names: list[str
 
 def delete_sample_dir_analysis() -> None:
     """Deletes the current analysis folders in sampleDict"""
-    sample_dict_file = os.path.join(SAMPLE_DIRECTORY, "sampleDict.7z")
+    sample_dict_file = os.path.join(SAMPLE_DIR, "sampleDict.7z")
     if os.path.exists(sample_dict_file):
         try:
             os.remove(sample_dict_file)
@@ -122,7 +103,7 @@ def delete_sample_dir_analysis() -> None:
         except OSError as e:
             print(f"Error deleting file {sample_dict_file}: {e}")
 
-    time_step_dirs = get_timestep_directories(SAMPLE_DIRECTORY)
+    time_step_dirs = get_list_of_directories(SAMPLE_DIR)
     for time_step_dir in time_step_dirs:
         analysis_path = os.path.join(time_step_dir, "analysis")
         if os.path.isdir(analysis_path):
@@ -137,10 +118,10 @@ def compress_sample_dir() -> None:
     """Compress the sampleDict folder for easy export"""
     cwd = os.getcwd()
     try:
-        os.chdir(SAMPLE_DIRECTORY)
+        os.chdir(SAMPLE_DIR)
         subprocess.run(["foco", "compress"], check=True)
     except subprocess.CalledProcessError:
-        print(f'Could not compress {SAMPLE_DIRECTORY}')
+        print(f'Could not compress {SAMPLE_DIR}')
     finally:
         os.chdir(cwd)
 
@@ -460,10 +441,10 @@ def plot_horizontal_bar_graph(labels, values, title: str, x_label: str, file_loc
 # ----- Main function ----------------------------------------------------------------------------------------------- #
 
 def main():
-    check_directory_exists(SAMPLE_DIRECTORY)
+    check_directory_exists(SAMPLE_DIR)
     density = get_density()
     delete_sample_dir_analysis()
-    for timestep_directory in get_timestep_directories(SAMPLE_DIRECTORY):
+    for timestep_directory in get_list_of_directories(SAMPLE_DIR):
         # Carry out directory and file management and fetch relevant files
         analysis_directory = os.path.join(timestep_directory, 'analysis')
         create_directory(analysis_directory)

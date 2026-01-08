@@ -5,6 +5,9 @@ import glob
 import shutil
 import sys
 
+from utilities.fileConstants import PROCESSOR_0_DIR
+from utilities.fileHandler import check_directory_exists
+
 def is_time_dir(dir_name):
     """Check if directory name is a time value (number or floating point)"""
     return re.match(r'^[0-9]+(\.[0-9]+)?$', dir_name) is not None
@@ -29,9 +32,7 @@ def main():
     print("\nOverriding 'constant/' directory in processor folders")
     
     # Make sure processor0 exists
-    if not os.path.isdir("processor0"):
-        print("Error: processor0 directory not found. Make sure you're in the correct directory.")
-        sys.exit(1)
+    check_directory_exists(PROCESSOR_0_DIR)
     
     # Get the latest time from processor0
     latest_time = get_latest_time()

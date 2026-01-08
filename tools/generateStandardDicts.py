@@ -1,15 +1,11 @@
 #!/usr/bin/python
 
 import os
-import sys
 
 # Global Variables
-PY_FILE_PATH = os.path.dirname(os.path.realpath(__file__))
-TEMPLATE_SYSTEM_DIR = os.path.join(PY_FILE_PATH, "templatesSystem")
-TEMPLATE_CONSTANT_DIR = os.path.join(PY_FILE_PATH, "templatesConstant")
-CURRENT_DIR = os.getcwd() if len(sys.argv) == 1 else sys.argv[-1]
-SYSTEM_DIR = os.path.join(CURRENT_DIR, "system")
-CONSTANT_DIR = os.path.join(CURRENT_DIR, "constant")
+from utilities.fileConstants import TEMPLATE_CONSTANT_DIR, TEMPLATE_SYSTEM_DIR
+from utilities.fileConstants import SYSTEM_DIR, CONSTANT_DIR
+
 
 def generate_system_dicts():
     dict_names = ['blockMeshDict', 'controlDict', 'rankfile', 'functions']

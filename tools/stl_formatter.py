@@ -2,18 +2,12 @@ import sys
 import os
 import re
 
-
-TRI_SURFACE_DIR = os.path.join(os.getcwd(), "constant", "triSurface")
+from utilities.fileHandler import check_directory_exists, get_list_of_files
+from utilities.fileConstants import TRI_SURFACE_DIR
 
 def format_stl_files():
     """Processes STL files, renaming and extracting patch patch_names."""
-    if not os.path.exists(TRI_SURFACE_DIR) or not os.path.isdir(TRI_SURFACE_DIR):
-        print(f"Error: Directory '{TRI_SURFACE_DIR}' does not exist.")
-        sys.exit(1)  # Terminate program
-    stl_files = [f for f in os.listdir(TRI_SURFACE_DIR) if f.lower().endswith(".stl")]
-    if not stl_files:
-        print("No STL files found. Exiting...")
-        sys.exit(1)  # Terminate program
+    stl_files = get_list_of_files(path=TRI_SURFACE_DIR, suffix=".stl")
     print('\nFormatting the following .stl files:')
     for filename in stl_files:
         filepath = os.path.join(TRI_SURFACE_DIR, filename)

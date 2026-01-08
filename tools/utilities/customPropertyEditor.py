@@ -29,6 +29,7 @@ def initiate_flow_metrics_from_custom_properties(file_path: str):
     flow_metrics.freestream_pressure.value = custom_properties[str_freestream_pressure]
     flow_metrics.temperature_c.value = custom_properties[str_temperature]
     flow_metrics.hydraulic_diameter.value = custom_properties[str_hydraulic_diameter]
+    flow_metrics.perform_boundary_calculations()
 
 
 

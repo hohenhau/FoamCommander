@@ -5,17 +5,8 @@ from estimateInternalFields import estimate_flow_metrics
 from utilities.commandLineArgsParser import detect_and_parse_arguments
 from utilities.prepareGenerator import *
 from utilities.prepareInitiator import *
-
-# Global Variables
-PY_FILE_PATH = os.path.dirname(os.path.realpath(__file__))
-TEMPLATE_BOUNDARY_DIR = os.path.join(PY_FILE_PATH, "templatesBoundary")
-TEMPLATE_CONSTANT_DIR = os.path.join(PY_FILE_PATH, "templatesConstant")
-TEMPLATE_SYSTEM_DIR = os.path.join(PY_FILE_PATH, "templatesSystem")
-CURRENT_DIR = os.getcwd()
-TRI_SURFACE_DIR = os.path.join(CURRENT_DIR, "constant", "triSurface")
-ZERO_DIR = os.path.join(CURRENT_DIR, "0.gen")
-SYSTEM_DIR = os.path.join(CURRENT_DIR, "system")
-CONSTANT_DIR = os.path.join(CURRENT_DIR, "constant")
+from utilities.fileConstants import TEMPLATE_BOUNDARY_DIR, TEMPLATE_CONSTANT_DIR, TEMPLATE_SYSTEM_DIR
+from utilities.fileConstants import CURRENT_DIR, TRI_SURFACE_DIR, ZERO_DIR, SYSTEM_DIR, CONSTANT_DIR
 
 
 if __name__ == "__main__":
