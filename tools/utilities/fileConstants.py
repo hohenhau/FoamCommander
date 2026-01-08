@@ -1,14 +1,15 @@
 #!/usr/bin/python
 import os
 
-PY_FILE_PATH = os.path.dirname(os.path.realpath(__file__))
-TEMPLATE_BOUNDARY_DIR = os.path.join(PY_FILE_PATH, "templatesBoundary")
-TEMPLATE_CONSTANT_DIR = os.path.join(PY_FILE_PATH, "templatesConstant")
-TEMPLATE_SYSTEM_DIR = os.path.join(PY_FILE_PATH, "templatesSystem")
+# Get the paths for the various template folders in the tools directory
+UTILITIES_PATH = os.path.dirname(os.path.realpath(__file__))
+TOOLS_PATH = os.path.dirname(UTILITIES_PATH)
+TEMPLATE_BOUNDARY_DIR = os.path.join(TOOLS_PATH, "templatesBoundary")
+TEMPLATE_CONSTANT_DIR = os.path.join(TOOLS_PATH, "templatesConstant")
+TEMPLATE_SYSTEM_DIR = os.path.join(TOOLS_PATH, "templatesSystem")
 
+# Get the paths for the various directories in the current case
 BASE_DIR = os.getcwd()
-# BASE_DIR = os.path.dirname(CWD)
-
 TRI_SURFACE_DIR = os.path.join(BASE_DIR, "constant", "triSurface")
 ZERO_DIR = os.path.join(BASE_DIR, "0.gen")
 SYSTEM_DIR = os.path.join(BASE_DIR, "system")
