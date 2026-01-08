@@ -2,7 +2,7 @@
 import os
 import sys
 
-from .fileConstants import CONSTANT_DIR, TEMPLATE_CONSTANT_DIR, CURRENT_DIR
+from .fileConstants import CONSTANT_DIR, TEMPLATE_CONSTANT_DIR, BASE_DIR
 from .fileHandler import check_and_create_file
 from .classFoamDictEditor import ClassFoamDictEditor
 from .classFlowMetrics import FlowMetrics
@@ -13,7 +13,6 @@ def load_and_update_custom_properties() -> FlowMetrics:
 
     # Access and Load custom properties
     file_name = "focoProperties"
-    print(TEMPLATE_CONSTANT_DIR)
     template_file_path = os.path.join(TEMPLATE_CONSTANT_DIR, file_name)
     check_and_create_file(file_directory=CONSTANT_DIR, file_name=file_name, template_file_path=template_file_path)
     file_path = os.path.join(CONSTANT_DIR, file_name)
@@ -33,7 +32,7 @@ def load_and_update_custom_properties() -> FlowMetrics:
 
     # Check that basic conditions are met
     specified_directory = custom_properties[str_directory].lower
-    actual_directory = CURRENT_DIR.split("/")[-1].lower()
+    actual_directory = BASE_DIR.split("/")[-1].lower()
     if specified_directory != actual_directory:
         print(f"Directory specified in {file_name} ({specified_directory}) does not match CWD ({actual_directory})")
         sys.exit(1)

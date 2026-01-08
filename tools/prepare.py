@@ -7,11 +7,11 @@ from utilities.prepareGenerator import *
 from utilities.prepareInitiator import *
 from utilities.customPropertyLoader import load_and_update_custom_properties
 from utilities.fileConstants import TEMPLATE_BOUNDARY_DIR, TEMPLATE_CONSTANT_DIR, TEMPLATE_SYSTEM_DIR
-from utilities.fileConstants import CURRENT_DIR, TRI_SURFACE_DIR, ZERO_DIR, SYSTEM_DIR, CONSTANT_DIR
+from utilities.fileConstants import BASE_DIR, TRI_SURFACE_DIR, ZERO_DIR, SYSTEM_DIR, CONSTANT_DIR
 
 
 if __name__ == "__main__":
-    print(f"\nPreparing case in directory: {CURRENT_DIR}")
+    print(f"\nPreparing case in directory: {BASE_DIR}")
     initialisation(TRI_SURFACE_DIR, ZERO_DIR)
     arguments = detect_and_parse_arguments()
     stl_formatter.format_stl_files()
