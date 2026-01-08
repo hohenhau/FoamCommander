@@ -14,7 +14,6 @@ def load_and_update_custom_properties() -> FlowMetrics:
     # Access and Load custom properties
     file_name = "focoProperties"
     template_file_path = os.path.join(TEMPLATE_CONSTANT_DIR, file_name)
-    print('CHEEEEEEEEEECK')
     check_and_create_file(file_directory=CONSTANT_DIR, file_name=file_name, template_file_path=template_file_path)
     file_path = os.path.join(CONSTANT_DIR, file_name)
     fde = ClassFoamDictEditor(file_path)
@@ -32,7 +31,7 @@ def load_and_update_custom_properties() -> FlowMetrics:
     str_kinematic_viscosity = "nu"
 
     # Check that basic conditions are met
-    specified_directory = custom_properties[str_directory].lower
+    specified_directory = custom_properties[str_directory].lower()
     actual_directory = BASE_DIR.split("/")[-1].lower()
     if specified_directory != actual_directory:
         print(f"Directory specified in {file_name} ({specified_directory}) does not match CWD ({actual_directory})")
