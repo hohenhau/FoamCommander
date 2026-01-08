@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import re
+import sys
 from pathlib import Path
 
 
@@ -53,17 +54,22 @@ class ClassFoamDictEditor:
                 self.entries[key] = value
         return self.entries
 
-
     def set_value(self, key: str, new_value) -> None:
-        """Replace the value of an existing key in the file."""
+        """Replace the value of an existing key, preserving comments and formatting."""
         self.entries[key] = new_value
-        new_value_str = f"{new_value};"
         text = self.foam_dict.read_text()
-        # Match: key <anything until semicolon>
-        pattern = re.compile(rf"({key}\s+).*?;", re.MULTILINE)
-        # Substitute only the value portion
-        updated = pattern.sub(rf"\1{new_value_str}", text)
-        self.foam_dict.write_text(updated)
+
+        # Regex Breakdown:
+        # ^(\s*key\s+)   -> Group 1: Leading whitespace and the key
+        # [^;/]+         -> The existing value (matches until a semicolon or comment start)
+        # (.*?;)         -> Group 2: Any trailing inline comments and the semicolon
+        pattern = re.compile(rf"^(\s*{re.escape(key)}\s+)[^;/]+(.*?;)", re.MULTILINE)
+        if pattern.search(text):
+            # \1 is the key, \2 is the comment + semicolon
+            updated = pattern.sub(rf"\1{new_value} \2", text)
+            self.foam_dict.write_text(updated)
+        else:
+            sys.exit(f"{key} not found in {self.foam_dict}. Exiting")
 
 
     def add_entry(self, key: str, value, comment:str | None = None) -> None:
