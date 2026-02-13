@@ -17,6 +17,7 @@ from utilities.fileConstants import SAMPLE_DIR, CUSTOM_PROPERTY_FILE_PATH
 # Specify names to be used in the plots
 FIELD_NAMES = {
     'U_mag': 'Velocity Magnitude (m/s)',
+    'I': 'Turbulence Intensity',
     'p_ks': 'Kinematic Static Pressure',
     'p_kt': 'Kinematic Total Pressure',
     'p_kd': 'Kinematic Dynamic Pressure',
@@ -46,6 +47,7 @@ FIELD_NAMES = {
 # Specific fields to be graphed as flow profiles along with their graphing limits
 PROFILE_FIELDS = {
     'U_mag': {'min_pos': 0, 'max_pos': None, 'min_val': 0, 'max_val': None},
+    'I': {'min_pos': 0, 'max_pos': None, 'min_val': 0, 'max_val': None},
     # 'p_at': {'min_pos': 0, 'max_pos': None, 'min_val': 0, 'max_val': None},
     # 'p_as': {'min_pos': 0, 'max_pos': None, 'min_val': None, 'max_val': None},
 }
