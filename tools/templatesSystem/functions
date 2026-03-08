@@ -16,6 +16,9 @@ FoamFile
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+// To run this function in post processing use:
+// foamPostProcess -solver incompressibleFluid -latestTime -dict system/functions
+
 CourantNo
 {
     type             CourantNo;                       // Type of function (mandatory)
